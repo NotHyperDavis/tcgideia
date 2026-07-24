@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCG Ideia</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/marketplace.css">
+    
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+
+        <h2 class="logo">TCG Ideia</h2>
+            <a href="main.html"> TCG IDEIA </a>
+    </h2>
+
+        <input
+            id="searchInput"
+            type="text"
+            placeholder="🔍 Pesquisar cartas..."
+            class="search"
+        >
+
+        <nav>
+
+            <a href="marketplace.html">Marketplace</a>
+            <a href="register.html">Vender</a>
+            <a href="login.html">Entrar</a>
+
+        </nav>
+
+    </header>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <h1>Compra e vende cartas TCG</h1>
+
+        <p>
+            O maior marketplace português para Pokémon,
+            One Piece, Yu-Gi-Oh! e Magic.
+        </p>
+
+        <button>Explorar Marketplace</button>
+
+    </section>
+
+    <!-- CATEGORIAS -->
+
+    <section class="categories">
+
+        <h2>Explorar por jogo</h2>
+
+        <div class="games">
+
+            <div class="game">
+                Pokémon
+            </div>
+
+            <div class="game">
+                One Piece
+            </div>
+
+            <div class="game">
+                Yu-Gi-Oh!
+            </div>
+
+            <div class="game">
+                Magic
+            </div>
+
+        </div>
+
+    </section>
+    <section class="featured">
+
+    <h2>🔥 Cartas em Destaque</h2>
+
+    <div class="cards" id="featuredCards"></div>
+
+</section>
+
+<script src="../js/api.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+.marketplace{
+
+    display:grid;
+
+    grid-template-columns:280px 1fr;
+
+    gap:30px;
+
+    padding:40px 60px;
+}
+
+.filters{
+
+    background:#1F2937;
+
+    padding:25px;
+
+    border-radius:12px;
+
+    height:fit-content;
+}
+
+.filters h2{
+
+    margin-bottom:25px;
+}
+
+.filters h3{
+
+    margin:25px 0 10px;
+}
+
+.filters label{
+
+    display:block;
+
+    margin:8px 0;
+
+    cursor:pointer;
+}
+
+.results h2{
+
+    margin-bottom:30px;
+}

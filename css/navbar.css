@@ -1,0 +1,225 @@
+/* NAVBAR */
+
+.navbar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:20px 50px;
+
+    background:#1F2937;
+
+    border-bottom:1px solid #374151;
+}
+
+.logo{
+
+    color:#3B82F6;
+
+    font-size:32px;
+}
+
+.search{
+
+    width:450px;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:8px;
+
+    outline:none;
+}
+
+nav{
+
+    display:flex;
+
+    gap:30px;
+}
+
+nav a{
+
+    color:white;
+
+    text-decoration:none;
+
+    font-weight:bold;
+}
+
+nav a:hover{
+
+    color:#3B82F6;
+}
+
+/* HERO */
+
+.hero{
+
+    text-align:center;
+
+    padding:100px 30px;
+}
+
+.hero h1{
+
+    font-size:60px;
+
+    margin-bottom:20px;
+}
+
+.hero p{
+
+    font-size:22px;
+
+    color:#BFC7D5;
+
+    margin-bottom:40px;
+}
+
+.hero button{
+
+    background:#2563EB;
+
+    color:white;
+
+    border:none;
+
+    padding:18px 35px;
+
+    border-radius:10px;
+
+    font-size:18px;
+
+    cursor:pointer;
+}
+
+.hero button:hover{
+
+    background:#1D4ED8;
+}
+
+/* CATEGORIAS */
+
+.categories{
+
+    padding:60px;
+}
+
+.categories h2{
+
+    margin-bottom:30px;
+}
+
+.games{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:20px;
+}
+
+.game{
+
+    background:#1F2937;
+
+    padding:40px;
+
+    border-radius:10px;
+
+    text-align:center;
+
+    font-size:22px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.game:hover{
+
+    background:#2563EB;
+
+    transform:translateY(-5px);
+}
+/* CARTAS */
+
+.featured{
+
+    padding:70px 60px;
+}
+
+.featured h2{
+
+    margin-bottom:35px;
+
+    font-size:34px;
+}
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:25px;
+}
+
+.card{
+
+    background:#1F2937;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    text-align:center;
+
+    transition:.3s;
+
+    cursor:pointer;
+}
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+.card img{
+
+    width:180px;
+
+    margin-bottom:15px;
+}
+
+.card h3{
+
+    margin-bottom:10px;
+}
+
+.card p{
+
+    color:#9CA3AF;
+
+    margin-bottom:15px;
+}
+
+.card span{
+
+    display:inline-block;
+
+    background:#2563EB;
+
+    padding:8px 18px;
+
+    border-radius:8px;
+
+    font-weight:bold;
+}
