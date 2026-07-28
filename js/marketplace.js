@@ -3,7 +3,7 @@ const container = document.getElementById("marketCards");
 async function loadCards(){
 
     const response = await fetch(
-        "https://api.pokemontcg.io/v2/cards?pageSize=24"
+        "http://localhost:3000/cards"
     );
 
     const data = await response.json();
@@ -25,8 +25,7 @@ async function loadCards(){
         <span>${card.rarity ?? "Sem raridade"}</span>
 
         </a>
-
-        `;
+    `;
 
     });
 

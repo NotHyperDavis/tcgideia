@@ -8,7 +8,7 @@ async function loadProduct() {
     try {
 
         const response = await fetch(
-            `https://api.pokemontcg.io/v2/cards/${id}`
+            `http://localhost:3000/cards/${id}`
         );
 
         const data = await response.json();

@@ -141,3 +141,8 @@ body{
     color: #3B82F6;
     text-decoration: none;
 }
+
+header .logo {
+    text-decoration: none;
+    color: inherit;
+}
