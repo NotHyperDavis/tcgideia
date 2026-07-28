@@ -14,17 +14,17 @@ async function loadCards(){
 
         container.innerHTML += `
 
-        <div class="card">
+        <a href="product.html?id=${card.id}" class="card">
 
-            <img src="${card.images.small}">
+        <img src="${card.images.small}">
 
-            <h3>${card.name}</h3>
+        <h3>${card.name}</h3>
 
-            <p>${card.set.name}</p>
+        <p>${card.set.name}</p>
 
-            <span>${card.rarity ?? "Sem raridade"}</span>
+        <span>${card.rarity ?? "Sem raridade"}</span>
 
-        </div>
+        </a>
 
         `;
 

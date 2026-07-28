@@ -43,3 +43,33 @@
 
     margin-bottom:30px;
 }
+
+.card{
+
+    display: block;
+
+    background:#1F2937;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    text-align:center;
+
+    transition:.3s;
+
+    cursor:pointer;
+
+    text-decoration:none;
+
+    color:white;
+
+}
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+
+}
