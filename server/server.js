@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+console.log("API KEY carregada:", !!process.env.POKEMONTCG_API_KEY)
+
 const cardsRoutes = require("./routes/cards");
 
 const app = express();
