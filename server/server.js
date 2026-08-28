@@ -2,9 +2,10 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-console.log("API KEY carregada:", !!process.env.POKEMONTCG_API_KEY)
-
 const cardsRoutes = require("./routes/cards");
+const authRoutes = require("./routes/auth");
+const listingsRoutes = require("./routes/listings");
+const pool = require("./db");
 
 const app = express();
 
@@ -12,18 +13,12 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/cards", cardsRoutes);
+app.use("/auth", authRoutes);
+app.use("/listings", listingsRoutes);
 
 app.get("/", (req, res) => {
     res.send("🚀 API do TCG Ideia está online!");
 });
-
-const PORT = 3000;
-
-app.listen(PORT, () => {
-    console.log(`Servidor a correr em http://localhost:${PORT}`);
-});
-
-const pool = require("./db");
 
 app.get("/test-db", async (req, res) => {
     try {
@@ -34,5 +29,9 @@ app.get("/test-db", async (req, res) => {
         res.status(500).json({ ok: false, error: error.message });
     }
 });
-const authRoutes = require("./routes/auth");
-app.use("/auth", authRoutes);
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Servidor a correr em http://localhost:${PORT}`);
+});
