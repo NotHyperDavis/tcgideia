@@ -1,0 +1,458 @@
+.profile-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 30px 80px;
+}
+
+
+/* Loading */
+
+.profile-loading {
+    text-align: center;
+    padding: 100px 20px;
+    color: #9CA3AF;
+    font-size: 18px;
+}
+
+
+/* Erro */
+
+.profile-error {
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.profile-error h2 {
+    margin-bottom: 10px;
+}
+
+.profile-error p {
+    color: #9CA3AF;
+    margin-bottom: 25px;
+}
+
+.profile-error a {
+    display: inline-block;
+    background: #2563EB;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+
+/* Utilitário */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* Cabeçalho */
+
+.profile-header {
+    background: #1F2937;
+    border-radius: 16px;
+    padding: 35px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    position: relative;
+}
+
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+
+    border-radius: 50%;
+
+    background: #2563EB;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 42px;
+    font-weight: bold;
+
+    flex-shrink: 0;
+}
+
+
+.profile-info {
+    flex: 1;
+}
+
+
+.profile-info h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+}
+
+
+.profile-info p {
+    color: #9CA3AF;
+    margin: 0 0 12px;
+}
+
+
+.seller-badge {
+    display: inline-block;
+
+    background: #374151;
+    color: #D1D5DB;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+}
+
+
+/* Botão editar */
+
+.edit-profile-btn {
+    background: #2563EB;
+    border: none;
+
+    color: white;
+
+    padding: 12px 18px;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.edit-profile-btn:hover {
+    background: #1D4ED8;
+}
+
+
+/* Estatísticas */
+
+.profile-stats {
+    margin-top: 25px;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    background: #1F2937;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+}
+
+
+.stat {
+    padding: 25px;
+
+    text-align: center;
+
+    border-right: 1px solid #374151;
+}
+
+
+.stat:last-child {
+    border-right: none;
+}
+
+
+.stat strong {
+    display: block;
+
+    font-size: 28px;
+
+    margin-bottom: 6px;
+}
+
+
+.stat span {
+    color: #9CA3AF;
+
+    font-size: 14px;
+}
+
+
+/* Editar perfil */
+
+.edit-profile-section {
+    background: #1F2937;
+
+    border-radius: 16px;
+
+    padding: 30px;
+
+    margin-top: 25px;
+}
+
+
+.edit-profile-section h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+
+#editProfileForm {
+    max-width: 500px;
+}
+
+
+#editProfileForm label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: bold;
+}
+
+
+#editName {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px 14px;
+
+    border: 1px solid #4B5563;
+
+    border-radius: 8px;
+
+    background: #111827;
+
+    color: white;
+
+    font-size: 16px;
+}
+
+
+.edit-actions {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+
+.save-btn,
+.cancel-btn {
+    border: none;
+
+    padding: 11px 18px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+
+.save-btn {
+    background: #2563EB;
+    color: white;
+}
+
+
+.cancel-btn {
+    background: #374151;
+    color: white;
+}
+
+
+#editMessage {
+    margin-top: 15px;
+}
+
+
+/* Anúncios */
+
+.profile-listings {
+    margin-top: 45px;
+}
+
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 25px;
+}
+
+
+.section-title h2 {
+    margin: 0;
+}
+
+
+.profile-listings-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 20px;
+}
+
+
+/* Card */
+
+.profile-card {
+    display: block;
+
+    background: #1F2937;
+
+    border-radius: 12px;
+
+    padding: 18px;
+
+    color: white;
+
+    text-decoration: none;
+
+    transition: .25s;
+}
+
+
+.profile-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, .35);
+}
+
+
+.profile-card-image {
+    width: 100%;
+
+    height: 240px;
+
+    object-fit: contain;
+
+    margin-bottom: 12px;
+}
+
+
+.profile-card h3 {
+    margin: 5px 0 10px;
+
+    font-size: 16px;
+}
+
+
+.profile-card-condition {
+    display: inline-block;
+
+    background: #374151;
+
+    color: #D1D5DB;
+
+    padding: 5px 9px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+}
+
+
+.profile-card-price {
+    display: block;
+
+    margin-top: 12px;
+
+    font-size: 20px;
+
+    font-weight: bold;
+}
+
+
+.no-listings {
+    background: #1F2937;
+
+    border-radius: 12px;
+
+    padding: 40px;
+
+    text-align: center;
+
+    color: #9CA3AF;
+}
+
+
+/* Responsivo */
+
+@media (max-width: 900px) {
+
+    .profile-listings-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .profile-header {
+        flex-direction: column;
+
+        text-align: center;
+    }
+
+
+    .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    .stat:nth-child(2) {
+        border-right: none;
+    }
+
+
+    .stat:nth-child(1),
+    .stat:nth-child(2) {
+        border-bottom: 1px solid #374151;
+    }
+
+
+    .profile-listings-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    .profile-page {
+        padding: 25px 15px 60px;
+    }
+
+
+    .profile-header {
+        padding: 25px 20px;
+    }
+
+
+    .profile-info h1 {
+        font-size: 26px;
+    }
+
+
+    .profile-listings-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .profile-card-image {
+        height: 280px;
+    }
+
+}

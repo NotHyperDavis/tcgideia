@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Perfil - TCG Ideia</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/profile.css">
+</head>
+
+<body>
+
+<header>
+
+    <a href="main.html">
+        <h1>TCG IDEIA</h1>
+    </a>
+
+    <nav>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="sell.html">Vender</a>
+        <a href="login.html">Entrar</a>
+    </nav>
+
+</header>
+
+
+<main class="profile-page">
+
+    <!-- Loading -->
+
+    <div id="loading" class="profile-loading">
+        A carregar perfil...
+    </div>
+
+
+    <!-- Erro -->
+
+    <div id="error" class="profile-error hidden">
+        <h2>Utilizador não encontrado</h2>
+        <p>Não foi possível encontrar este perfil.</p>
+
+        <a href="marketplace.html">
+            Voltar ao marketplace
+        </a>
+    </div>
+
+
+    <!-- Perfil -->
+
+    <section id="profileContent" class="hidden">
+
+        <!-- Cabeçalho -->
+
+        <div class="profile-header">
+
+            <div class="profile-avatar" id="profileAvatar">
+                ?
+            </div>
+
+            <div class="profile-info">
+
+                <h1 id="profileName">
+                    Utilizador
+                </h1>
+
+                <p id="memberSince">
+                    Membro desde...
+                </p>
+
+                <span class="seller-badge">
+                    🛒 Vendedor
+                </span>
+
+            </div>
+
+            <button
+                id="editProfileBtn"
+                class="edit-profile-btn hidden">
+                Editar perfil
+            </button>
+
+        </div>
+
+
+        <!-- Estatísticas -->
+
+        <section class="profile-stats">
+
+            <div class="stat">
+
+                <strong id="activeListings">
+                    0
+                </strong>
+
+                <span>
+                    Anúncios
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong id="sales">
+                    0
+                </strong>
+
+                <span>
+                    Vendas
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong id="purchases">
+                    0
+                </strong>
+
+                <span>
+                    Compras
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong>
+                    —
+                </strong>
+
+                <span>
+                    Avaliação
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- Editar perfil -->
+
+        <section
+            id="editProfileSection"
+            class="edit-profile-section hidden">
+
+            <h2>
+                Editar perfil
+            </h2>
+
+            <form id="editProfileForm">
+
+                <label for="editName">
+                    Nome
+                </label>
+
+                <input
+                    type="text"
+                    id="editName"
+                    maxlength="100"
+                    required
+                >
+
+                <div class="edit-actions">
+
+                    <button
+                        type="submit"
+                        class="save-btn">
+                        Guardar
+                    </button>
+
+                    <button
+                        type="button"
+                        id="cancelEditBtn"
+                        class="cancel-btn">
+                        Cancelar
+                    </button>
+
+                </div>
+
+                <p id="editMessage"></p>
+
+            </form>
+
+        </section>
+
+
+        <!-- Anúncios -->
+
+        <section class="profile-listings">
+
+            <div class="section-title">
+
+                <h2>
+                    Anúncios de <span id="listingOwner"></span>
+                </h2>
+
+            </div>
+
+
+            <div
+                id="profileListings"
+                class="profile-listings-grid">
+
+            </div>
+
+
+            <div
+                id="noListings"
+                class="no-listings hidden">
+
+                <p>
+                    Este utilizador ainda não tem anúncios ativos.
+                </p>
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
+
+<script src="../js/auth-nav.js"></script>
+<script src="../js/profile.js"></script>
+
+</body>
+
+</html>

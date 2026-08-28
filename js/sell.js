@@ -2,7 +2,6 @@ const API_BASE = "http://localhost:3000"; // troca pelo domínio real quando pub
 
 const token = localStorage.getItem("token");
 
-const loginWarning = document.getElementById("loginWarning");
 const sellFlow = document.getElementById("sellFlow");
 const results = document.getElementById("results");
 const listingForm = document.getElementById("listingForm");
@@ -11,11 +10,6 @@ const message = document.getElementById("message");
 
 let selectedCard = null;
 
-// Sem sessão iniciada não há como saber quem é o vendedor, por isso bloqueia a página.
-if (!token) {
-    loginWarning.style.display = "block";
-    sellFlow.style.display = "none";
-}
 
 async function searchCard() {
     const search = document.getElementById("searchCard").value.trim();
@@ -81,6 +75,7 @@ listingForm.addEventListener("submit", async (e) => {
     const price = document.getElementById("price").value;
     const condition = document.getElementById("condition").value;
     const quantity = document.getElementById("quantity").value;
+    const weight_grams = document.getElementById("weight").value;
     const description = document.getElementById("description").value;
 
     message.textContent = "A publicar...";
@@ -100,6 +95,7 @@ listingForm.addEventListener("submit", async (e) => {
                 price,
                 condition,
                 quantity,
+                weight_grams,
                 description,
             }),
         });
