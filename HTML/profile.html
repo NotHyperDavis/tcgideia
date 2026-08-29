@@ -1,237 +1,46 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Perfil - TCG Ideia</title>
+    <title>O Meu Perfil - TCG Ideia</title>
 
     <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/navbar.css">
-    <link rel="stylesheet" href="../css/profile.css">
+    <link rel="stylesheet" href="../css/app.css">
 </head>
-
 <body>
 
-<header>
+<div class="page">
 
-    <a href="main.html">
-        <h1>TCG IDEIA</h1>
-    </a>
+    <a href="main.html"><h1>TCG IDEIA</h1></a>
+    <h1>O Meu Perfil</h1>
 
-    <nav>
-        <a href="marketplace.html">Marketplace</a>
-        <a href="sell.html">Vender</a>
-        <a href="login.html">Entrar</a>
-    </nav>
-
-</header>
-
-
-<main class="profile-page">
-
-    <!-- Loading -->
-
-    <div id="loading" class="profile-loading">
-        A carregar perfil...
+    <div id="loginWarning" style="display:none;">
+        <p>Precisas de <a href="login.html">iniciar sessão</a> para veres o teu perfil.</p>
     </div>
 
+    <div id="profileFlow">
 
-    <!-- Erro -->
+        <p><strong>Email:</strong> <span id="email"></span></p>
+        <p><strong>Membro desde:</strong> <span id="memberSince"></span></p>
 
-    <div id="error" class="profile-error hidden">
-        <h2>Utilizador não encontrado</h2>
-        <p>Não foi possível encontrar este perfil.</p>
+        <form id="editForm">
+            <label for="name">Nome</label>
+            <input type="text" id="name" required>
 
-        <a href="marketplace.html">
-            Voltar ao marketplace
-        </a>
+            <button type="submit">Guardar alterações</button>
+        </form>
+
+        <p id="message"></p>
+
+        <p><a href="my-listings.html">Os Meus Anúncios</a> · <a href="encomendas.html">As Minhas Encomendas</a> · <a href="mensagens.html">Mensagens</a></p>
+
     </div>
 
-
-    <!-- Perfil -->
-
-    <section id="profileContent" class="hidden">
-
-        <!-- Cabeçalho -->
-
-        <div class="profile-header">
-
-            <div class="profile-avatar" id="profileAvatar">
-                ?
-            </div>
-
-            <div class="profile-info">
-
-                <h1 id="profileName">
-                    Utilizador
-                </h1>
-
-                <p id="memberSince">
-                    Membro desde...
-                </p>
-
-                <span class="seller-badge">
-                    🛒 Vendedor
-                </span>
-
-            </div>
-
-            <button
-                id="editProfileBtn"
-                class="edit-profile-btn hidden">
-                Editar perfil
-            </button>
-
-        </div>
-
-
-        <!-- Estatísticas -->
-
-        <section class="profile-stats">
-
-            <div class="stat">
-
-                <strong id="activeListings">
-                    0
-                </strong>
-
-                <span>
-                    Anúncios
-                </span>
-
-            </div>
-
-
-            <div class="stat">
-
-                <strong id="sales">
-                    0
-                </strong>
-
-                <span>
-                    Vendas
-                </span>
-
-            </div>
-
-
-            <div class="stat">
-
-                <strong id="purchases">
-                    0
-                </strong>
-
-                <span>
-                    Compras
-                </span>
-
-            </div>
-
-
-            <div class="stat">
-
-                <strong>
-                    —
-                </strong>
-
-                <span>
-                    Avaliação
-                </span>
-
-            </div>
-
-        </section>
-
-
-        <!-- Editar perfil -->
-
-        <section
-            id="editProfileSection"
-            class="edit-profile-section hidden">
-
-            <h2>
-                Editar perfil
-            </h2>
-
-            <form id="editProfileForm">
-
-                <label for="editName">
-                    Nome
-                </label>
-
-                <input
-                    type="text"
-                    id="editName"
-                    maxlength="100"
-                    required
-                >
-
-                <div class="edit-actions">
-
-                    <button
-                        type="submit"
-                        class="save-btn">
-                        Guardar
-                    </button>
-
-                    <button
-                        type="button"
-                        id="cancelEditBtn"
-                        class="cancel-btn">
-                        Cancelar
-                    </button>
-
-                </div>
-
-                <p id="editMessage"></p>
-
-            </form>
-
-        </section>
-
-
-        <!-- Anúncios -->
-
-        <section class="profile-listings">
-
-            <div class="section-title">
-
-                <h2>
-                    Anúncios de <span id="listingOwner"></span>
-                </h2>
-
-            </div>
-
-
-            <div
-                id="profileListings"
-                class="profile-listings-grid">
-
-            </div>
-
-
-            <div
-                id="noListings"
-                class="no-listings hidden">
-
-                <p>
-                    Este utilizador ainda não tem anúncios ativos.
-                </p>
-
-            </div>
-
-        </section>
-
-    </section>
-
-</main>
-
+</div>
 
 <script src="../js/auth-nav.js"></script>
 <script src="../js/profile.js"></script>
 
 </body>
-
 </html>

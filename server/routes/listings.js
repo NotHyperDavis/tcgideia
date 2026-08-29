@@ -113,7 +113,6 @@ router.patch("/:id", requireAuth, async (req, res) => {
                 condition = COALESCE($2, condition),
                 quantity = COALESCE($3, quantity),
                 description = COALESCE($4, description),
-                status = COALESCE($5, status),
                 updated_at = NOW()
              WHERE id = $6
              RETURNING *`,

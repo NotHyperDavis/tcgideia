@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const { notify } = require("../utils/notifications_util");
 
 const router = express.Router();
 
@@ -227,7 +228,27 @@ router.patch("/:id", requireAuth, async (req, res) => {
             [payment_status, status, payout_status, req.params.id]
         );
 
-        res.json(result.rows[0]);
+        const updated = result.rows[0];
+
+        if (payment_status === "paid") {
+            await notify(order.seller_id, "order_update", "O pagamento da tua venda foi confirmado — já podes enviar.", "encomendas.html");
+            await notify(order.buyer_id, "order_update", "O teu pagamento foi confirmado.", "encomendas.html");
+        }
+        if (status === "shipped") {
+            await notify(order.buyer_id, "order_update", "O vendedor enviou a tua encomenda.", "encomendas.html");
+        }
+        if (status === "completed") {
+            await notify(order.seller_id, "order_update", "O comprador confirmou a receção da encomenda.", "encomendas.html");
+        }
+        if (status === "cancelled") {
+            const otherUserId = req.user.id === order.buyer_id ? order.seller_id : order.buyer_id;
+            await notify(otherUserId, "order_update", "Uma encomenda foi cancelada.", "encomendas.html");
+        }
+        if (payout_status === "paid_out") {
+            await notify(order.seller_id, "order_update", "O site repassou-te o valor desta venda.", "encomendas.html");
+        }
+
+        res.json(updated);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Erro ao atualizar encomenda." });

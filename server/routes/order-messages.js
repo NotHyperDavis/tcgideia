@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const { notify } = require("../utils/notifications_util");
 
 // mergeParams para conseguir ler :orderId, que vem do caminho onde este router é montado
 const router = express.Router({ mergeParams: true });
@@ -51,7 +52,7 @@ router.post("/", requireAuth, async (req, res) => {
         return res.status(400).json({ error: "A mensagem não pode estar vazia." });
     }
 
-    const { error } = await getOrderIfAllowed(orderId, req.user.id);
+    const { error, order } = await getOrderIfAllowed(orderId, req.user.id);
 
     if (error === 404) return res.status(404).json({ error: "Encomenda não encontrada." });
     if (error === 403) return res.status(403).json({ error: "Não tens acesso a esta conversa." });
@@ -63,6 +64,9 @@ router.post("/", requireAuth, async (req, res) => {
              RETURNING *`,
             [orderId, req.user.id, message.trim()]
         );
+
+        const recipientId = order.buyer_id === req.user.id ? order.seller_id : order.buyer_id;
+        await notify(recipientId, "message", "Nova mensagem sobre uma encomenda.", "encomendas.html");
 
         res.status(201).json(result.rows[0]);
     } catch (err) {

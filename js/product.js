@@ -49,7 +49,7 @@ async function loadProduct() {
 
                     <p><strong>Preço:</strong> ${Number(listing.price).toFixed(2)} € / unidade</p>
 
-                    <p><strong>Vendedor:</strong> ${listing.seller_name}
+                    <p><strong>Vendedor:</strong> <a href="perfil.html?id=${listing.user_id}">${listing.seller_name}</a>
                         ${token ? `<button id="contactSellerBtn" type="button">Contactar vendedor</button>` : ""}
                     </p>
 

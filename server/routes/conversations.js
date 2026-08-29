@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const { notify } = require("../utils/notifications_util");
 
 const router = express.Router();
 
@@ -118,7 +119,7 @@ router.post("/:id/messages", requireAuth, async (req, res) => {
         return res.status(400).json({ error: "A mensagem não pode estar vazia." });
     }
 
-    const { error } = await getConversationIfAllowed(req.params.id, req.user.id);
+    const { error, conversation } = await getConversationIfAllowed(req.params.id, req.user.id);
 
     if (error === 404) return res.status(404).json({ error: "Conversa não encontrada." });
     if (error === 403) return res.status(403).json({ error: "Não tens acesso a esta conversa." });
@@ -130,6 +131,9 @@ router.post("/:id/messages", requireAuth, async (req, res) => {
              RETURNING *`,
             [req.params.id, req.user.id, message.trim()]
         );
+
+        const recipientId = conversation.user_a_id === req.user.id ? conversation.user_b_id : conversation.user_a_id;
+        await notify(recipientId, "message", "Tens uma mensagem nova.", `mensagens.html?conversation=${req.params.id}`);
 
         res.status(201).json(result.rows[0]);
     } catch (error) {
