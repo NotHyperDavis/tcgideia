@@ -1,21 +1,63 @@
-const API_BASE = "http://localhost:3000"; // troca pelo domínio real quando publicares o site
+const API_BASE = "http://localhost:3000";
 
-const token = localStorage.getItem("token");
+const loginWarning =
+    document.getElementById("loginWarning");
 
-const loginWarning = document.getElementById("loginWarning");
-const sellFlow = document.getElementById("sellFlow");
-const results = document.getElementById("results");
-const listingForm = document.getElementById("listingForm");
-const selectedCardPreview = document.getElementById("selectedCardPreview");
-const message = document.getElementById("message");
+const sellFlow =
+    document.getElementById("sellFlow");
+
+const results =
+    document.getElementById("results");
+
+const listingForm =
+    document.getElementById("listingForm");
+
+const selectedCardPreview =
+    document.getElementById("selectedCardPreview");
+
+const message =
+    document.getElementById("message");
 
 let selectedCard = null;
 
-// Sem sessão iniciada não há como saber quem é o vendedor, por isso bloqueia a página.
-if (!token) {
-    loginWarning.style.display = "block";
-    sellFlow.style.display = "none";
+function getToken() {
+
+    return localStorage.getItem("token");
+
 }
+
+
+function checkAuthentication() {
+
+    const token =
+        getToken();
+
+
+    if (!token) {
+
+        loginWarning.style.display =
+            "block";
+
+        sellFlow.style.display =
+            "none";
+
+        return false;
+
+    }
+
+
+    loginWarning.style.display =
+        "none";
+
+    sellFlow.style.display =
+        "block";
+
+    return true;
+
+}
+
+
+checkAuthentication();
 
 async function searchCard() {
     const search = document.getElementById("searchCard").value.trim();
@@ -92,7 +134,7 @@ listingForm.addEventListener("submit", async (e) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
+                "Authorization": `Bearer ${getToken}`,
             },
             body: JSON.stringify({
                 card_id: selectedCard.id,

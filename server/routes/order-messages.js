@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
-const { notify } = require("../utils/notifications_util");
+const { notify } = require("../utils/notifications");
 
 // mergeParams para conseguir ler :orderId, que vem do caminho onde este router é montado
 const router = express.Router({ mergeParams: true });

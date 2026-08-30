@@ -225,3 +225,494 @@
 #notifDropdown a {
     color: white !important;
 }
+.profile-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 45px 30px 80px;
+}
+
+
+/* Loading */
+
+.profile-loading {
+    text-align: center;
+    padding: 100px 20px;
+    color: #9CA3AF;
+    font-size: 17px;
+}
+
+
+/* Error */
+
+.profile-error {
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.profile-error h1 {
+    margin-bottom: 10px;
+}
+
+.profile-error p {
+    color: #9CA3AF;
+    margin-bottom: 25px;
+}
+
+.profile-error a {
+    display: inline-block;
+    background: #2563EB;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+
+/* Utility */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   HEADER DO PERFIL
+========================================================= */
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+
+    background: #1F2937;
+
+    border: 1px solid #374151;
+
+    border-radius: 16px;
+
+    padding: 32px;
+
+    margin-bottom: 20px;
+}
+
+
+.profile-avatar {
+    width: 90px;
+    height: 90px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #2563EB;
+
+    color: white;
+
+    font-size: 38px;
+    font-weight: bold;
+
+    box-shadow:
+        0 8px 25px rgba(37, 99, 235, .25);
+}
+
+
+.profile-user-info {
+    flex: 1;
+}
+
+
+.profile-user-info h1 {
+    margin: 0 0 7px;
+
+    font-size: 32px;
+}
+
+
+.profile-user-info p {
+    margin: 0 0 12px;
+
+    color: #9CA3AF;
+
+    font-size: 14px;
+}
+
+
+.profile-badge {
+    display: inline-block;
+
+    background: #111827;
+
+    border: 1px solid #374151;
+
+    color: #D1D5DB;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+}
+
+
+.profile-actions {
+    align-self: center;
+}
+
+
+.profile-message-btn {
+    border: none;
+
+    background: #2563EB;
+
+    color: white;
+
+    padding: 12px 18px;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+
+.profile-message-btn:hover {
+    background: #1D4ED8;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   ESTATÍSTICAS
+========================================================= */
+
+.profile-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    background: #1F2937;
+
+    border: 1px solid #374151;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    margin-bottom: 45px;
+}
+
+
+.profile-stat {
+    text-align: center;
+
+    padding: 23px 15px;
+
+    border-right: 1px solid #374151;
+}
+
+
+.profile-stat:last-child {
+    border-right: none;
+}
+
+
+.profile-stat strong {
+    display: block;
+
+    font-size: 26px;
+
+    margin-bottom: 5px;
+}
+
+
+.profile-stat span {
+    color: #9CA3AF;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   SECÇÃO DOS ANÚNCIOS
+========================================================= */
+
+.profile-listings-section {
+    margin-top: 10px;
+}
+
+
+.profile-section-header {
+    margin-bottom: 22px;
+}
+
+
+.profile-section-header h2 {
+    margin: 0 0 6px;
+
+    font-size: 25px;
+}
+
+
+.profile-section-header p {
+    margin: 0;
+
+    color: #9CA3AF;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   GRELHA
+========================================================= */
+
+.profile-listings-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+
+/* =========================================================
+   CARTA
+========================================================= */
+
+.profile-listing-card {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+
+    background: #1F2937;
+
+    border: 1px solid #374151;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    text-decoration: none;
+
+    color: white;
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
+}
+
+
+.profile-listing-card:hover {
+    transform: translateY(-5px);
+
+    border-color: #2563EB;
+
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, .30);
+}
+
+
+/* Imagem */
+
+.profile-card-image-wrapper {
+    height: 290px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 15px;
+
+    background: #111827;
+}
+
+
+.profile-card-image {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+}
+
+
+/* Informação */
+
+.profile-card-info {
+    padding: 15px;
+}
+
+
+.profile-card-info h3 {
+    margin: 0 0 10px;
+
+    font-size: 16px;
+
+    line-height: 1.3;
+}
+
+
+.profile-card-condition {
+    display: inline-block;
+
+    background: #374151;
+
+    color: #D1D5DB;
+
+    border-radius: 6px;
+
+    padding: 5px 8px;
+
+    font-size: 12px;
+}
+
+
+.profile-card-price {
+    display: block;
+
+    margin-top: 12px;
+
+    color: white;
+
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   SEM ANÚNCIOS
+========================================================= */
+
+.profile-empty {
+    text-align: center;
+
+    background: #1F2937;
+
+    border: 1px solid #374151;
+
+    border-radius: 14px;
+
+    padding: 55px 20px;
+}
+
+
+.profile-empty-icon {
+    font-size: 35px;
+
+    margin-bottom: 12px;
+}
+
+
+.profile-empty h3 {
+    margin-bottom: 8px;
+}
+
+
+.profile-empty p {
+    margin: 0;
+
+    color: #9CA3AF;
+}
+
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
+
+@media (max-width: 950px) {
+
+    .profile-listings-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .profile-page {
+        padding:
+            25px 15px 60px;
+    }
+
+
+    .profile-header {
+        flex-direction: column;
+
+        text-align: center;
+
+        padding: 25px 20px;
+    }
+
+
+    .profile-user-info h1 {
+        font-size: 27px;
+    }
+
+
+    .profile-actions {
+        width: 100%;
+    }
+
+
+    .profile-message-btn {
+        width: 100%;
+    }
+
+
+    .profile-stats {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .profile-stat:nth-child(2) {
+        border-right: none;
+    }
+
+
+    .profile-stat:nth-child(1),
+    .profile-stat:nth-child(2) {
+        border-bottom:
+            1px solid #374151;
+    }
+
+
+    .profile-listings-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .profile-card-image-wrapper {
+        height: 240px;
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    .profile-listings-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .profile-card-image-wrapper {
+        height: 300px;
+    }
+
+}

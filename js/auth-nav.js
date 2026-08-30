@@ -14,7 +14,7 @@ function updateAuthNav() {
         const user = JSON.parse(userRaw);
 
         loginLink.textContent = `Olá, ${user.name}`;
-        loginLink.setAttribute("href", "profile.html");
+        loginLink.setAttribute("href", "perfil.html");
 
         const logoutBtn = document.createElement("a");
         logoutBtn.href = "#";
@@ -25,7 +25,7 @@ function updateAuthNav() {
             e.preventDefault();
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-            window.location.href = "marketplace.html";
+            window.location.href = "main.html";
         });
 
         loginLink.insertAdjacentElement("afterend", logoutBtn);

@@ -51,12 +51,16 @@ async function loadPurchases() {
                         (cartas ${(order.total_price - order.shipping_cost - order.platform_fee).toFixed(2)} € + portes ${Number(order.shipping_cost).toFixed(2)} € + taxa ${Number(order.platform_fee).toFixed(2)} €)</p>
                     <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]}</p>
                     ${order.status === "committed" ? `<button class="cancel-btn">Cancelar</button>` : ""}
+                    ${order.status === "shipped" ? `<button class="confirm-received-btn">Confirma Receção</button>` : ""}
+                    ${order.status === "completed" ? `<button class="confirm-review-btn">Avaliar Vendedor</button>` : ""}
                     <button class="chat-btn">Conversa</button>
                     <div class="chat-box" style="display:none;"></div>
                 </div>
             `;
 
             el.querySelector(".cancel-btn")?.addEventListener("click", () => cancelOrder(order.id));
+            el.querySelector(".confirm-received-btn")?.addEventListener("click", () => confirmReceived(order.id));
+            el.querySelector(".confirm-btn")?.addEventListener("click", () => openReviewForm(order));
             el.querySelector(".chat-btn").addEventListener("click", () => toggleChat(el, order.id));
 
             purchasesEl.appendChild(el);
@@ -223,4 +227,140 @@ function escapeHtml(text) {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+}
+async function confirmReceived(orderId) {
+
+    if (
+        !confirm(
+            "Confirmas que recebeste a carta?"
+        )
+    ) {
+        return;
+    }
+
+    await updateOrder(
+        orderId,
+        {
+            status: "completed"
+        },
+        loadPurchases
+    );
+}
+
+
+function openReviewForm(order) {
+
+    const rating = prompt(
+        "Avaliação de 1 a 5 estrelas:"
+    );
+
+    if (!rating) {
+        return;
+    }
+
+    const ratingNumber =
+        Number(rating);
+
+    if (
+        !Number.isInteger(ratingNumber) ||
+        ratingNumber < 1 ||
+        ratingNumber > 5
+    ) {
+        alert(
+            "A avaliação tem de ser entre 1 e 5."
+        );
+
+        return;
+    }
+
+
+    const comment =
+        prompt(
+            "Comentário (opcional):"
+        ) || "";
+
+
+    submitReview(
+        order.id,
+        order.seller_id,
+        ratingNumber,
+        comment
+    );
+}
+
+
+async function submitReview(
+    orderId,
+    reviewedUserId,
+    rating,
+    comment
+) {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/reviews`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+                    },
+
+                    body: JSON.stringify({
+
+                        order_id:
+                            orderId,
+
+                        reviewed_user_id:
+                            reviewedUserId,
+
+                        rating,
+
+                        comment
+
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.error ||
+                "Erro ao enviar avaliação."
+            );
+
+            return;
+
+        }
+
+
+        alert(
+            "Avaliação enviada! ⭐"
+        );
+
+
+        loadPurchases();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Erro ao ligar ao servidor."
+        );
+
+    }
+
 }

@@ -11,6 +11,7 @@ const conversationsRoutes = require("./routes/conversations");
 const usersRoutes = require("./routes/users");
 const notificationsRoutes = require("./routes/notifications");
 const pool = require("./db");
+const reviewsRoutes = require("./routes/reviews");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/orders/:orderId/messages", orderMessagesRoutes);
 app.use("/conversations", conversationsRoutes);
 app.use("/users", usersRoutes);
 app.use("/notifications", notificationsRoutes);
+app.use("/reviews", reviewsRoutes);
 
 app.get("/", (req, res) => {
     res.send("🚀 API do TCG Ideia está online!");
