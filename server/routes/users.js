@@ -118,7 +118,7 @@ router.get("/:id", async (req, res) => {
                 rating: 
                     ratingResult.rows[0].count > 0
                         ? Number(
-                            ratingResult.row[0].average
+                            ratingResult.rows[0].average
                         )
                         : null,
 

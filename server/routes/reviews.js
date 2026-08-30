@@ -210,4 +210,56 @@ router.post("/", requireAuth, async (req, res) => {
 });
 
 
+
+// Listar as avaliações recebidas por um utilizador (pública, para a página de perfil)
+router.get("/user/:id", async (req, res) => {
+
+    try {
+
+        const reviewsResult =
+            await pool.query(
+                `
+                SELECT
+                    reviews.*,
+                    users.name AS reviewer_name
+                FROM reviews
+                JOIN users ON users.id = reviews.reviewer_id
+                WHERE reviews.reviewed_user_id = $1
+                ORDER BY reviews.created_at DESC
+                `,
+                [req.params.id]
+            );
+
+        const averageResult =
+            await pool.query(
+                `
+                SELECT
+                    ROUND(AVG(rating)::numeric, 1) AS average,
+                    COUNT(*)::int AS total
+                FROM reviews
+                WHERE reviewed_user_id = $1
+                `,
+                [req.params.id]
+            );
+
+        res.json({
+            reviews: reviewsResult.rows,
+            average: averageResult.rows[0].average,
+            total: averageResult.rows[0].total
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error:
+                "Erro ao obter avaliações."
+        });
+
+    }
+
+});
+
+
 module.exports = router;

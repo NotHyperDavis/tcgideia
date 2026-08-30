@@ -60,7 +60,7 @@ async function loadPurchases() {
 
             el.querySelector(".cancel-btn")?.addEventListener("click", () => cancelOrder(order.id));
             el.querySelector(".confirm-received-btn")?.addEventListener("click", () => confirmReceived(order.id));
-            el.querySelector(".confirm-btn")?.addEventListener("click", () => openReviewForm(order));
+            el.querySelector(".confirm-review-btn")?.addEventListener("click", () => openReviewForm(order));
             el.querySelector(".chat-btn").addEventListener("click", () => toggleChat(el, order.id));
 
             purchasesEl.appendChild(el);

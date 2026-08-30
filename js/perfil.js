@@ -242,6 +242,13 @@ async function loadProfile() {
 
 
         /*
+        Avaliações
+        */
+
+        loadReviews(user.id);
+
+
+        /*
         Mostrar página
         */
 
@@ -446,6 +453,57 @@ async function startConversation(
 
     }
 
+}
+
+
+/*
+--------------------------------------------------
+AVALIAÇÕES
+--------------------------------------------------
+*/
+
+function renderStars(rating) {
+    const rounded = Math.round(rating);
+    return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+}
+
+async function loadReviews(profileUserId) {
+
+    const reviewsSummary = document.getElementById("reviewsSummary");
+    const reviewsList = document.getElementById("reviewsList");
+    const noReviews = document.getElementById("noReviews");
+
+    try {
+        const response = await fetch(`${API_BASE}/reviews/user/${profileUserId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            reviewsSummary.innerHTML = "<p>Erro ao carregar avaliações.</p>";
+            return;
+        }
+
+        if (data.total === 0) {
+            reviewsSummary.innerHTML = "";
+            noReviews.classList.remove("hidden");
+            return;
+        }
+
+        reviewsSummary.innerHTML = `
+            <p><strong>${renderStars(data.average)}</strong> ${data.average} / 5 (${data.total} avaliaç${data.total === 1 ? "ão" : "ões"})</p>
+        `;
+
+        reviewsList.innerHTML = data.reviews.map(review => `
+            <div class="review-item">
+                <p><strong>${review.reviewer_name}</strong> — ${renderStars(review.rating)}</p>
+                ${review.comment ? `<p>${review.comment}</p>` : ""}
+                <small>${new Date(review.created_at).toLocaleDateString("pt-PT")}</small>
+            </div>
+        `).join("");
+
+    } catch (error) {
+        console.error(error);
+        reviewsSummary.innerHTML = "<p>Erro ao ligar ao servidor.</p>";
+    }
 }
 
 
