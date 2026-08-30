@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const { notify } = require("../utils/notifications");
 
 const router = express.Router();
 
@@ -30,12 +31,12 @@ router.post("/", requireAuth, async (req, res) => {
         return res.status(400).json({ error: "Indica a carta, a quantidade e o método de pagamento." });
     }
 
-    if (!["bank_transfer", "stripe", "instant"].includes(payment_method)) {
+    if (!["bank_transfer", "stripe", "instant", "wallet"].includes(payment_method)) {
         return res.status(400).json({ error: "Método de pagamento inválido." });
     }
 
-    if (payment_method !== "bank_transfer") {
-        return res.status(400).json({ error: "Esse método de pagamento ainda não está disponível. Usa transferência bancária por agora." });
+    if (!["bank_transfer", "wallet"].includes(payment_method)) {
+        return res.status(400).json({ error: "Esse método de pagamento ainda não está disponível. Usa transferência bancária ou a carteira por agora." });
     }
 
     const client = await pool.connect();
@@ -76,11 +77,28 @@ router.post("/", requireAuth, async (req, res) => {
         const sellerPayout = Number((basePrice + shippingCost).toFixed(2));
 
         const orderResult = await client.query(
-            `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, platform_fee, seller_payout, shipping_cost)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
              RETURNING *`,
-            [listing.id, req.user.id, listing.user_id, quantity, listing.price, totalPrice, payment_method, platformFee, sellerPayout, shippingCost]
+            [
+                listing.id, req.user.id, listing.user_id, quantity, listing.price, totalPrice, payment_method,
+                payment_method === "wallet" ? "paid" : "pending",
+                platformFee, sellerPayout, shippingCost
+            ]
         );
+
+        if (payment_method === "wallet") {
+            const buyerResult = await client.query("SELECT balance FROM users WHERE id = $1 FOR UPDATE", [req.user.id]);
+            const buyerBalance = Number(buyerResult.rows[0].balance);
+
+            if (totalPrice > buyerBalance) {
+                await client.query("ROLLBACK");
+                return res.status(400).json({ error: `Saldo insuficiente. Precisas de ${totalPrice.toFixed(2)} € e tens ${buyerBalance.toFixed(2)} €.` });
+            }
+
+            await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [totalPrice, req.user.id]);
+            await client.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [sellerPayout, listing.user_id]);
+        }
 
         const remaining = listing.quantity - quantity;
 
@@ -90,6 +108,10 @@ router.post("/", requireAuth, async (req, res) => {
         );
 
         await client.query("COMMIT");
+
+        if (payment_method === "wallet") {
+            await notify(listing.user_id, "order_update", "Vendeste uma carta! O pagamento já está confirmado, podes enviar.", "encomendas.html");
+        }
 
         res.status(201).json(orderResult.rows[0]);
 

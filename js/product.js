@@ -67,6 +67,7 @@ async function loadProduct() {
         `;
 
         document.getElementById("contactSellerBtn")?.addEventListener("click", () => contactSeller(listing));
+        document.getElementById("addToCartBtn")?.addEventListener("click", () => addToCart(listing));
 
         if (token) {
             const form = document.getElementById("buyForm");
@@ -99,6 +100,15 @@ function renderBuyArea(listing) {
     }
 
     return `
+        <div style="margin-bottom:16px;">
+            <label for="cartQuantity">Quantidade</label>
+            <input type="number" id="cartQuantity" min="1" max="${listing.quantity}" value="1" style="max-width:100px;">
+            <button id="addToCartBtn" type="button">Adicionar ao carrinho</button>
+            <p id="cartMessage" style="font-size:14px;"></p>
+        </div>
+
+        <h2 style="margin-top:24px;">Ou comprar já</h2>
+
         <form id="buyForm">
 
             <label for="quantity">Quantidade</label>
@@ -108,18 +118,18 @@ function renderBuyArea(listing) {
                 <legend>Método de pagamento</legend>
 
                 <label>
-                    <input type="radio" name="payment_method" value="bank_transfer" checked>
+                    <input type="radio" name="payment_method" value="wallet" checked>
+                    Carteira do site
+                </label>
+
+                <label>
+                    <input type="radio" name="payment_method" value="bank_transfer">
                     Transferência bancária
                 </label>
 
                 <label>
                     <input type="radio" name="payment_method" value="stripe" disabled>
                     Cartão (Stripe) — brevemente
-                </label>
-
-                <label>
-                    <input type="radio" name="payment_method" value="instant" disabled>
-                    Pagamento instantâneo — brevemente
                 </label>
             </fieldset>
 
@@ -181,17 +191,59 @@ async function submitOrder(e, listing) {
             return;
         }
 
-        buyMessage.innerHTML = `
-            Compromisso registado! Total a transferir: <strong>${Number(data.total_price).toFixed(2)} €</strong>
-            (cartas + ${Number(data.shipping_cost).toFixed(2)} € de portes + ${Number(data.platform_fee).toFixed(2)} € de taxa).<br>
-            Transfere esse valor para o IBAN do site (substitui este texto pelo teu IBAN real).<br>
-            Assim que o site confirmar o pagamento, o vendedor é notificado para enviar a carta.
-            Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.
-        `;
+        if (payment_method === "wallet") {
+            buyMessage.innerHTML = `
+                Compra concluída e paga pela carteira! Total: <strong>${Number(data.total_price).toFixed(2)} €</strong>.<br>
+                O vendedor já foi avisado para enviar. Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.
+            `;
+        } else {
+            buyMessage.innerHTML = `
+                Compromisso registado! Total a transferir: <strong>${Number(data.total_price).toFixed(2)} €</strong>
+                (cartas + ${Number(data.shipping_cost).toFixed(2)} € de portes + ${Number(data.platform_fee).toFixed(2)} € de taxa).<br>
+                Transfere esse valor para o IBAN do site (substitui este texto pelo teu IBAN real).<br>
+                Assim que o site confirmar o pagamento, o vendedor é notificado para enviar a carta.
+                Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.
+            `;
+        }
 
     } catch (error) {
         console.error(error);
         buyMessage.textContent = "Erro ao ligar ao servidor.";
+    }
+}
+
+async function addToCart(listing) {
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const quantity = document.getElementById("cartQuantity").value;
+    const cartMessage = document.getElementById("cartMessage");
+    cartMessage.textContent = "A adicionar...";
+
+    try {
+        const response = await fetch(`${API_BASE}/cart`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ listing_id: listing.id, quantity }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            cartMessage.textContent = data.error || "Erro ao adicionar ao carrinho.";
+            return;
+        }
+
+        cartMessage.innerHTML = `Adicionado! <a href="carrinho.html">Ver carrinho</a>`;
+
+    } catch (error) {
+        console.error(error);
+        cartMessage.textContent = "Erro ao ligar ao servidor.";
     }
 }
 

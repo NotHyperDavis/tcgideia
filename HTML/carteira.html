@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carteira - TCG Ideia</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+
+<div class="page">
+
+    <a href="main.html"><h1>TCG IDEIA</h1></a>
+    <h1>A Minha Carteira</h1>
+
+    <div id="loginWarning" style="display:none;">
+        <p>Precisas de <a href="login.html">iniciar sessão</a> para veres a tua carteira.</p>
+    </div>
+
+    <div id="walletFlow">
+
+        <div class="panel">
+            <p style="font-size:14px; color:var(--text-dim); margin-bottom:6px;">Saldo disponível</p>
+            <p style="font-size:42px; font-weight:800;" id="balance">—</p>
+        </div>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+
+            <div class="panel" style="flex:1; min-width:280px;">
+                <h2 style="margin-top:0;">Depositar</h2>
+                <p style="color:var(--text-dim); font-size:14px;">Transfere o valor para o IBAN do site (substitui por um IBAN real) e depois pede aqui o depósito. Confirmamos assim que recebermos.</p>
+
+                <form id="depositForm">
+                    <label for="depositAmount">Valor (€)</label>
+                    <input type="number" id="depositAmount" min="0.01" step="0.01" required>
+                    <button type="submit">Pedir depósito</button>
+                </form>
+                <p id="depositMessage"></p>
+            </div>
+
+            <div class="panel" style="flex:1; min-width:280px;">
+                <h2 style="margin-top:0;">Levantar</h2>
+                <p style="color:var(--text-dim); font-size:14px;">O valor sai já do teu saldo. Assim que enviarmos o dinheiro, confirmamos o pedido.</p>
+
+                <form id="withdrawForm">
+                    <label for="withdrawAmount">Valor (€)</label>
+                    <input type="number" id="withdrawAmount" min="0.01" step="0.01" required>
+
+                    <label for="withdrawIban">IBAN para onde enviar</label>
+                    <input type="text" id="withdrawIban" placeholder="PT50..." required>
+
+                    <button type="submit">Pedir levantamento</button>
+                </form>
+                <p id="withdrawMessage"></p>
+            </div>
+
+        </div>
+
+        <h2>Histórico</h2>
+        <div id="history"></div>
+
+    </div>
+
+</div>
+
+<script src="../js/auth-nav.js"></script>
+<script src="../js/carteira.js"></script>
+
+</body>
+</html>

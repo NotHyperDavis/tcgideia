@@ -11,6 +11,96 @@ if (!token) {
     container.innerHTML = "<p>Precisas de iniciar sessão.</p>";
 } else {
     loadOrders();
+    loadWalletRequests();
+}
+
+async function loadWalletRequests() {
+    const walletContainer = document.getElementById("walletRequests");
+    walletContainer.innerHTML = "<p>A carregar...</p>";
+
+    try {
+        const response = await fetch(`${API_BASE}/wallet/admin/pending`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            walletContainer.innerHTML = `<p>${data.error || "Sem acesso."}</p>`;
+            return;
+        }
+
+        if (data.deposits.length === 0 && data.withdrawals.length === 0) {
+            walletContainer.innerHTML = "<p>Sem pedidos pendentes.</p>";
+            return;
+        }
+
+        walletContainer.innerHTML = "";
+
+        data.deposits.forEach(dep => {
+            const el = document.createElement("div");
+            el.className = "admin-order-row";
+            el.innerHTML = `
+                <h3>Depósito — ${Number(dep.amount).toFixed(2)} €</h3>
+                <p>${dep.user_name} (${dep.user_email})</p>
+                <button class="approve-deposit-btn">Confirmar receção</button>
+                <button class="reject-deposit-btn cancel-btn">Rejeitar</button>
+            `;
+            el.querySelector(".approve-deposit-btn").addEventListener("click", () => resolveDeposit(dep.id, "confirmed"));
+            el.querySelector(".reject-deposit-btn").addEventListener("click", () => resolveDeposit(dep.id, "rejected"));
+            walletContainer.appendChild(el);
+        });
+
+        data.withdrawals.forEach(w => {
+            const el = document.createElement("div");
+            el.className = "admin-order-row";
+            el.innerHTML = `
+                <h3>Levantamento — ${Number(w.amount).toFixed(2)} €</h3>
+                <p>${w.user_name} (${w.user_email})</p>
+                <p>IBAN: ${w.iban}</p>
+                <button class="approve-withdrawal-btn">Confirmar que enviei</button>
+                <button class="reject-withdrawal-btn cancel-btn">Rejeitar (devolve saldo)</button>
+            `;
+            el.querySelector(".approve-withdrawal-btn").addEventListener("click", () => resolveWithdrawal(w.id, "completed"));
+            el.querySelector(".reject-withdrawal-btn").addEventListener("click", () => resolveWithdrawal(w.id, "rejected"));
+            walletContainer.appendChild(el);
+        });
+
+    } catch (error) {
+        console.error(error);
+        walletContainer.innerHTML = "<p>Erro ao ligar ao servidor.</p>";
+    }
+}
+
+async function resolveDeposit(id, status) {
+    try {
+        const response = await fetch(`${API_BASE}/wallet/admin/deposits/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ status }),
+        });
+        const data = await response.json();
+        if (!response.ok) { alert(data.error || "Erro."); return; }
+        loadWalletRequests();
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao ligar ao servidor.");
+    }
+}
+
+async function resolveWithdrawal(id, status) {
+    try {
+        const response = await fetch(`${API_BASE}/wallet/admin/withdrawals/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ status }),
+        });
+        const data = await response.json();
+        if (!response.ok) { alert(data.error || "Erro."); return; }
+        loadWalletRequests();
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao ligar ao servidor.");
+    }
 }
 
 async function loadOrders() {

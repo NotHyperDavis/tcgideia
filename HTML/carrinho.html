@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho - TCG Ideia</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+
+<div class="page">
+
+    <a href="main.html"><h1>TCG IDEIA</h1></a>
+    <h1>O Meu Carrinho</h1>
+
+    <div id="loginWarning" style="display:none;">
+        <p>Precisas de <a href="login.html">iniciar sessão</a> para veres o teu carrinho.</p>
+    </div>
+
+    <div id="cartFlow">
+
+        <div id="cartItems"></div>
+
+        <div class="panel" id="summaryPanel" style="display:none;">
+            <p>Cartas: <span id="sumBase"></span> €</p>
+            <p>Portes: <span id="sumShipping"></span> €</p>
+            <p>Taxa de serviço: <span id="sumFee"></span> €</p>
+            <p style="font-size:20px; font-weight:800;">Total: <span id="sumTotal"></span> €</p>
+            <p style="color:var(--text-dim); font-size:14px;">Saldo na carteira: <span id="sumBalance"></span> €</p>
+
+            <button id="checkoutBtn">Finalizar compra (pagar com a carteira)</button>
+        </div>
+
+        <p id="cartMessage"></p>
+
+    </div>
+
+</div>
+
+<script src="../js/auth-nav.js"></script>
+<script src="../js/carrinho.js"></script>
+
+</body>
+</html>

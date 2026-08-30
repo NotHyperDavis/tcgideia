@@ -14,7 +14,7 @@ function updateAuthNav() {
         const user = JSON.parse(userRaw);
 
         loginLink.textContent = `Olá, ${user.name}`;
-        loginLink.setAttribute("href", "perfil.html");
+        loginLink.setAttribute("href", "profile.html");
 
         const logoutBtn = document.createElement("a");
         logoutBtn.href = "#";
@@ -25,7 +25,7 @@ function updateAuthNav() {
             e.preventDefault();
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-            window.location.href = "main.html";
+            window.location.href = "marketplace.html";
         });
 
         loginLink.insertAdjacentElement("afterend", logoutBtn);
@@ -33,6 +33,52 @@ function updateAuthNav() {
 
     if (token) {
         setupNotificationBell(token);
+        setupCartAndWallet(token);
+    }
+}
+
+function setupCartAndWallet(token) {
+    const wrapper = document.createElement("div");
+    wrapper.id = "topBarExtras";
+    wrapper.style.cssText = "position:fixed; top:10px; right:60px; display:flex; gap:10px; z-index:1000;";
+
+    wrapper.innerHTML = `
+        <a href="carteira.html" id="walletPill" style="background:#1A2333; border:1px solid #2D3B52; color:white; padding:8px 14px; border-radius:999px; text-decoration:none; font-size:14px; font-weight:600;">💰 —</a>
+        <a href="carrinho.html" id="cartPill" style="background:#1A2333; border:1px solid #2D3B52; color:white; padding:8px 14px; border-radius:999px; text-decoration:none; font-size:14px; font-weight:600;">🛒 0</a>
+    `;
+
+    document.body.appendChild(wrapper);
+
+    updateCartAndWallet(token);
+    setInterval(() => updateCartAndWallet(token), 30000);
+}
+
+async function updateCartAndWallet(token) {
+    try {
+        const walletResponse = await fetch(`${NOTIF_API_BASE}/wallet`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+        const wallet = await walletResponse.json();
+        const walletPill = document.getElementById("walletPill");
+        if (walletPill && walletResponse.ok) {
+            walletPill.textContent = `💰 ${Number(wallet.balance).toFixed(2)} €`;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+
+    try {
+        const cartResponse = await fetch(`${NOTIF_API_BASE}/cart`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+        const cart = await cartResponse.json();
+        const cartPill = document.getElementById("cartPill");
+        if (cartPill && cartResponse.ok) {
+            const count = cart.items.reduce((sum, i) => sum + i.quantity, 0);
+            cartPill.textContent = `🛒 ${count}`;
+        }
+    } catch (error) {
+        console.error(error);
     }
 }
 
