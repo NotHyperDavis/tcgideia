@@ -150,3 +150,181 @@ nav a:hover {
     align-items: center;
     gap: 20px;
 }
+/* ---- Sino, carrinho, carteira e utilizador (injetados pelo auth-nav.js) ---- */
+
+.nav-utility-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 18px;
+    margin: 0 2px;
+    border-left: 1px solid #2C3854;
+    border-right: 1px solid #2C3854;
+}
+
+.nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1A2233;
+    border: 1px solid #2C3854;
+    padding: 7px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    transition: border-color .15s, transform .15s;
+}
+
+.nav-pill:hover {
+    border-color: #2563EB;
+    transform: translateY(-1px);
+}
+
+.nav-pill-icon {
+    font-size: 14px;
+}
+
+.nav-bell {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #1A2233;
+    border: 1px solid #2C3854;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: border-color .15s, transform .15s;
+}
+
+.nav-bell:hover {
+    border-color: #2563EB;
+    transform: translateY(-1px);
+}
+
+.nav-bell-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #EF4444;
+    color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+.nav-dropdown-panel {
+    display: none;
+    position: absolute;
+    top: 46px;
+    right: 0;
+    background: #1A2233;
+    border: 1px solid #2C3854;
+    border-radius: 14px;
+    width: 280px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    padding: 10px;
+    text-align: left;
+    box-shadow: 0 20px 40px rgba(0,0,0,.5);
+}
+
+.nav-dropdown-panel--fixed {
+    position: fixed;
+    top: 56px;
+    right: 16px;
+}
+
+.nav-dropdown-item {
+    display: block;
+    padding: 10px 8px;
+    border-bottom: 1px solid #2C3854;
+    text-decoration: none;
+    color: white;
+    font-size: 13px;
+    border-radius: 8px;
+}
+
+.nav-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-item:hover {
+    background: #212B42;
+}
+
+.nav-user-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 16px;
+    margin-left: 4px;
+}
+
+.nav-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563EB, #7C3AED);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+}
+
+.nav-user-name {
+    color: white !important;
+    font-weight: 700 !important;
+}
+
+.nav-logout {
+    color: #9CA8BD !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+.nav-logout:hover {
+    color: #EF4444 !important;
+}
+
+/* Páginas sem <nav> a sério: tudo agrupado numa única bolha fixa no canto */
+
+#topBarExtras {
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 1000;
+    background: #1A2233;
+    border: 1px solid #2C3854;
+    padding: 6px 10px;
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+
+#topBarExtras .nav-utility-group,
+#topBarExtras .nav-user-group {
+    border: none;
+    padding: 0 8px;
+    margin: 0;
+}
+
+#topBarExtras .nav-utility-group {
+    border-right: 1px solid #2C3854;
+}

@@ -1,7 +1,7 @@
 // Inclui este script em todas as páginas (marketplace, product, sell, etc.)
 // Atualiza o link "Entrar" do header para mostrar o nome do utilizador + "Sair", se estiver logado.
 // Também injeta o sino de notificações, o saldo da carteira e o carrinho —
-// dentro do <nav>, se existir uma, ou como bolhas fixas no canto como recurso.
+// agrupados dentro do <nav>, se existir uma, ou como bolhas fixas no canto como recurso.
 
 const NOTIF_API_BASE = "http://localhost:3000"; // troca pelo domínio real quando publicares o site
 
@@ -12,16 +12,50 @@ function updateAuthNav() {
     const loginLink = document.querySelector('nav a[href="login.html"]');
     const nav = loginLink ? loginLink.closest("nav") : null;
 
-    if (token && userRaw && loginLink) {
+    if (!token) return;
+
+    // --- Grupo do meio: sino + carrinho + carteira ---
+    const utilityGroup = document.createElement("div");
+    utilityGroup.className = "nav-utility-group";
+
+    const bell = buildNotificationBell(token, !!nav);
+    const cartPill = buildPill("cartPill", "carrinho.html", "🛒", "0");
+    const walletPill = buildPill("walletPill", "carteira.html", "💰", "—");
+
+    utilityGroup.appendChild(cartPill);
+    utilityGroup.appendChild(walletPill);
+    utilityGroup.appendChild(bell);
+
+    if (nav && loginLink) {
+        // Insere já aqui, enquanto o loginLink ainda está no sítio original do nav
+        loginLink.insertAdjacentElement("beforebegin", utilityGroup);
+    } else {
+        const wrapper = document.createElement("div");
+        wrapper.id = "topBarExtras";
+        wrapper.appendChild(utilityGroup);
+        document.body.appendChild(wrapper);
+    }
+
+    // --- Grupo da direita: avatar + nome + sair ---
+    if (userRaw && loginLink) {
         const user = JSON.parse(userRaw);
 
-        loginLink.textContent = `Olá, ${user.name}`;
+        const userGroup = document.createElement("div");
+        userGroup.className = "nav-user-group";
+
+        const avatar = document.createElement("span");
+        avatar.className = "nav-avatar";
+        avatar.textContent = user.name.charAt(0).toUpperCase();
+
+        loginLink.textContent = user.name;
         loginLink.setAttribute("href", "profile.html");
+        loginLink.className = "nav-user-name";
 
         const logoutBtn = document.createElement("a");
         logoutBtn.href = "#";
         logoutBtn.textContent = "Sair";
         logoutBtn.id = "logoutBtn";
+        logoutBtn.className = "nav-logout";
 
         logoutBtn.addEventListener("click", (e) => {
             e.preventDefault();
@@ -30,48 +64,27 @@ function updateAuthNav() {
             window.location.href = "marketplace.html";
         });
 
-        loginLink.insertAdjacentElement("afterend", logoutBtn);
-    }
+        userGroup.appendChild(avatar);
+        userGroup.appendChild(logoutBtn);
 
-    if (token) {
-        setupNotificationBell(token, nav, loginLink);
-        setupCartAndWallet(token, nav, loginLink);
-    }
-}
-
-// Estilo comum a estas bolhas, tanto inline (dentro do nav) como fixas (páginas sem nav)
-const PILL_STYLE = "background:#1A2333; border:1px solid #2D3B52; color:white; padding:6px 12px; border-radius:999px; text-decoration:none; font-size:13px; font-weight:600; white-space:nowrap;";
-
-function setupCartAndWallet(token, nav, loginLink) {
-    const walletPill = document.createElement("a");
-    walletPill.href = "carteira.html";
-    walletPill.id = "walletPill";
-    walletPill.style.cssText = PILL_STYLE;
-    walletPill.textContent = "💰 —";
-
-    const cartPill = document.createElement("a");
-    cartPill.href = "carrinho.html";
-    cartPill.id = "cartPill";
-    cartPill.style.cssText = PILL_STYLE;
-    cartPill.textContent = "🛒 0";
-
-    if (nav && loginLink) {
-        // Insere dentro do próprio navbar, antes do "Olá, nome", para seguir o layout da página
-        loginLink.insertAdjacentElement("beforebegin", cartPill);
-        loginLink.insertAdjacentElement("beforebegin", walletPill);
-    } else {
-        // Páginas sem <nav> (ex: carteira.html, my-listings.html): fica fixo no canto,
-        // um pouco abaixo do sino para não ficarem em cima um do outro.
-        const wrapper = document.createElement("div");
-        wrapper.id = "topBarExtras";
-        wrapper.style.cssText = "position:fixed; top:10px; right:60px; display:flex; gap:10px; z-index:1000;";
-        wrapper.appendChild(walletPill);
-        wrapper.appendChild(cartPill);
-        document.body.appendChild(wrapper);
+        // Insere o grupo (ainda sem o loginLink lá dentro) mesmo antes do loginLink,
+        // enquanto este ainda está no seu sítio original — só depois de userGroup já
+        // estar mesmo na página é que é seguro mover o loginLink para dentro dele.
+        loginLink.insertAdjacentElement("beforebegin", userGroup);
+        userGroup.insertBefore(loginLink, logoutBtn);
     }
 
     updateCartAndWallet(token);
     setInterval(() => updateCartAndWallet(token), 30000);
+}
+
+function buildPill(id, href, icon, initialValue) {
+    const pill = document.createElement("a");
+    pill.href = href;
+    pill.id = id;
+    pill.className = "nav-pill";
+    pill.innerHTML = `<span class="nav-pill-icon">${icon}</span><span class="nav-pill-value">${initialValue}</span>`;
+    return pill;
 }
 
 async function updateCartAndWallet(token) {
@@ -80,9 +93,9 @@ async function updateCartAndWallet(token) {
             headers: { "Authorization": `Bearer ${token}` },
         });
         const wallet = await walletResponse.json();
-        const walletPill = document.getElementById("walletPill");
-        if (walletPill && walletResponse.ok) {
-            walletPill.textContent = `💰 ${Number(wallet.balance).toFixed(2)} €`;
+        const walletValue = document.querySelector("#walletPill .nav-pill-value");
+        if (walletValue && walletResponse.ok) {
+            walletValue.textContent = `${Number(wallet.balance).toFixed(2)} €`;
         }
     } catch (error) {
         console.error(error);
@@ -93,37 +106,27 @@ async function updateCartAndWallet(token) {
             headers: { "Authorization": `Bearer ${token}` },
         });
         const cart = await cartResponse.json();
-        const cartPill = document.getElementById("cartPill");
-        if (cartPill && cartResponse.ok) {
+        const cartValue = document.querySelector("#cartPill .nav-pill-value");
+        if (cartValue && cartResponse.ok) {
             const count = cart.items.reduce((sum, i) => sum + i.quantity, 0);
-            cartPill.textContent = `🛒 ${count}`;
+            cartValue.textContent = count;
         }
     } catch (error) {
         console.error(error);
     }
 }
 
-function setupNotificationBell(token, nav, loginLink) {
-    const bell = document.createElement("a");
-    bell.href = "#";
+function buildNotificationBell(token, insideNav) {
+    const bell = document.createElement("div");
     bell.id = "notificationBell";
-    bell.style.cssText = "cursor:pointer; font-size:18px; position:relative; text-decoration:none;";
-    bell.innerHTML = `🔔<span id="notifCount" style="display:none; background:red; color:white; border-radius:50%; font-size:11px; padding:1px 5px; position:absolute; top:-6px; right:-10px;"></span>`;
+    bell.className = "nav-bell";
+    bell.innerHTML = `🔔<span id="notifCount" class="nav-bell-badge" style="display:none;"></span>`;
 
     const dropdown = document.createElement("div");
     dropdown.id = "notifDropdown";
-    dropdown.style.cssText = "display:none; position:absolute; top:36px; right:0; background:white; color:black; border:1px solid #ccc; width:280px; max-height:400px; overflow-y:auto; z-index:1000; padding:8px; text-align:left;";
+    dropdown.className = insideNav ? "nav-dropdown-panel" : "nav-dropdown-panel nav-dropdown-panel--fixed";
 
-    if (nav && loginLink) {
-        bell.style.position = "relative";
-        bell.appendChild(dropdown);
-        loginLink.insertAdjacentElement("beforebegin", bell);
-    } else {
-        bell.style.cssText += "position:fixed; top:10px; right:10px; z-index:1000;";
-        dropdown.style.cssText = dropdown.style.cssText.replace("position:absolute", "position:fixed").replace("top:36px", "top:40px");
-        document.body.appendChild(bell);
-        document.body.appendChild(dropdown);
-    }
+    bell.appendChild(dropdown);
 
     bell.addEventListener("click", async (e) => {
         e.preventDefault();
@@ -139,6 +142,8 @@ function setupNotificationBell(token, nav, loginLink) {
 
     updateUnreadCount(token);
     setInterval(() => updateUnreadCount(token), 30000); // atualiza a cada 30s
+
+    return bell;
 }
 
 async function updateUnreadCount(token) {
@@ -151,7 +156,7 @@ async function updateUnreadCount(token) {
 
         if (data.count > 0) {
             countEl.textContent = data.count;
-            countEl.style.display = "inline";
+            countEl.style.display = "flex";
         } else {
             countEl.style.display = "none";
         }
@@ -175,7 +180,7 @@ async function loadNotifications(token, dropdown) {
         }
 
         dropdown.innerHTML = notifications.map(n => `
-            <a href="${n.link || '#'}" style="display:block; padding:6px 0; border-bottom:1px solid #eee; text-decoration:none; color:${n.is_read ? '#888' : 'black'}; font-weight:${n.is_read ? 'normal' : 'bold'};">
+            <a href="${n.link || '#'}" class="nav-dropdown-item" style="font-weight:${n.is_read ? 'normal' : '700'}; opacity:${n.is_read ? '0.6' : '1'};">
                 ${n.content}
                 <br><small>${new Date(n.created_at).toLocaleString("pt-PT")}</small>
             </a>
