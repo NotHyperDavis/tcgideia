@@ -13,8 +13,13 @@ function isAdmin(user) {
     return user.email === process.env.ADMIN_EMAIL;
 }
 
-// Portes calculados pelo peso total do envio (peso da carta x quantidade).
+// Portes calculados por uma estimativa de peso (não depende do vendedor saber o peso real).
+// Assume ~15g de embalagem (envelope/toploader) + ~2g por carta.
 // Baseado nos preços aproximados dos CTT (com IVA). Ajusta se os preços mudarem.
+function estimateWeight(quantity) {
+    return 15 + quantity * 2;
+}
+
 function calcShipping(totalWeightGrams) {
     if (totalWeightGrams <= 20) return 1.15;
     if (totalWeightGrams <= 50) return 1.50;
@@ -67,14 +72,15 @@ router.post("/", requireAuth, async (req, res) => {
         }
 
         const basePrice = Number((listing.price * quantity).toFixed(2));
-        const totalWeight = listing.weight_grams * quantity;
+        const totalWeight = estimateWeight(quantity);
         const shippingCost = calcShipping(totalWeight);
         const platformFee = Number((basePrice * COMMISSION_RATE).toFixed(2));
 
-        // O comprador paga o preço da carta + portes + a taxa do site.
+        // O comprador paga o preço da carta + portes + taxa (guardamos os valores reais,
+        // é só no frontend que a taxa aparece escondida dentro dos "portes").
         const totalPrice = Number((basePrice + shippingCost + platformFee).toFixed(2));
-        // O vendedor recebe o preço total que pediu, mais os portes (nada é descontado a ele).
-        const sellerPayout = Number((basePrice + shippingCost).toFixed(2));
+        // O vendedor recebe só o preço que pediu pela carta — nunca os portes nem a taxa.
+        const sellerPayout = basePrice;
 
         const orderResult = await client.query(
             `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost)

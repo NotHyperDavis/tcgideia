@@ -7,7 +7,11 @@ const router = express.Router();
 
 const COMMISSION_RATE = Number(process.env.COMMISSION_RATE) || 0.08;
 
-// Tem de ser exatamente igual à função em orders.js e no product.js do frontend
+// Tem de ser exatamente igual à função em orders.js e no product.js/carrinho.js do frontend
+function estimateWeight(quantity) {
+    return 15 + quantity * 2;
+}
+
 function calcShipping(totalWeightGrams) {
     if (totalWeightGrams <= 20) return 1.15;
     if (totalWeightGrams <= 50) return 1.50;
@@ -59,7 +63,7 @@ router.get("/", requireAuth, async (req, res) => {
             `SELECT cart_items.id AS cart_item_id, cart_items.quantity,
                     listings.id AS listing_id, listings.card_name, listings.card_image,
                     listings.price, listings.condition, listings.quantity AS available_quantity,
-                    listings.weight_grams, listings.user_id AS seller_id,
+                    listings.user_id AS seller_id,
                     users.name AS seller_name
              FROM cart_items
              JOIN listings ON listings.id = cart_items.listing_id
@@ -83,8 +87,8 @@ router.get("/", requireAuth, async (req, res) => {
 
         for (const sellerId in bySeller) {
             const sellerItems = bySeller[sellerId];
-            const weight = sellerItems.reduce((sum, i) => sum + i.weight_grams * i.quantity, 0);
-            shippingTotal += calcShipping(weight);
+            const weight = sellerItems.reduce((sum, i) => sum + i.quantity, 0);
+            shippingTotal += calcShipping(estimateWeight(weight));
             basePriceTotal += sellerItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
         }
 
@@ -192,15 +196,16 @@ router.post("/checkout", requireAuth, async (req, res) => {
 
         for (const sellerId in bySeller) {
             const sellerItems = bySeller[sellerId];
-            const totalWeight = sellerItems.reduce((sum, i) => sum + i.weight_grams * i.cart_quantity, 0);
-            const shippingCost = calcShipping(totalWeight);
+            const totalQuantity = sellerItems.reduce((sum, i) => sum + i.cart_quantity, 0);
+            const shippingCost = calcShipping(estimateWeight(totalQuantity));
 
             sellerItems.forEach((item, index) => {
                 const basePrice = Number((item.price * item.cart_quantity).toFixed(2));
                 const platformFee = Number((basePrice * COMMISSION_RATE).toFixed(2));
                 const itemShipping = index === 0 ? shippingCost : 0;
                 const totalPrice = Number((basePrice + itemShipping + platformFee).toFixed(2));
-                const sellerPayout = Number((basePrice + itemShipping).toFixed(2));
+                // O vendedor recebe só o preço que pediu pela carta — nunca os portes nem a taxa.
+                const sellerPayout = basePrice;
 
                 grandTotal += totalPrice;
 

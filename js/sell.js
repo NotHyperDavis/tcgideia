@@ -113,7 +113,6 @@ listingForm.addEventListener("submit", async (e) => {
     const price = document.getElementById("price").value;
     const condition = document.getElementById("condition").value;
     const quantity = document.getElementById("quantity").value;
-    const weight_grams = document.getElementById("weight").value;
     const description = document.getElementById("description").value;
 
     message.textContent = "A publicar...";
@@ -133,7 +132,6 @@ listingForm.addEventListener("submit", async (e) => {
                 price,
                 condition,
                 quantity,
-                weight_grams,
                 description,
             }),
         });

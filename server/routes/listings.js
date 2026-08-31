@@ -63,7 +63,7 @@ router.get("/:id", async (req, res) => {
 
 // POST /listings — cria um anúncio novo (exige login)
 router.post("/", requireAuth, async (req, res) => {
-    const { card_id, card_name, card_image, price, condition, quantity, description, weight_grams } = req.body;
+    const { card_id, card_name, card_image, price, condition, quantity, description } = req.body;
 
     if (!card_id || !card_name || !price || !condition) {
         return res.status(400).json({ error: "Faltam campos obrigatórios (carta, preço, condição)." });
@@ -79,10 +79,10 @@ router.post("/", requireAuth, async (req, res) => {
 
     try {
         const result = await pool.query(
-            `INSERT INTO listings (user_id, card_id, card_name, card_image, price, condition, quantity, description, weight_grams)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            `INSERT INTO listings (user_id, card_id, card_name, card_image, price, condition, quantity, description)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
              RETURNING *`,
-            [req.user.id, card_id, card_name, card_image || null, price, condition, quantity || 1, description || null, weight_grams || 5]
+            [req.user.id, card_id, card_name, card_image || null, price, condition, quantity || 1, description || null]
         );
 
         res.status(201).json(result.rows[0]);

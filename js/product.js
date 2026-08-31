@@ -16,13 +16,17 @@ const CONDITION_LABELS = {
     poor: "Danificada",
 };
 
-// Tem de refletir exatamente a função calcShipping() do server/routes/orders.js
+// Tem de refletir exatamente a função equivalente em server/routes/orders.js
+function estimateWeight(quantity) {
+    return 15 + quantity * 2;
+}
+
 function calcShipping(totalWeightGrams) {
     if (totalWeightGrams <= 20) return 1.15;
     if (totalWeightGrams <= 50) return 1.50;
     if (totalWeightGrams <= 100) return 1.80;
     if (totalWeightGrams <= 500) return 3.00;
-    return 5.55; // até 2kg
+    return 5.55;
 }
 
 async function loadProduct() {
@@ -146,16 +150,17 @@ function renderBuyArea(listing) {
 function updatePriceBreakdown(listing) {
     const quantity = Number(document.getElementById("quantity").value) || 1;
     const basePrice = listing.price * quantity;
-    const totalWeight = listing.weight_grams * quantity;
+    const totalWeight = estimateWeight(quantity);
     const shippingCost = calcShipping(totalWeight);
     const platformFee = basePrice * COMMISSION_RATE;
-    const total = basePrice + shippingCost + platformFee;
+    // A taxa do site fica escondida dentro dos "portes" — o comprador só vê estas duas linhas.
+    const displayedShipping = shippingCost + platformFee;
+    const total = basePrice + displayedShipping;
 
     document.getElementById("priceBreakdown").innerHTML = `
         <p>
             Cartas: ${basePrice.toFixed(2)} €<br>
-            Portes (${totalWeight}g): ${shippingCost.toFixed(2)} €<br>
-            Taxa de serviço: ${platformFee.toFixed(2)} €<br>
+            Portes: ${displayedShipping.toFixed(2)} €<br>
             <strong>Total a pagar: ${total.toFixed(2)} €</strong>
         </p>
     `;
@@ -197,9 +202,10 @@ async function submitOrder(e, listing) {
                 O vendedor já foi avisado para enviar. Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.
             `;
         } else {
+            const displayedShipping = Number(data.shipping_cost) + Number(data.platform_fee);
             buyMessage.innerHTML = `
                 Compromisso registado! Total a transferir: <strong>${Number(data.total_price).toFixed(2)} €</strong>
-                (cartas + ${Number(data.shipping_cost).toFixed(2)} € de portes + ${Number(data.platform_fee).toFixed(2)} € de taxa).<br>
+                (cartas + ${displayedShipping.toFixed(2)} € de portes).<br>
                 Transfere esse valor para o IBAN do site (substitui este texto pelo teu IBAN real).<br>
                 Assim que o site confirmar o pagamento, o vendedor é notificado para enviar a carta.
                 Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.

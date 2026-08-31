@@ -48,7 +48,7 @@ async function loadPurchases() {
                     <h3>${order.card_name} (x${order.quantity})</h3>
                     <p>Vendedor: ${order.seller_name} — ${order.seller_email}</p>
                     <p>Total a transferir para o site: <strong>${Number(order.total_price).toFixed(2)} €</strong>
-                        (cartas ${(order.total_price - order.shipping_cost - order.platform_fee).toFixed(2)} € + portes ${Number(order.shipping_cost).toFixed(2)} € + taxa ${Number(order.platform_fee).toFixed(2)} €)</p>
+                        (cartas ${(order.total_price - order.shipping_cost - order.platform_fee).toFixed(2)} € + portes ${(Number(order.shipping_cost) + Number(order.platform_fee)).toFixed(2)} €)</p>
                     <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]}</p>
                     ${order.status === "committed" ? `<button class="cancel-btn">Cancelar</button>` : ""}
                     ${order.status === "shipped" ? `<button class="confirm-received-btn">Confirma Receção</button>` : ""}
@@ -101,7 +101,7 @@ async function loadSales() {
                 <div>
                     <h3>${order.card_name} (x${order.quantity})</h3>
                     <p>Comprador: ${order.buyer_name} — ${order.buyer_email}</p>
-                    <p>Vais receber (já com a comissão do site descontada): <strong>${Number(order.seller_payout).toFixed(2)} €</strong></p>
+                    <p>Vais receber (o preço que pediste pela carta): <strong>${Number(order.seller_payout).toFixed(2)} €</strong></p>
                     <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]}</p>
 
                     <div class="seller-actions">
