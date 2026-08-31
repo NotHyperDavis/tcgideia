@@ -1,111 +1,69 @@
-.marketplace{
-
-    display:grid;
-
-    grid-template-columns:280px 1fr;
-
-    gap:30px;
-
-    padding:40px 60px;
+.marketplace {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 30px;
+    padding: 40px 60px;
 }
 
-.filters{
-
-    background:#1F2937;
-
-    padding:25px;
-
-    border-radius:12px;
-
-    height:fit-content;
+.filters {
+    background: linear-gradient(160deg, #1A2233, #212B42);
+    border: 1px solid #2C3854;
+    padding: 25px;
+    border-radius: 14px;
+    height: fit-content;
 }
 
-.filters h2{
-
-    margin-bottom:25px;
+.filters h2 {
+    margin-bottom: 25px;
+    font-size: 18px;
+    font-weight: 700;
 }
 
-.filters h3{
-
-    margin:25px 0 10px;
+.filters h3 {
+    margin: 25px 0 10px;
+    font-size: 14px;
+    color: #9CA8BD;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
-.filters label{
-
-    display:block;
-
-    margin:8px 0;
-
-    cursor:pointer;
-}
-
-.results h2{
-
-    margin-bottom:30px;
-}
-
-.card{
-
+.filters label {
     display: block;
-
-    background:#1F2937;
-
-    border-radius:12px;
-
-    padding:20px;
-
-    text-align:center;
-
-    transition:.3s;
-
-    cursor:pointer;
-
-    text-decoration:none;
-
-    color:white;
-
+    margin: 10px 0;
+    cursor: pointer;
+    font-size: 14px;
+    color: #E4E9F2;
 }
 
-.card:hover{
-
-    transform:translateY(-8px);
-
-    box-shadow:0 10px 30px rgba(0,0,0,.4);
-
+.results h2 {
+    margin-bottom: 30px;
+    font-size: 22px;
+    font-weight: 700;
 }
+
+/* .card fica definido no style.css (gradiente + hover) — aqui só o que é específico do marketplace */
 
 .card-product-link {
     display: block;
-
     color: white;
-
     text-decoration: none;
 }
-
 
 .card-product-link img {
     width: 100%;
     max-height: 260px;
-
     object-fit: contain;
-
     margin-bottom: 15px;
 }
 
-
 .seller-link {
     display: block;
-
-    color: #9CA3AF;
-
+    color: #9CA8BD;
     text-decoration: none;
-
     margin: 10px 0 15px;
-
     font-size: 14px;
 }
 
-
 .seller-link:hover {
-    color: #3B82F6;
+    color: #7DA2FF;
 }

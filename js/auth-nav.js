@@ -1,6 +1,7 @@
 // Inclui este script em todas as páginas (marketplace, product, sell, etc.)
 // Atualiza o link "Entrar" do header para mostrar o nome do utilizador + "Sair", se estiver logado.
-// Também injeta o sino de notificações, independente de existir <nav> na página.
+// Também injeta o sino de notificações, o saldo da carteira e o carrinho —
+// dentro do <nav>, se existir uma, ou como bolhas fixas no canto como recurso.
 
 const NOTIF_API_BASE = "http://localhost:3000"; // troca pelo domínio real quando publicares o site
 
@@ -9,6 +10,7 @@ function updateAuthNav() {
     const userRaw = localStorage.getItem("user");
 
     const loginLink = document.querySelector('nav a[href="login.html"]');
+    const nav = loginLink ? loginLink.closest("nav") : null;
 
     if (token && userRaw && loginLink) {
         const user = JSON.parse(userRaw);
@@ -32,22 +34,41 @@ function updateAuthNav() {
     }
 
     if (token) {
-        setupNotificationBell(token);
-        setupCartAndWallet(token);
+        setupNotificationBell(token, nav, loginLink);
+        setupCartAndWallet(token, nav, loginLink);
     }
 }
 
-function setupCartAndWallet(token) {
-    const wrapper = document.createElement("div");
-    wrapper.id = "topBarExtras";
-    wrapper.style.cssText = "position:fixed; top:10px; right:60px; display:flex; gap:10px; z-index:1000;";
+// Estilo comum a estas bolhas, tanto inline (dentro do nav) como fixas (páginas sem nav)
+const PILL_STYLE = "background:#1A2333; border:1px solid #2D3B52; color:white; padding:6px 12px; border-radius:999px; text-decoration:none; font-size:13px; font-weight:600; white-space:nowrap;";
 
-    wrapper.innerHTML = `
-        <a href="carteira.html" id="walletPill" style="background:#1A2333; border:1px solid #2D3B52; color:white; padding:8px 14px; border-radius:999px; text-decoration:none; font-size:14px; font-weight:600;">💰 —</a>
-        <a href="carrinho.html" id="cartPill" style="background:#1A2333; border:1px solid #2D3B52; color:white; padding:8px 14px; border-radius:999px; text-decoration:none; font-size:14px; font-weight:600;">🛒 0</a>
-    `;
+function setupCartAndWallet(token, nav, loginLink) {
+    const walletPill = document.createElement("a");
+    walletPill.href = "carteira.html";
+    walletPill.id = "walletPill";
+    walletPill.style.cssText = PILL_STYLE;
+    walletPill.textContent = "💰 —";
 
-    document.body.appendChild(wrapper);
+    const cartPill = document.createElement("a");
+    cartPill.href = "carrinho.html";
+    cartPill.id = "cartPill";
+    cartPill.style.cssText = PILL_STYLE;
+    cartPill.textContent = "🛒 0";
+
+    if (nav && loginLink) {
+        // Insere dentro do próprio navbar, antes do "Olá, nome", para seguir o layout da página
+        loginLink.insertAdjacentElement("beforebegin", cartPill);
+        loginLink.insertAdjacentElement("beforebegin", walletPill);
+    } else {
+        // Páginas sem <nav> (ex: carteira.html, my-listings.html): fica fixo no canto,
+        // um pouco abaixo do sino para não ficarem em cima um do outro.
+        const wrapper = document.createElement("div");
+        wrapper.id = "topBarExtras";
+        wrapper.style.cssText = "position:fixed; top:10px; right:60px; display:flex; gap:10px; z-index:1000;";
+        wrapper.appendChild(walletPill);
+        wrapper.appendChild(cartPill);
+        document.body.appendChild(wrapper);
+    }
 
     updateCartAndWallet(token);
     setInterval(() => updateCartAndWallet(token), 30000);
@@ -82,20 +103,30 @@ async function updateCartAndWallet(token) {
     }
 }
 
-function setupNotificationBell(token) {
-    const bell = document.createElement("div");
+function setupNotificationBell(token, nav, loginLink) {
+    const bell = document.createElement("a");
+    bell.href = "#";
     bell.id = "notificationBell";
-    bell.style.cssText = "position:fixed; top:10px; right:10px; cursor:pointer; z-index:1000; font-size:24px;";
-    bell.innerHTML = `🔔<span id="notifCount" style="display:none; background:red; color:white; border-radius:50%; font-size:12px; padding:2px 6px; position:relative; top:-10px;"></span>`;
+    bell.style.cssText = "cursor:pointer; font-size:18px; position:relative; text-decoration:none;";
+    bell.innerHTML = `🔔<span id="notifCount" style="display:none; background:red; color:white; border-radius:50%; font-size:11px; padding:1px 5px; position:absolute; top:-6px; right:-10px;"></span>`;
 
     const dropdown = document.createElement("div");
     dropdown.id = "notifDropdown";
-    dropdown.style.cssText = "display:none; position:fixed; top:40px; right:10px; background:white; color:black; border:1px solid #ccc; width:280px; max-height:400px; overflow-y:auto; z-index:1000; padding:8px;";
+    dropdown.style.cssText = "display:none; position:absolute; top:36px; right:0; background:white; color:black; border:1px solid #ccc; width:280px; max-height:400px; overflow-y:auto; z-index:1000; padding:8px; text-align:left;";
 
-    document.body.appendChild(bell);
-    document.body.appendChild(dropdown);
+    if (nav && loginLink) {
+        bell.style.position = "relative";
+        bell.appendChild(dropdown);
+        loginLink.insertAdjacentElement("beforebegin", bell);
+    } else {
+        bell.style.cssText += "position:fixed; top:10px; right:10px; z-index:1000;";
+        dropdown.style.cssText = dropdown.style.cssText.replace("position:absolute", "position:fixed").replace("top:36px", "top:40px");
+        document.body.appendChild(bell);
+        document.body.appendChild(dropdown);
+    }
 
-    bell.addEventListener("click", async () => {
+    bell.addEventListener("click", async (e) => {
+        e.preventDefault();
         const isOpen = dropdown.style.display === "block";
         dropdown.style.display = isOpen ? "none" : "block";
 
