@@ -1,46 +1,171 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>O Meu Perfil - TCG Ideia</title>
 
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/app.css">
+    <style>
+        /* Estilos extra para o formulário se integrar bem no design */
+        .edit-name-input {
+            font-size: 2rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #444;
+            color: inherit;
+            padding: 5px 10px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 10px;
+        }
+        .edit-name-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .quick-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quick-links a {
+            text-align: center;
+            text-decoration: none;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="page">
+    <header class="navbar">
+        <a href="main.html" class="logo">
+            TCG IDEIA
+        </a>
+        <nav>
+            <a href="marketplace.html">Marketplace</a>
+            <a href="sell.html">Vender</a>
+            <a href="login.html">Sair</a>
+        </nav>
+    </header>
 
-    <a href="main.html"><h1>TCG IDEIA</h1></a>
-    <h1>O Meu Perfil</h1>
+    <main class="profile-page">
 
-    <div id="loginWarning" style="display:none;">
-        <p>Precisas de <a href="login.html">iniciar sessão</a> para veres o teu perfil.</p>
-    </div>
+        <!-- AVISO DE LOGIN -->
+        <div id="loginWarning" class="profile-error" style="display:none;">
+            <h1>Sessão não iniciada</h1>
+            <p>Precisas de <a href="login.html" style="color: #007bff;">iniciar sessão</a> para veres o teu perfil.</p>
+        </div>
 
-    <div id="profileFlow">
+        <!-- FLUXO DO PERFIL (Oculto até o JS carregar) -->
+        <div id="profileFlow">
+            
+            <section id="profileContent">
 
-        <p><strong>Email:</strong> <span id="email"></span></p>
-        <p><strong>Membro desde:</strong> <span id="memberSince"></span></p>
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">
+                        ?
+                    </div>
 
-        <form id="editForm">
-            <label for="name">Nome</label>
-            <input type="text" id="name" required>
+                    <div class="profile-user-info">
+                        
+                        <!-- FORMULÁRIO DE EDIÇÃO INTEGRADO NO CABEÇALHO -->
+                        <form id="editForm">
+                            <label for="name" style="font-size: 0.8rem; color: #aaa;">O teu Nome</label><br>
+                            <input type="text" id="name" class="edit-name-input" required>
+                            
+                            <p style="margin: 5px 0;"><strong>Email:</strong> <span id="email"></span></p>
+                            <p id="memberSince" style="margin: 5px 0;">Membro desde...</p>
+                            
+                            <span class="profile-badge" style="margin-top: 10px; display: inline-block;">
+                                🟢 A minha conta
+                            </span>
 
-            <button type="submit">Guardar alterações</button>
-        </form>
+                            <div style="margin-top: 15px;">
+                                <button type="submit" class="profile-message-btn">Guardar alterações</button>
+                            </div>
+                            <p id="message" style="margin-top: 10px; font-size: 0.9rem;"></p>
+                        </form>
 
-        <p id="message"></p>
+                    </div>
 
-        <p><a href="my-listings.html">Os Meus Anúncios</a> · <a href="encomendas.html">As Minhas Encomendas</a> · <a href="mensagens.html">Mensagens</a></p>
+                    <!-- ATALHOS RÁPIDOS -->
+                    <div class="profile-actions quick-links">
+                        <a href="my-listings.html" class="profile-message-btn" style="background-color: #333; border: 1px solid #555;">Os Meus Anúncios</a>
+                        <a href="encomendas.html" class="profile-message-btn" style="background-color: #333; border: 1px solid #555;">As Minhas Encomendas</a>
+                        <a href="mensagens.html" class="profile-message-btn" style="background-color: #333; border: 1px solid #555;">Mensagens</a>
+                    </div>
+                </div>
 
-    </div>
+                <!-- ESTATÍSTICAS -->
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <strong id="activeListings">0</strong>
+                        <span>Anúncios</span>
+                    </div>
+                    <div class="profile-stat">
+                        <strong id="sales">0</strong>
+                        <span>Vendas</span>
+                    </div>
+                    <div class="profile-stat">
+                        <strong id="purchases">0</strong>
+                        <span>Compras</span>
+                    </div>
+                    <div class="profile-stat">
+                        <strong id="rating">—</strong>
+                        <span>Avaliação</span>
+                    </div>
+                </div>
 
-</div>
+                <!-- ANÚNCIOS ATIVOS -->
+                <section class="profile-listings-section">
+                    <div class="profile-section-header">
+                        <div>
+                            <h2>Os teus anúncios ativos</h2>
+                            <p id="listingCountText">Cartas que tens disponíveis para venda</p>
+                        </div>
+                    </div>
 
-<script src="../js/auth-nav.js"></script>
-<script src="../js/profile.js"></script>
+                    <div id="profileListings" class="profile-listings-grid"></div>
+
+                    <div id="noListings" class="profile-empty hidden">
+                        <div class="profile-empty-icon">🃏</div>
+                        <h3>Nenhum anúncio ativo</h3>
+                        <p>Ainda não tens cartas à venda.</p>
+                        <a href="sell.html" class="profile-message-btn" style="margin-top:15px; display:inline-block; text-decoration:none;">Vender uma carta</a>
+                    </div>
+                </section>
+
+                <!-- AVALIAÇÕES (ADICIONADO) -->
+                <section class="profile-listings-section" style="margin-top: 40px;">
+                    <div class="profile-section-header">
+                        <div>
+                            <h2>Avaliações</h2>
+                            <p>Histórico de avaliações dadas e recebidas</p>
+                        </div>
+                    </div>
+
+                    <div id="reviewsSummary" style="margin-bottom: 15px;"></div>
+                    <div id="reviewsList" class="reviews-grid"></div>
+
+                    <div id="noReviews" class="profile-empty hidden">
+                        <div class="profile-empty-icon">⭐</div>
+                        <h3>Sem avaliações</h3>
+                        <p>Ainda não tens avaliações registadas.</p>
+                    </div>
+                </section>
+
+            </section>
+        </div>
+
+    </main>
+
+    <script src="../js/auth-nav.js"></script>
+    <script src="../js/profile.js"></script>
 
 </body>
 </html>

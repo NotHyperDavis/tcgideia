@@ -1,66 +1,39 @@
 const API_BASE = "http://localhost:3000";
 
-const loginWarning =
-    document.getElementById("loginWarning");
-
-const sellFlow =
-    document.getElementById("sellFlow");
-
-const results =
-    document.getElementById("results");
-
-const listingForm =
-    document.getElementById("listingForm");
-
-const selectedCardPreview =
-    document.getElementById("selectedCardPreview");
-
-const message =
-    document.getElementById("message");
+const loginWarning = document.getElementById("loginWarning");
+const sellFlow = document.getElementById("sellFlow");
+const results = document.getElementById("results");
+const listingForm = document.getElementById("listingForm");
+const selectedCardPreview = document.getElementById("selectedCardPreview");
+const message = document.getElementById("message");
 
 let selectedCard = null;
 
 function getToken() {
-
     return localStorage.getItem("token");
-
 }
-
 
 function checkAuthentication() {
-
-    const token =
-        getToken();
-
+    const token = getToken();
 
     if (!token) {
-
-        loginWarning.style.display =
-            "block";
-
-        sellFlow.style.display =
-            "none";
-
+        loginWarning.style.display = "block";
+        sellFlow.style.display = "none";
         return false;
-
     }
 
-
-    loginWarning.style.display =
-        "none";
-
-    sellFlow.style.display =
-        "block";
-
+    loginWarning.style.display = "none";
+    sellFlow.style.display = "block";
     return true;
-
 }
-
 
 checkAuthentication();
 
 async function searchCard() {
-    const search = document.getElementById("searchCard").value.trim();
+    const searchInput = document.getElementById("searchCard");
+    if (!searchInput) return;
+    
+    const search = searchInput.value.trim();
 
     if (search.length < 2) {
         results.innerHTML = "<p>Escreve pelo menos 2 letras para pesquisar.</p>";
@@ -71,7 +44,7 @@ async function searchCard() {
 
     try {
         const response = await fetch(`${API_BASE}/cards?q=${encodeURIComponent(search)}`);
-        const cards = await response.json(); // a TCGdex devolve um array direto
+        const cards = await response.json();
 
         if (!cards || cards.length === 0) {
             results.innerHTML = "<p>Nenhuma carta encontrada.</p>";
@@ -81,7 +54,7 @@ async function searchCard() {
         results.innerHTML = "";
 
         cards.forEach(card => {
-            const imageUrl = `${card.image}/low.webp`; // a TCGdex exige sufixo de qualidade/extensão
+            const imageUrl = `${card.image}/low.webp`;
             const el = document.createElement("div");
             el.className = "card";
             el.innerHTML = `
@@ -96,6 +69,23 @@ async function searchCard() {
         console.error(error);
         results.innerHTML = "<p>Erro ao pesquisar cartas.</p>";
     }
+}
+
+// Se tiveres um botão de pesquisa no HTML com ID "searchBtn", garantimos que ele dispara a função
+const searchBtn = document.getElementById("searchBtn");
+if (searchBtn) {
+    searchBtn.addEventListener("click", searchCard);
+}
+
+// Opcional: permitir pesquisar ao carregar no Enter na caixa de texto
+const searchCardInput = document.getElementById("searchCard");
+if (searchCardInput) {
+    searchCardInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            searchCard();
+        }
+    });
 }
 
 function selectCard(card, imageUrl) {
@@ -134,7 +124,7 @@ listingForm.addEventListener("submit", async (e) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${getToken}`,
+                "Authorization": `Bearer ${getToken()}`,
             },
             body: JSON.stringify({
                 card_id: selectedCard.id,
