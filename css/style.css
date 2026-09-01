@@ -134,6 +134,28 @@ h1, h2, h3 {
     background: var(--gradient);
 }
 
+.game-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.game-disabled:hover {
+    transform: none;
+    border-color: var(--border);
+    background: linear-gradient(160deg, var(--panel), var(--panel-2));
+}
+
+.game-disabled small {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
 /* CARTAS EM DESTAQUE / RESULTADOS */
 
 .featured {

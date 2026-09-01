@@ -1,18 +1,12 @@
-const API_URL = "https://api.pokemontcg.io/v2/cards";
-
 async function getFeaturedCards() {
 
     try {
 
-        const response = await fetch("https://api.pokemontcg.io/v2/cards?q=name:charizard");
+        const response = await fetch(`${API_BASE}/cards?q=charizard`);
 
-        console.log(response.status);
+        const cards = await response.json(); // a TCGdex devolve um array direto
 
-        const data = await response.json();
-
-        console.log(data);
-
-        displayCards(data.data);
+        displayCards(cards);
 
     } catch (error) {
 
@@ -22,7 +16,7 @@ async function getFeaturedCards() {
 
 }
 
-function displayCards(cards){
+function displayCards(cards) {
 
     const container = document.getElementById("featuredCards");
 
@@ -30,12 +24,12 @@ function displayCards(cards){
 
     cards.forEach(card => {
 
+        const imageUrl = `${card.image}/low.webp`;
+
         container.innerHTML += `
             <div class="card">
-                <img src="${card.images.small}">
+                <img src="${imageUrl}">
                 <h3>${card.name}</h3>
-                <p>${card.set.name}</p>
-                <span>${card.rarity ?? "Sem raridade"}</span>
             </div>
         `;
     });
@@ -51,17 +45,15 @@ async function searchCards(name) {
 
     try {
 
-        const response = await fetch(
-            `https://api.pokemontcg.io/v2/cards?q=name:"${name}"`
-        );
+        const response = await fetch(`${API_BASE}/cards?q=${encodeURIComponent(name)}`);
 
         if (!response.ok) {
             throw new Error(`Erro ${response.status}`);
         }
 
-        const data = await response.json();
+        const cards = await response.json();
 
-        displayCards(data.data);
+        displayCards(cards);
 
     } catch (error) {
 
@@ -75,12 +67,6 @@ getFeaturedCards();
 
 const input = document.getElementById("searchInput");
 
-input.addEventListener("input", () => {
-
-    searchCards(input.value);
-
-});
-
 let timeout;
 
 input.addEventListener("input", () => {
@@ -88,9 +74,14 @@ input.addEventListener("input", () => {
     clearTimeout(timeout);
 
     timeout = setTimeout(() => {
-
         searchCards(input.value);
-
     }, 400);
 
+});
+
+// Enter leva a sério ao marketplace, filtrado pelo que a pessoa escreveu.
+input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && input.value.trim().length >= 2) {
+        window.location.href = `marketplace.html?q=${encodeURIComponent(input.value.trim())}`;
+    }
 });

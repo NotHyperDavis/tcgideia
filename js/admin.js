@@ -130,10 +130,12 @@ async function loadOrders() {
                 <p>Comprador: ${order.buyer_name} (${order.buyer_email})</p>
                 <p>Vendedor: ${order.seller_name} (${order.seller_email})</p>
                 <p>Total: ${Number(order.total_price).toFixed(2)} € · Comissão: ${Number(order.platform_fee).toFixed(2)} € · A repassar: ${Number(order.seller_payout).toFixed(2)} €</p>
+                <p>Método: ${order.payment_method === "wallet" ? "Carteira" : order.payment_method === "stripe" ? "Cartão (Stripe)" : "Transferência bancária"}</p>
                 <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]} · Repasse: ${PAYOUT_LABELS[order.payout_status]}</p>
 
-                ${order.payment_status === "pending" ? `<button class="mark-paid-btn">Confirmar que recebi a transferência do comprador</button>` : ""}
-                ${order.payment_status === "paid" && order.payout_status === "pending" ? `<button class="mark-payout-btn">Confirmar que repassei ao vendedor</button>` : ""}
+                ${order.payment_method === "bank_transfer" && order.payment_status === "pending" ? `<button class="mark-paid-btn">Confirmar que recebi a transferência do comprador</button>` : ""}
+                ${order.payment_method === "bank_transfer" && order.status === "completed" && order.payout_status === "pending" ? `<button class="mark-payout-btn">Confirmar que repassei ao vendedor</button>` : ""}
+                ${order.payment_method !== "bank_transfer" && order.payout_status === "pending" ? `<p style="font-size:12px; color:var(--text-dim);"><em>Repasse automático — só acontece depois de o comprador confirmar a receção.</em></p>` : ""}
             `;
 
             el.querySelector(".mark-paid-btn")?.addEventListener("click", () => updateOrder(order.id, { payment_status: "paid" }));

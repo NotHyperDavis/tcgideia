@@ -1,10 +1,10 @@
-const COMMISSION_RATE = 0.08; // tem de bater certo com o COMMISSION_RATE do .env do servidor
-
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 const token = localStorage.getItem("token");
 
 const container = document.getElementById("product");
+
+let buyerCountry = "PT";
 
 const CONDITION_LABELS = {
     mint: "Mint",
@@ -15,12 +15,17 @@ const CONDITION_LABELS = {
     poor: "Danificada",
 };
 
-// Tem de refletir exatamente a função equivalente em server/routes/orders.js
 function estimateWeight(quantity) {
     return 15 + quantity * 2;
 }
 
-function calcShipping(totalWeightGrams) {
+function calcShipping(totalWeightGrams, country = "PT") {
+    if (country === "ES") {
+        if (totalWeightGrams <= 100) return 2.10;
+        if (totalWeightGrams <= 500) return 3.90;
+        return 7.80;
+    }
+
     if (totalWeightGrams <= 20) return 1.15;
     if (totalWeightGrams <= 50) return 1.50;
     if (totalWeightGrams <= 100) return 1.80;
@@ -28,9 +33,26 @@ function calcShipping(totalWeightGrams) {
     return 5.55;
 }
 
+async function loadBuyerCountry() {
+    if (!token) return;
+    try {
+        const response = await fetch(`${API_BASE}/users/me`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+        if (response.ok) {
+            const user = await response.json();
+            buyerCountry = user.country || "PT";
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function loadProduct() {
 
     try {
+
+        await loadBuyerCountry();
 
         const response = await fetch(`${API_BASE}/listings/${id}`);
 
@@ -151,17 +173,17 @@ function updatePriceBreakdown(listing) {
     const quantity = Number(document.getElementById("quantity").value) || 1;
     const basePrice = listing.price * quantity;
     const totalWeight = estimateWeight(quantity);
-    const shippingCost = calcShipping(totalWeight);
-    const platformFee = basePrice * COMMISSION_RATE;
-    // A taxa do site fica escondida dentro dos "portes" — o comprador só vê estas duas linhas.
-    const displayedShipping = shippingCost + platformFee;
-    const total = basePrice + displayedShipping;
+    const shippingCost = calcShipping(totalWeight, buyerCountry);
+    const total = basePrice + shippingCost;
 
     document.getElementById("priceBreakdown").innerHTML = `
         <p>
             Cartas: ${basePrice.toFixed(2)} €<br>
-            Portes: ${displayedShipping.toFixed(2)} €<br>
+            Portes (${buyerCountry === "ES" ? "Espanha" : "Portugal"}): ${shippingCost.toFixed(2)} €<br>
             <strong>Total a pagar: ${total.toFixed(2)} €</strong>
+        </p>
+        <p style="font-size:12px; color:var(--text-dim);">
+            Os portes dependem do país da tua conta. Podes mudar em <a href="profile.html">O Meu Perfil</a>.
         </p>
     `;
 }
@@ -175,9 +197,6 @@ async function submitOrder(e, listing) {
 
     buyMessage.textContent = "A processar...";
 
-    // Pagamento por cartão segue um caminho totalmente diferente: cria-se uma sessão
-    // Stripe e o browser é redirecionado para lá — a encomenda só é criada depois,
-    // pelo webhook, quando a Stripe confirmar que o pagamento foi mesmo feito.
     if (payment_method === "stripe") {
         try {
             const response = await fetch(`${API_BASE}/checkout/session`, {
@@ -230,13 +249,13 @@ async function submitOrder(e, listing) {
         if (payment_method === "wallet") {
             buyMessage.innerHTML = `
                 Compra concluída e paga pela carteira! Total: <strong>${Number(data.total_price).toFixed(2)} €</strong>.<br>
-                O vendedor já foi avisado para enviar. Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.
+                O vendedor já foi avisado para enviar. O valor só é repassado a ele depois de confirmares a receção.
+                Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.
             `;
         } else {
-            const displayedShipping = Number(data.shipping_cost) + Number(data.platform_fee);
             buyMessage.innerHTML = `
                 Compromisso registado! Total a transferir: <strong>${Number(data.total_price).toFixed(2)} €</strong>
-                (cartas + ${displayedShipping.toFixed(2)} € de portes).<br>
+                (cartas + ${Number(data.shipping_cost).toFixed(2)} € de portes).<br>
                 Transfere esse valor para o IBAN do site (substitui este texto pelo teu IBAN real).<br>
                 Assim que o site confirmar o pagamento, o vendedor é notificado para enviar a carta.
                 Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.

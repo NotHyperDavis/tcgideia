@@ -62,7 +62,7 @@ async function loadCart() {
         });
 
         document.getElementById("sumBase").textContent = data.base_price.toFixed(2);
-        document.getElementById("sumShipping").textContent = (data.shipping_cost + data.platform_fee).toFixed(2);
+        document.getElementById("sumShipping").textContent = data.shipping_cost.toFixed(2);
         document.getElementById("sumTotal").textContent = data.total.toFixed(2);
         summaryPanel.style.display = "block";
 

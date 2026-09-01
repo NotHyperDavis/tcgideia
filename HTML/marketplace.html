@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/marketplace.css">
 
 </head>
@@ -29,22 +30,32 @@
 
         <h3>Jogo</h3>
 
-        <label><input type="checkbox"> Pokémon</label>
-        <label><input type="checkbox"> One Piece</label>
-        <label><input type="checkbox"> Yu-Gi-Oh!</label>
-        <label><input type="checkbox"> Magic</label>
+        <label><input type="checkbox" checked disabled> Pokémon</label>
+        <label class="filter-disabled"><input type="checkbox" disabled> One Piece <small>(brevemente)</small></label>
+        <label class="filter-disabled"><input type="checkbox" disabled> Yu-Gi-Oh! <small>(brevemente)</small></label>
+        <label class="filter-disabled"><input type="checkbox" disabled> Magic <small>(brevemente)</small></label>
 
         <h3>Condição</h3>
 
-        <label><input type="checkbox"> Near Mint</label>
-        <label><input type="checkbox"> Excellent</label>
-        <label><input type="checkbox"> Good</label>
+        <label><input type="checkbox" class="condition-filter" value="mint"> Mint</label>
+        <label><input type="checkbox" class="condition-filter" value="near_mint"> Near Mint</label>
+        <label><input type="checkbox" class="condition-filter" value="excellent"> Excelente</label>
+        <label><input type="checkbox" class="condition-filter" value="good"> Boa</label>
+        <label><input type="checkbox" class="condition-filter" value="played"> Usada</label>
+        <label><input type="checkbox" class="condition-filter" value="poor"> Danificada</label>
 
     </aside>
 
     <main class="results">
 
         <h2>Marketplace</h2>
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="🔍 Pesquisar pelo nome da carta..."
+            class="marketplace-search"
+        >
 
         <div class="cards" id="marketCards">
 
@@ -54,11 +65,13 @@
 
 </section>
 
+<footer class="site-footer">
+    <p>&copy; 2026 TCG Ideia <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
+</footer>
+
 <script src="../js/config.js"></script>
 <script src="../js/marketplace.js"></script>
 <script src="../js/auth-nav.js"></script>
-
-
 
 </body>
 </html>

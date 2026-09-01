@@ -8,6 +8,7 @@
     <title>O Meu Perfil - TCG Ideia</title>
 
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/app.css">
     <style>
@@ -27,6 +28,14 @@
         .edit-name-input:focus {
             outline: none;
             border-color: #007bff;
+        }
+        #country {
+            cursor: pointer;
+        }
+        #country option {
+            background: #1A2233;
+            color: white;
+            padding: 8px;
         }
         .quick-links {
             display: flex;
@@ -78,7 +87,13 @@
                         <form id="editForm">
                             <label for="name" style="font-size: 0.8rem; color: #aaa;">O teu Nome</label><br>
                             <input type="text" id="name" class="edit-name-input" required>
-                            
+
+                            <label for="country" style="font-size: 0.8rem; color: #aaa; margin-top:10px; display:block;">País (para calcular os portes)</label>
+                            <select id="country" class="edit-name-input">
+                                <option value="PT">Portugal</option>
+                                <option value="ES">Espanha</option>
+                            </select>
+
                             <p style="margin: 5px 0;"><strong>Email:</strong> <span id="email"></span></p>
                             <p id="memberSince" style="margin: 5px 0;">Membro desde...</p>
                             
@@ -170,6 +185,10 @@
     <script src="../js/config.js"></script>
 <script src="../js/auth-nav.js"></script>
     <script src="../js/profile.js"></script>
+
+<footer class="site-footer">
+    <p>&copy; 2026 TCG Ideia <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
+</footer>
 
 </body>
 </html>
