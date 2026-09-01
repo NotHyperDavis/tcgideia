@@ -6,8 +6,15 @@ const stripe = require("../utils/stripe");
 
 const router = express.Router();
 
-const COMMISSION_RATE = Number(process.env.COMMISSION_RATE) || 0.08;
+// A Cardmarket cobra mais % a vendedores privados do que a lojas/profissionais
+// (incentiva a profissionalização). Fazemos o mesmo aqui.
+const COMMISSION_RATE_INDIVIDUAL = Number(process.env.COMMISSION_RATE_INDIVIDUAL) || 0.08;
+const COMMISSION_RATE_STORE = Number(process.env.COMMISSION_RATE_STORE) || 0.05;
 const COMMISSION_CAP = Number(process.env.COMMISSION_CAP) || 100; // nunca mais que isto por carta
+
+function commissionRateFor(accountType) {
+    return accountType === "store" ? COMMISSION_RATE_STORE : COMMISSION_RATE_INDIVIDUAL;
+}
 
 function isAdmin(user) {
     return user.email === process.env.ADMIN_EMAIL;
@@ -78,6 +85,9 @@ router.post("/", requireAuth, async (req, res) => {
         const buyerCountryResult = await client.query("SELECT country FROM users WHERE id = $1", [req.user.id]);
         const buyerCountry = buyerCountryResult.rows[0]?.country || "PT";
 
+        const sellerAccountResult = await client.query("SELECT account_type FROM users WHERE id = $1", [listing.user_id]);
+        const sellerAccountType = sellerAccountResult.rows[0]?.account_type || "individual";
+
         const basePrice = Number((listing.price * quantity).toFixed(2));
         const totalWeight = estimateWeight(quantity);
         const shippingCost = calcShipping(totalWeight, buyerCountry);
@@ -86,7 +96,7 @@ router.post("/", requireAuth, async (req, res) => {
         const totalPrice = Number((basePrice + shippingCost).toFixed(2));
         // A comissão (com teto por carta) fica retida para o site; o resto só é
         // repassado ao vendedor quando o comprador confirmar a receção (ver PATCH abaixo).
-        const platformFee = Math.min(Number((basePrice * COMMISSION_RATE).toFixed(2)), COMMISSION_CAP);
+        const platformFee = Math.min(Number((basePrice * commissionRateFor(sellerAccountType)).toFixed(2)), COMMISSION_CAP);
         const sellerPayout = Number((totalPrice - platformFee).toFixed(2));
 
         const orderResult = await client.query(

@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const cardsRoutes = require("./routes/cards");
@@ -21,6 +22,12 @@ const checkoutRoutes = require("./routes/checkout");
 const stripeWebhookRoutes = require("./routes/stripe-webhook");
 
 const app = express();
+
+// Quando acedes através de um túnel (Cloudflare, ngrok) ou de um hosting a sério,
+// os pedidos chegam através de um proxy, que acrescenta o cabeçalho X-Forwarded-For
+// com o IP real de quem fez o pedido. Sem isto, o express-rate-limit recusa-se a
+// confiar nesse cabeçalho e rejeita os pedidos.
+app.set("trust proxy", 1);
 
 // Em desenvolvimento (sem ALLOWED_ORIGIN definido no .env) aceita qualquer origem.
 // Em produção, define ALLOWED_ORIGIN no .env com o domínio real do teu frontend
@@ -59,6 +66,14 @@ app.use("/stripe-connect", stripeConnectRoutes);
 app.use("/checkout", checkoutRoutes);
 
 app.get("/", (req, res) => {
+    res.redirect("/HTML/main.html");
+});
+
+// Serve o próprio site (HTML/CSS/JS) — assim só precisas de expor esta porta
+// para os teus amigos acederem, em vez de precisares de duas (Live Server + backend).
+app.use(express.static(path.join(__dirname, "..")));
+
+app.get("/api-status", (req, res) => {
     res.send("🚀 API do TCG Ideia está online!");
 });
 

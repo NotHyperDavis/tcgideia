@@ -10,7 +10,7 @@ router.get("/me", requireAuth, async (req, res) => {
         const userId = req.user.id;
 
         const userResult = await pool.query(
-            `SELECT id, name, email, country, created_at FROM users WHERE id = $1`,
+            `SELECT id, name, email, country, account_type, created_at FROM users WHERE id = $1`,
             [userId]
         );
 
@@ -63,20 +63,25 @@ router.get("/me", requireAuth, async (req, res) => {
 
 // PATCH /users/me — editar o meu nome e/ou país (usado para os portes internacionais)
 router.patch("/me", requireAuth, async (req, res) => {
-    const { name, country } = req.body;
+    const { name, country, account_type } = req.body;
 
     if (country && !["PT", "ES"].includes(country)) {
         return res.status(400).json({ error: "País inválido." });
+    }
+
+    if (account_type && !["individual", "store"].includes(account_type)) {
+        return res.status(400).json({ error: "Tipo de conta inválido." });
     }
 
     try {
         const result = await pool.query(
             `UPDATE users
              SET name = COALESCE($1, name),
-                 country = COALESCE($2, country)
-             WHERE id = $3
-             RETURNING id, name, email, country, created_at`,
-            [name || null, country || null, req.user.id]
+                 country = COALESCE($2, country),
+                 account_type = COALESCE($3, account_type)
+             WHERE id = $4
+             RETURNING id, name, email, country, account_type, created_at`,
+            [name || null, country || null, account_type || null, req.user.id]
         );
 
         res.json(result.rows[0]);
@@ -92,7 +97,7 @@ router.get("/:id", async (req, res) => {
         const userId = req.params.id;
 
         const userResult = await pool.query(
-            `SELECT id, name, created_at FROM users WHERE id = $1`,
+            `SELECT id, name, account_type, created_at FROM users WHERE id = $1`,
             [userId]
         );
         

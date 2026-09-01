@@ -3,8 +3,6 @@
 // Também injeta o sino de notificações, o saldo da carteira e o carrinho —
 // agrupados dentro do <nav>, se existir uma, ou como bolhas fixas no canto como recurso.
 
-const NOTIF_API_BASE = "http://localhost:3000"; // troca pelo domínio real quando publicares o site
-
 function updateAuthNav() {
     const token = localStorage.getItem("token");
     const userRaw = localStorage.getItem("user");
@@ -89,7 +87,7 @@ function buildPill(id, href, icon, initialValue) {
 
 async function updateCartAndWallet(token) {
     try {
-        const walletResponse = await fetch(`${NOTIF_API_BASE}/wallet`, {
+        const walletResponse = await fetch(`${API_BASE}/wallet`, {
             headers: { "Authorization": `Bearer ${token}` },
         });
         const wallet = await walletResponse.json();
@@ -102,7 +100,7 @@ async function updateCartAndWallet(token) {
     }
 
     try {
-        const cartResponse = await fetch(`${NOTIF_API_BASE}/cart`, {
+        const cartResponse = await fetch(`${API_BASE}/cart`, {
             headers: { "Authorization": `Bearer ${token}` },
         });
         const cart = await cartResponse.json();
@@ -148,7 +146,7 @@ function buildNotificationBell(token, insideNav) {
 
 async function updateUnreadCount(token) {
     try {
-        const response = await fetch(`${NOTIF_API_BASE}/notifications/unread-count`, {
+        const response = await fetch(`${API_BASE}/notifications/unread-count`, {
             headers: { "Authorization": `Bearer ${token}` },
         });
         const data = await response.json();
@@ -169,7 +167,7 @@ async function loadNotifications(token, dropdown) {
     dropdown.innerHTML = "<p>A carregar...</p>";
 
     try {
-        const response = await fetch(`${NOTIF_API_BASE}/notifications`, {
+        const response = await fetch(`${API_BASE}/notifications`, {
             headers: { "Authorization": `Bearer ${token}` },
         });
         const notifications = await response.json();
@@ -194,7 +192,7 @@ async function loadNotifications(token, dropdown) {
 
 async function markAllRead(token) {
     try {
-        await fetch(`${NOTIF_API_BASE}/notifications/read-all`, {
+        await fetch(`${API_BASE}/notifications/read-all`, {
             method: "PATCH",
             headers: { "Authorization": `Bearer ${token}` },
         });

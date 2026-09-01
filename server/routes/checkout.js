@@ -6,7 +6,12 @@ const stripe = require("../utils/stripe");
 const router = express.Router();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:5500";
-const COMMISSION_RATE = Number(process.env.COMMISSION_RATE) || 0.08;
+const COMMISSION_RATE_INDIVIDUAL = Number(process.env.COMMISSION_RATE_INDIVIDUAL) || 0.08;
+const COMMISSION_RATE_STORE = Number(process.env.COMMISSION_RATE_STORE) || 0.05;
+
+function commissionRateFor(accountType) {
+    return accountType === "store" ? COMMISSION_RATE_STORE : COMMISSION_RATE_INDIVIDUAL;
+}
 const COMMISSION_CAP = Number(process.env.COMMISSION_CAP) || 100; // nunca mais que isto por carta
 
 // Tem de ser exatamente igual à função em orders.js e no product.js do frontend
@@ -45,7 +50,7 @@ router.post("/session", requireAuth, async (req, res) => {
 
     try {
         const listingResult = await pool.query(
-            `SELECT listings.*, users.stripe_account_id, users.stripe_onboarding_complete
+            `SELECT listings.*, users.stripe_account_id, users.stripe_onboarding_complete, users.account_type AS seller_account_type
              FROM listings
              JOIN users ON users.id = listings.user_id
              WHERE listings.id = $1`,
@@ -81,7 +86,7 @@ router.post("/session", requireAuth, async (req, res) => {
         const totalPrice = Number((basePrice + shippingCost).toFixed(2));
         // A comissão (com teto por carta) fica retida contigo; o resto vai para o
         // vendedor só depois da entrega ser confirmada (não é transferido agora).
-        const platformFee = Math.min(Number((basePrice * COMMISSION_RATE).toFixed(2)), COMMISSION_CAP);
+        const platformFee = Math.min(Number((basePrice * commissionRateFor(listing.seller_account_type)).toFixed(2)), COMMISSION_CAP);
         const sellerPayout = Number((totalPrice - platformFee).toFixed(2));
 
         // A Stripe trabalha em cêntimos, sempre números inteiros.

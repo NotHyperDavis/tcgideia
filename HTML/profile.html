@@ -32,10 +32,14 @@
         #country {
             cursor: pointer;
         }
-        #country option {
+        #country option,
+        #accountType option {
             background: #1A2233;
             color: white;
             padding: 8px;
+        }
+        #accountType {
+            cursor: pointer;
         }
         .quick-links {
             display: flex;
@@ -92,6 +96,12 @@
                             <select id="country" class="edit-name-input">
                                 <option value="PT">Portugal</option>
                                 <option value="ES">Espanha</option>
+                            </select>
+
+                            <label for="accountType" style="font-size: 0.8rem; color: #aaa; margin-top:10px; display:block;">Tipo de conta (afeta a comissão quando vendes)</label>
+                            <select id="accountType" class="edit-name-input">
+                                <option value="individual">Particular</option>
+                                <option value="store">Loja</option>
                             </select>
 
                             <p style="margin: 5px 0;"><strong>Email:</strong> <span id="email"></span></p>

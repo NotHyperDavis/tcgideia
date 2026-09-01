@@ -110,6 +110,11 @@ async function loadProfile() {
         if (profileAvatar) profileAvatar.textContent = getInitial(user.name);
         if (memberSince) memberSince.textContent = `Membro desde ${formatMemberDate(user.created_at)}`;
 
+        const accountTypeBadge = document.getElementById("accountTypeBadge");
+        if (accountTypeBadge) {
+            accountTypeBadge.textContent = user.account_type === "store" ? "🏪 Loja" : "🟢 Particular";
+        }
+
         /*
         Estatísticas
         */

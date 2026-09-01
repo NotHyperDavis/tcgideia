@@ -36,6 +36,7 @@ async function loadMyProfile() {
         document.getElementById("email").textContent = user.email;
         document.getElementById("name").value = user.name;
         document.getElementById("country").value = user.country || "PT";
+        document.getElementById("accountType").value = user.account_type || "individual";
         document.getElementById("memberSince").textContent = "Membro desde " + new Date(user.created_at)
             .toLocaleDateString("pt-PT", { year: "numeric", month: "long" });
 
@@ -170,6 +171,7 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
 
     const name = document.getElementById("name").value;
     const country = document.getElementById("country").value;
+    const account_type = document.getElementById("accountType").value;
     message.textContent = "A guardar...";
 
     try {
@@ -179,7 +181,7 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`,
             },
-            body: JSON.stringify({ name, country }),
+            body: JSON.stringify({ name, country, account_type }),
         });
 
         const data = await response.json();

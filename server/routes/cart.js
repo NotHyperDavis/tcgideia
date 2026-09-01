@@ -5,8 +5,13 @@ const { notify } = require("../utils/notifications");
 
 const router = express.Router();
 
-const COMMISSION_RATE = Number(process.env.COMMISSION_RATE) || 0.08;
+const COMMISSION_RATE_INDIVIDUAL = Number(process.env.COMMISSION_RATE_INDIVIDUAL) || 0.08;
+const COMMISSION_RATE_STORE = Number(process.env.COMMISSION_RATE_STORE) || 0.05;
 const COMMISSION_CAP = Number(process.env.COMMISSION_CAP) || 100; // nunca mais que isto por carta
+
+function commissionRateFor(accountType) {
+    return accountType === "store" ? COMMISSION_RATE_STORE : COMMISSION_RATE_INDIVIDUAL;
+}
 
 // Tem de ser exatamente igual à função em orders.js e no product.js/carrinho.js do frontend
 function estimateWeight(quantity) {
@@ -71,7 +76,7 @@ router.get("/", requireAuth, async (req, res) => {
                     listings.id AS listing_id, listings.card_name, listings.card_image,
                     listings.price, listings.condition, listings.quantity AS available_quantity,
                     listings.user_id AS seller_id,
-                    users.name AS seller_name
+                    users.name AS seller_name, users.account_type AS seller_account_type
              FROM cart_items
              JOIN listings ON listings.id = cart_items.listing_id
              JOIN users ON users.id = listings.user_id
@@ -104,7 +109,7 @@ router.get("/", requireAuth, async (req, res) => {
             sellerItems.forEach(item => {
                 const itemBase = item.price * item.quantity;
                 basePriceTotal += itemBase;
-                platformFeeTotal += Math.min(itemBase * COMMISSION_RATE, COMMISSION_CAP);
+                platformFeeTotal += Math.min(itemBase * commissionRateFor(item.seller_account_type), COMMISSION_CAP);
             });
         }
 
@@ -174,9 +179,10 @@ router.post("/checkout", requireAuth, async (req, res) => {
         await client.query("BEGIN");
 
         const cartResult = await client.query(
-            `SELECT cart_items.quantity AS cart_quantity, listings.*
+            `SELECT cart_items.quantity AS cart_quantity, listings.*, sellers.account_type AS seller_account_type
              FROM cart_items
              JOIN listings ON listings.id = cart_items.listing_id
+             JOIN users sellers ON sellers.id = listings.user_id
              WHERE cart_items.user_id = $1
              FOR UPDATE OF listings`,
             [req.user.id]
@@ -226,7 +232,7 @@ router.post("/checkout", requireAuth, async (req, res) => {
                 const totalPrice = Number((basePrice + itemShipping).toFixed(2));
                 // A comissão (com teto por carta) fica retida; só é descontada quando
                 // o repasse for feito ao vendedor, depois da entrega confirmada.
-                const platformFee = Math.min(Number((basePrice * COMMISSION_RATE).toFixed(2)), COMMISSION_CAP);
+                const platformFee = Math.min(Number((basePrice * commissionRateFor(item.seller_account_type)).toFixed(2)), COMMISSION_CAP);
                 const sellerPayout = Number((totalPrice - platformFee).toFixed(2));
 
                 grandTotal += totalPrice;
