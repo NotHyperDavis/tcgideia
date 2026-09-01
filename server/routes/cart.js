@@ -6,13 +6,20 @@ const { notify } = require("../utils/notifications");
 const router = express.Router();
 
 const COMMISSION_RATE = Number(process.env.COMMISSION_RATE) || 0.08;
+const COMMISSION_CAP = Number(process.env.COMMISSION_CAP) || 100; // nunca mais que isto por carta
 
 // Tem de ser exatamente igual à função em orders.js e no product.js/carrinho.js do frontend
 function estimateWeight(quantity) {
     return 15 + quantity * 2;
 }
 
-function calcShipping(totalWeightGrams) {
+function calcShipping(totalWeightGrams, country = "PT") {
+    if (country === "ES") {
+        if (totalWeightGrams <= 100) return 2.10;
+        if (totalWeightGrams <= 500) return 3.90;
+        return 7.80;
+    }
+
     if (totalWeightGrams <= 20) return 1.15;
     if (totalWeightGrams <= 50) return 1.50;
     if (totalWeightGrams <= 100) return 1.80;
@@ -75,6 +82,9 @@ router.get("/", requireAuth, async (req, res) => {
 
         const items = result.rows;
 
+        const buyerCountryResult = await pool.query("SELECT country FROM users WHERE id = $1", [req.user.id]);
+        const buyerCountry = buyerCountryResult.rows[0]?.country || "PT";
+
         // Agrupa por vendedor para calcular os portes (um envio por vendedor)
         const bySeller = {};
         for (const item of items) {
@@ -84,22 +94,28 @@ router.get("/", requireAuth, async (req, res) => {
 
         let basePriceTotal = 0;
         let shippingTotal = 0;
+        let platformFeeTotal = 0;
 
         for (const sellerId in bySeller) {
             const sellerItems = bySeller[sellerId];
             const weight = sellerItems.reduce((sum, i) => sum + i.quantity, 0);
-            shippingTotal += calcShipping(estimateWeight(weight));
-            basePriceTotal += sellerItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+            shippingTotal += calcShipping(estimateWeight(weight), buyerCountry);
+
+            sellerItems.forEach(item => {
+                const itemBase = item.price * item.quantity;
+                basePriceTotal += itemBase;
+                platformFeeTotal += Math.min(itemBase * COMMISSION_RATE, COMMISSION_CAP);
+            });
         }
 
-        const platformFee = Number((basePriceTotal * COMMISSION_RATE).toFixed(2));
-        const total = Number((basePriceTotal + shippingTotal + platformFee).toFixed(2));
+        // O comprador só paga preço das cartas + portes reais — a comissão não entra aqui.
+        const total = Number((basePriceTotal + shippingTotal).toFixed(2));
 
         res.json({
             items,
             base_price: Number(basePriceTotal.toFixed(2)),
             shipping_cost: Number(shippingTotal.toFixed(2)),
-            platform_fee: platformFee,
+            platform_fee: Number(platformFeeTotal.toFixed(2)), // informativo — sai do vendedor
             total,
         });
     } catch (error) {
@@ -184,6 +200,9 @@ router.post("/checkout", requireAuth, async (req, res) => {
             }
         }
 
+        const buyerCountryResult = await client.query("SELECT country FROM users WHERE id = $1", [req.user.id]);
+        const buyerCountry = buyerCountryResult.rows[0]?.country || "PT";
+
         // Agrupa por vendedor para os portes (um envio por vendedor, atribuído ao primeiro item)
         const bySeller = {};
         for (const item of cartItems) {
@@ -197,15 +216,18 @@ router.post("/checkout", requireAuth, async (req, res) => {
         for (const sellerId in bySeller) {
             const sellerItems = bySeller[sellerId];
             const totalQuantity = sellerItems.reduce((sum, i) => sum + i.cart_quantity, 0);
-            const shippingCost = calcShipping(estimateWeight(totalQuantity));
+            const shippingCost = calcShipping(estimateWeight(totalQuantity), buyerCountry);
 
             sellerItems.forEach((item, index) => {
                 const basePrice = Number((item.price * item.cart_quantity).toFixed(2));
-                const platformFee = Number((basePrice * COMMISSION_RATE).toFixed(2));
                 const itemShipping = index === 0 ? shippingCost : 0;
-                const totalPrice = Number((basePrice + itemShipping + platformFee).toFixed(2));
-                // O vendedor recebe só o preço que pediu pela carta — nunca os portes nem a taxa.
-                const sellerPayout = basePrice;
+
+                // O comprador paga só preço+portes reais — nada escondido.
+                const totalPrice = Number((basePrice + itemShipping).toFixed(2));
+                // A comissão (com teto por carta) fica retida; só é descontada quando
+                // o repasse for feito ao vendedor, depois da entrega confirmada.
+                const platformFee = Math.min(Number((basePrice * COMMISSION_RATE).toFixed(2)), COMMISSION_CAP);
+                const sellerPayout = Number((totalPrice - platformFee).toFixed(2));
 
                 grandTotal += totalPrice;
 
@@ -253,8 +275,8 @@ router.post("/checkout", requireAuth, async (req, res) => {
                 [listing.id, req.user.id, order.seller_id, order.quantity, order.unit_price, order.total_price, order.platform_fee, order.seller_payout, order.shipping_cost]
             );
 
-            // Pagamento pela carteira é imediato, por isso credita logo o vendedor
-            await client.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [order.seller_payout, order.seller_id]);
+            // O vendedor só é creditado quando o comprador confirmar a receção
+            // (ver PATCH /orders/:id em orders.js) — aqui só se debita o comprador.
 
             createdOrders.push(orderResult.rows[0]);
         }

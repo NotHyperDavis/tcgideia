@@ -2,30 +2,34 @@ const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
 const { notify } = require("../utils/notifications");
+const stripe = require("../utils/stripe");
 
 const router = express.Router();
 
-// A % que o site cobra a mais ao comprador (o vendedor recebe sempre o valor total do anúncio).
 const COMMISSION_RATE = Number(process.env.COMMISSION_RATE) || 0.08;
+const COMMISSION_CAP = Number(process.env.COMMISSION_CAP) || 100; // nunca mais que isto por carta
 
-// O site é gerido por ti — só a tua conta pode confirmar pagamentos e repasses.
 function isAdmin(user) {
     return user.email === process.env.ADMIN_EMAIL;
 }
 
-// Portes calculados por uma estimativa de peso (não depende do vendedor saber o peso real).
-// Assume ~15g de embalagem (envelope/toploader) + ~2g por carta.
-// Baseado nos preços aproximados dos CTT (com IVA). Ajusta se os preços mudarem.
 function estimateWeight(quantity) {
     return 15 + quantity * 2;
 }
 
-function calcShipping(totalWeightGrams) {
+// Correio Azul da CTT (tarifário 2026) — serviço recomendado para bens ao estrangeiro.
+function calcShipping(totalWeightGrams, country = "PT") {
+    if (country === "ES") {
+        if (totalWeightGrams <= 100) return 2.10;
+        if (totalWeightGrams <= 500) return 3.90;
+        return 7.80;
+    }
+
     if (totalWeightGrams <= 20) return 1.15;
     if (totalWeightGrams <= 50) return 1.50;
     if (totalWeightGrams <= 100) return 1.80;
     if (totalWeightGrams <= 500) return 3.00;
-    return 5.55; // até 2kg
+    return 5.55;
 }
 
 // Comprometer-se a comprar (equivalente ao "commit to buy" do Cardmarket)
@@ -71,16 +75,19 @@ router.post("/", requireAuth, async (req, res) => {
             return res.status(400).json({ error: "Não há quantidade suficiente disponível." });
         }
 
+        const buyerCountryResult = await client.query("SELECT country FROM users WHERE id = $1", [req.user.id]);
+        const buyerCountry = buyerCountryResult.rows[0]?.country || "PT";
+
         const basePrice = Number((listing.price * quantity).toFixed(2));
         const totalWeight = estimateWeight(quantity);
-        const shippingCost = calcShipping(totalWeight);
-        const platformFee = Number((basePrice * COMMISSION_RATE).toFixed(2));
+        const shippingCost = calcShipping(totalWeight, buyerCountry);
 
-        // O comprador paga o preço da carta + portes + taxa (guardamos os valores reais,
-        // é só no frontend que a taxa aparece escondida dentro dos "portes").
-        const totalPrice = Number((basePrice + shippingCost + platformFee).toFixed(2));
-        // O vendedor recebe só o preço que pediu pela carta — nunca os portes nem a taxa.
-        const sellerPayout = basePrice;
+        // O comprador paga só o preço da carta + portes reais.
+        const totalPrice = Number((basePrice + shippingCost).toFixed(2));
+        // A comissão (com teto por carta) fica retida para o site; o resto só é
+        // repassado ao vendedor quando o comprador confirmar a receção (ver PATCH abaixo).
+        const platformFee = Math.min(Number((basePrice * COMMISSION_RATE).toFixed(2)), COMMISSION_CAP);
+        const sellerPayout = Number((totalPrice - platformFee).toFixed(2));
 
         const orderResult = await client.query(
             `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost)
@@ -102,8 +109,9 @@ router.post("/", requireAuth, async (req, res) => {
                 return res.status(400).json({ error: `Saldo insuficiente. Precisas de ${totalPrice.toFixed(2)} € e tens ${buyerBalance.toFixed(2)} €.` });
             }
 
+            // Só se debita o comprador agora. O vendedor NÃO é creditado aqui —
+            // só recebe quando o comprador confirmar a receção da carta.
             await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [totalPrice, req.user.id]);
-            await client.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [sellerPayout, listing.user_id]);
         }
 
         const remaining = listing.quantity - quantity;
@@ -173,6 +181,7 @@ router.get("/selling", requireAuth, async (req, res) => {
 });
 
 // Todas as encomendas pagas mas ainda por repassar ao vendedor (só para ti, o admin)
+// Só é relevante para transferência bancária agora — carteira e Stripe repassam sozinhos.
 router.get("/admin/payouts", requireAuth, async (req, res) => {
     if (!isAdmin(req.user)) {
         return res.status(403).json({ error: "Acesso restrito ao administrador do site." });
@@ -198,19 +207,26 @@ router.get("/admin/payouts", requireAuth, async (req, res) => {
 });
 
 // Atualizar o estado de uma encomenda.
-// Cada campo só pode ser mudado por quem faz sentido:
-// - payment_status  -> só o admin (é ele que recebe o dinheiro do comprador)
-// - status=shipped  -> só o vendedor, e só depois do pagamento confirmado
-// - status=completed -> só o comprador (confirma que recebeu a carta)
-// - status=cancelled -> comprador ou vendedor, só enquanto ainda "committed"
-// - payout_status   -> só o admin (é ele que repassa o dinheiro ao vendedor)
+//
+// Regra nova: o vendedor só recebe o dinheiro (carteira ou Stripe) quando o
+// COMPRADOR confirma que recebeu a carta (status="completed"). Nesse momento,
+// o sistema faz o repasse automaticamente:
+//   - carteira: credita o saldo do vendedor
+//   - stripe: cria uma transferência para a conta Stripe do vendedor
+//   - transferência bancária: continua a ser o admin a repassar à mão,
+//     mas só pode fazê-lo depois da entrega confirmada.
 router.patch("/:id", requireAuth, async (req, res) => {
     const { payment_status, status, payout_status } = req.body;
 
+    const client = await pool.connect();
+
     try {
-        const existing = await pool.query("SELECT * FROM orders WHERE id = $1", [req.params.id]);
+        await client.query("BEGIN");
+
+        const existing = await client.query("SELECT * FROM orders WHERE id = $1 FOR UPDATE", [req.params.id]);
 
         if (existing.rows.length === 0) {
+            await client.query("ROLLBACK");
             return res.status(404).json({ error: "Encomenda não encontrada." });
         }
 
@@ -220,45 +236,137 @@ router.patch("/:id", requireAuth, async (req, res) => {
         const admin = isAdmin(req.user);
 
         if (!isSeller && !isBuyer && !admin) {
+            await client.query("ROLLBACK");
             return res.status(403).json({ error: "Não tens acesso a esta encomenda." });
         }
 
-        if ((payment_status || payout_status) && !admin) {
-            return res.status(403).json({ error: "Só o administrador do site pode confirmar pagamentos e repasses." });
+        if (payment_status && !admin) {
+            await client.query("ROLLBACK");
+            return res.status(403).json({ error: "Só o administrador do site pode confirmar pagamentos." });
         }
 
         if (status === "shipped") {
             if (!isSeller) {
+                await client.query("ROLLBACK");
                 return res.status(403).json({ error: "Só o vendedor pode marcar como enviado." });
             }
             if (order.payment_status !== "paid") {
+                await client.query("ROLLBACK");
                 return res.status(400).json({ error: "Ainda não podes enviar: o pagamento não está confirmado." });
             }
         }
 
         if (status === "completed" && !isBuyer && !admin) {
+            await client.query("ROLLBACK");
             return res.status(403).json({ error: "Só o comprador pode confirmar a receção." });
         }
 
         if (status === "cancelled" && order.status !== "committed") {
+            await client.query("ROLLBACK");
             return res.status(400).json({ error: "Já não é possível cancelar esta encomenda." });
         }
 
-        const result = await pool.query(
+        // Repasse manual (só para transferência bancária, e só o admin) — agora exige
+        // que a entrega já tenha sido confirmada.
+        if (payout_status) {
+            if (!admin) {
+                await client.query("ROLLBACK");
+                return res.status(403).json({ error: "Só o administrador do site pode confirmar repasses." });
+            }
+            if (order.payment_method !== "bank_transfer") {
+                await client.query("ROLLBACK");
+                return res.status(400).json({ error: "Este método de pagamento repassa automaticamente — não precisas de o fazer à mão." });
+            }
+            if (order.status !== "completed" && status !== "completed") {
+                await client.query("ROLLBACK");
+                return res.status(400).json({ error: "Só podes repassar depois de o comprador confirmar a receção." });
+            }
+        }
+
+        // Repasse automático: acontece uma única vez, exatamente quando a entrega
+        // passa a "completed" pela primeira vez, para carteira e Stripe.
+        const isFirstTimeCompleted = status === "completed" && order.status !== "completed";
+        let autoPayoutStatus = null;
+
+        if (isFirstTimeCompleted && order.payout_status === "pending") {
+            if (order.payment_method === "wallet") {
+                await client.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [order.seller_payout, order.seller_id]);
+                autoPayoutStatus = "paid_out";
+            }
+
+            if (order.payment_method === "stripe") {
+                if (!order.stripe_payment_intent_id) {
+                    await client.query("ROLLBACK");
+                    return res.status(500).json({ error: "Encomenda sem referência de pagamento Stripe — contacta o suporte." });
+                }
+
+                const sellerResult = await client.query("SELECT stripe_account_id FROM users WHERE id = $1", [order.seller_id]);
+                const sellerStripeAccountId = sellerResult.rows[0]?.stripe_account_id;
+
+                if (!sellerStripeAccountId) {
+                    await client.query("ROLLBACK");
+                    return res.status(500).json({ error: "O vendedor já não tem conta Stripe ligada — contacta o suporte." });
+                }
+
+                // Vai buscar o charge associado ao pagamento, para a transferência
+                // sair mesmo desse dinheiro (source_transaction).
+                const paymentIntent = await stripe.paymentIntents.retrieve(order.stripe_payment_intent_id);
+
+                await stripe.transfers.create({
+                    amount: Math.round(Number(order.seller_payout) * 100),
+                    currency: "eur",
+                    destination: sellerStripeAccountId,
+                    source_transaction: paymentIntent.latest_charge,
+                });
+
+                autoPayoutStatus = "paid_out";
+            }
+        }
+
+        const result = await client.query(
             `UPDATE orders
              SET payment_status = COALESCE($1, payment_status),
                  status = COALESCE($2, status),
-                 payout_status = COALESCE($3, payout_status),
+                 payout_status = COALESCE($3, COALESCE($4, payout_status)),
                  updated_at = NOW()
-             WHERE id = $4
+             WHERE id = $5
              RETURNING *`,
-            [payment_status, status, payout_status, req.params.id]
+            [payment_status, status, payout_status, autoPayoutStatus, req.params.id]
         );
 
-        res.json(result.rows[0]);
+        await client.query("COMMIT");
+
+        const updated = result.rows[0];
+
+        if (payment_status === "paid") {
+            await notify(order.seller_id, "order_update", "O pagamento da tua venda foi confirmado — já podes enviar.", "encomendas.html");
+            await notify(order.buyer_id, "order_update", "O teu pagamento foi confirmado.", "encomendas.html");
+        }
+        if (status === "shipped") {
+            await notify(order.buyer_id, "order_update", "O vendedor enviou a tua encomenda.", "encomendas.html");
+        }
+        if (status === "completed") {
+            await notify(order.seller_id, "order_update",
+                autoPayoutStatus === "paid_out"
+                    ? `O comprador confirmou a receção — já te repassámos ${Number(order.seller_payout).toFixed(2)} €.`
+                    : "O comprador confirmou a receção da encomenda.",
+                "encomendas.html");
+        }
+        if (status === "cancelled") {
+            const otherUserId = req.user.id === order.buyer_id ? order.seller_id : order.buyer_id;
+            await notify(otherUserId, "order_update", "Uma encomenda foi cancelada.", "encomendas.html");
+        }
+        if (payout_status === "paid_out") {
+            await notify(order.seller_id, "order_update", "O site repassou-te o valor desta venda.", "encomendas.html");
+        }
+
+        res.json(updated);
     } catch (error) {
+        await client.query("ROLLBACK");
         console.error(error);
         res.status(500).json({ error: "Erro ao atualizar encomenda." });
+    } finally {
+        client.release();
     }
 });
 

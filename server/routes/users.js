@@ -10,7 +10,7 @@ router.get("/me", requireAuth, async (req, res) => {
         const userId = req.user.id;
 
         const userResult = await pool.query(
-            `SELECT id, name, created_at FROM users WHERE id = $1`,
+            `SELECT id, name, email, country, created_at FROM users WHERE id = $1`,
             [userId]
         );
 
@@ -58,6 +58,31 @@ router.get("/me", requireAuth, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Erro ao obter o teu perfil." });
+    }
+});
+
+// PATCH /users/me — editar o meu nome e/ou país (usado para os portes internacionais)
+router.patch("/me", requireAuth, async (req, res) => {
+    const { name, country } = req.body;
+
+    if (country && !["PT", "ES"].includes(country)) {
+        return res.status(400).json({ error: "País inválido." });
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE users
+             SET name = COALESCE($1, name),
+                 country = COALESCE($2, country)
+             WHERE id = $3
+             RETURNING id, name, email, country, created_at`,
+            [name || null, country || null, req.user.id]
+        );
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao atualizar o teu perfil." });
     }
 });
 

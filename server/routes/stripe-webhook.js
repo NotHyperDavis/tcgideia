@@ -40,10 +40,10 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             const listing = listingResult.rows[0];
 
             const orderResult = await client.query(
-                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost, stripe_session_id)
-                 VALUES ($1, $2, $3, $4, $5, $6, 'stripe', 'paid', $7, $8, $9, $10)
+                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost, stripe_session_id, stripe_payment_intent_id)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'stripe', 'paid', $7, $8, $9, $10, $11)
                  RETURNING *`,
-                [listing_id, buyer_id, seller_id, quantity, unit_price, total_price, platform_fee, seller_payout, shipping_cost, session.id]
+                [listing_id, buyer_id, seller_id, quantity, unit_price, total_price, platform_fee, seller_payout, shipping_cost, session.id, session.payment_intent]
             );
 
             const remaining = listing.quantity - Number(quantity);
