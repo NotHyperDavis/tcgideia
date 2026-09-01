@@ -1,6 +1,24 @@
-const API_BASE = "http://localhost:3000"; // troca pelo domínio real quando publicares o site
-
 const token = localStorage.getItem("token");
+
+// Envia um ficheiro para o Cloudinary (via o backend) e devolve o URL público.
+async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch(`${API_BASE}/upload`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Erro ao enviar a imagem.");
+    }
+
+    return data.url;
+}
 
 const loginWarning = document.getElementById("loginWarning");
 const ordersFlow = document.getElementById("ordersFlow");
@@ -188,32 +206,59 @@ async function loadMessages(box, orderId) {
             <div class="chat-messages">
                 ${messages.length === 0
                     ? "<p><em>Ainda não há mensagens.</em></p>"
-                    : messages.map(m => `<p><strong>${m.sender_name}:</strong> ${escapeHtml(m.message)}</p>`).join("")}
+                    : messages.map(m => `
+                        <p><strong>${m.sender_name}:</strong> ${m.message ? escapeHtml(m.message) : ""}</p>
+                        ${m.image_url ? `<img src="${m.image_url}" class="chat-image" onclick="window.open('${m.image_url}')">` : ""}
+                    `).join("")}
             </div>
             <form class="chat-form">
-                <input type="text" class="chat-input" placeholder="Escreve uma mensagem..." required>
+                <input type="text" class="chat-input" placeholder="Escreve uma mensagem...">
+                <label class="chat-attach-btn" title="Anexar foto">
+                    📷
+                    <input type="file" class="chat-file-input" accept="image/*" style="display:none;">
+                </label>
                 <button type="submit">Enviar</button>
             </form>
+            <p class="chat-file-name"></p>
         `;
+
+        const fileInput = box.querySelector(".chat-file-input");
+        fileInput.addEventListener("change", () => {
+            box.querySelector(".chat-file-name").textContent = fileInput.files[0] ? `📎 ${fileInput.files[0].name}` : "";
+        });
 
         box.querySelector(".chat-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const input = box.querySelector(".chat-input");
             const message = input.value.trim();
-            if (!message) return;
+            const file = fileInput.files[0];
 
-            const response = await fetch(`${API_BASE}/orders/${orderId}/messages`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-                body: JSON.stringify({ message }),
-            });
+            if (!message && !file) return;
 
-            if (response.ok) {
-                input.value = "";
-                await loadMessages(box, orderId);
+            let image_url = null;
+
+            try {
+                if (file) {
+                    image_url = await uploadImage(file);
+                }
+
+                const response = await fetch(`${API_BASE}/orders/${orderId}/messages`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ message, image_url }),
+                });
+
+                if (response.ok) {
+                    input.value = "";
+                    fileInput.value = "";
+                    await loadMessages(box, orderId);
+                }
+            } catch (error) {
+                console.error(error);
+                alert(error.message || "Erro ao enviar a mensagem.");
             }
         });
 

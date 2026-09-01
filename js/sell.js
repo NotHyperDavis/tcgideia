@@ -1,5 +1,3 @@
-const API_BASE = "http://localhost:3000";
-
 const loginWarning = document.getElementById("loginWarning");
 const sellFlow = document.getElementById("sellFlow");
 const results = document.getElementById("results");
@@ -12,6 +10,36 @@ let selectedCard = null;
 function getToken() {
     return localStorage.getItem("token");
 }
+
+// Reutilizável: envia um ficheiro para o Cloudinary (via o backend) e devolve o URL público.
+async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch(`${API_BASE}/upload`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${getToken()}` },
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Erro ao enviar a imagem.");
+    }
+
+    return data.url;
+}
+
+document.getElementById("realPhoto")?.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    const preview = document.getElementById("realPhotoPreview");
+    if (!file) {
+        preview.innerHTML = "";
+        return;
+    }
+    preview.innerHTML = `<img src="${URL.createObjectURL(file)}" style="max-width:160px; border-radius:8px; margin-top:10px;">`;
+});
 
 function checkAuthentication() {
     const token = getToken();
@@ -119,6 +147,15 @@ listingForm.addEventListener("submit", async (e) => {
     message.className = "";
 
     try {
+        let real_photo_url = null;
+        const photoFile = document.getElementById("realPhoto")?.files[0];
+
+        if (photoFile) {
+            message.textContent = "A enviar foto...";
+            real_photo_url = await uploadImage(photoFile);
+            message.textContent = "A publicar...";
+        }
+
         const response = await fetch(`${API_BASE}/listings`, {
             method: "POST",
             headers: {
@@ -133,6 +170,7 @@ listingForm.addEventListener("submit", async (e) => {
                 condition,
                 quantity,
                 description,
+                real_photo_url,
             }),
         });
 
@@ -153,7 +191,7 @@ listingForm.addEventListener("submit", async (e) => {
 
     } catch (error) {
         console.error(error);
-        message.textContent = "Erro ao ligar ao servidor.";
+        message.textContent = error.message || "Erro ao ligar ao servidor.";
         message.className = "error";
     }
 });

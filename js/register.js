@@ -11,7 +11,7 @@ form.addEventListener("submit", async (e) => {
     message.textContent = "";
 
     try {
-        const response = await fetch("http://localhost:3000/auth/register", {
+        const response = await fetch(`${API_BASE}/auth/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, password })
@@ -25,12 +25,12 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        message.textContent = "Conta criada com sucesso! A redirecionar...";
+        message.textContent = "Conta criada! Enviámos-te um email para confirmares a tua conta. A redirecionar para o login...";
         message.className = "success";
 
         setTimeout(() => {
             window.location.href = "login.html";
-        }, 1500);
+        }, 2500);
 
     } catch (error) {
         console.error(error);

@@ -81,6 +81,10 @@
             <label for="description">Descrição (opcional)</label>
             <textarea id="description" placeholder="Ex: sem marcas, guardada em bicho"></textarea>
 
+            <label for="realPhoto">Foto real da carta (opcional, mas recomendado)</label>
+            <input type="file" id="realPhoto" accept="image/*">
+            <div id="realPhotoPreview"></div>
+
             <button type="submit">Publicar anúncio</button>
 
         </form>
@@ -91,6 +95,7 @@
 
 </main>
 
+<script src="../js/config.js"></script>
 <script src="../js/auth-nav.js"></script>
 <script src="../js/sell.js"></script>
 

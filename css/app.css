@@ -337,10 +337,11 @@
 #chatForm {
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
-.chat-form input,
-#chatForm input {
+.chat-form input[type="text"],
+#chatForm input[type="text"] {
     flex: 1;
     max-width: none;
     margin: 0;
@@ -349,6 +350,26 @@
 .chat-form button,
 #chatForm button {
     margin: 0;
+}
+
+.chat-attach-btn {
+    cursor: pointer;
+    font-size: 20px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background .15s;
+}
+
+.chat-attach-btn:hover {
+    background: var(--panel-2);
+}
+
+.chat-image {
+    max-width: 200px;
+    border-radius: 10px;
+    margin: 6px 0 12px;
+    cursor: pointer;
+    display: block;
 }
 
 #conversationList {

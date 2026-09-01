@@ -1,6 +1,24 @@
-const API_BASE = "http://localhost:3000"; // troca pelo domínio real quando publicares o site
-
 const token = localStorage.getItem("token");
+
+// Envia um ficheiro para o Cloudinary (via o backend) e devolve o URL público.
+async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch(`${API_BASE}/upload`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Erro ao enviar a imagem.");
+    }
+
+    return data.url;
+}
 
 const loginWarning = document.getElementById("loginWarning");
 const messagesLayout = document.getElementById("messagesLayout");
@@ -84,32 +102,58 @@ async function openConversation(conversationId) {
             <div class="chat-messages">
                 ${messages.length === 0
                     ? "<p><em>Ainda não há mensagens. Diz olá!</em></p>"
-                    : messages.map(m => `<p><strong>${m.sender_name}:</strong> ${escapeHtml(m.message)}</p>`).join("")}
+                    : messages.map(m => `
+                        <p><strong>${m.sender_name}:</strong> ${m.message ? escapeHtml(m.message) : ""}</p>
+                        ${m.image_url ? `<img src="${m.image_url}" class="chat-image" onclick="window.open('${m.image_url}')">` : ""}
+                    `).join("")}
             </div>
             <form id="chatForm">
-                <input type="text" id="chatInput" placeholder="Escreve uma mensagem..." required>
+                <input type="text" id="chatInput" placeholder="Escreve uma mensagem...">
+                <label class="chat-attach-btn" title="Anexar foto">
+                    📷
+                    <input type="file" id="chatFileInput" accept="image/*" style="display:none;">
+                </label>
                 <button type="submit">Enviar</button>
             </form>
+            <p id="chatFileName"></p>
         `;
+
+        const fileInput = document.getElementById("chatFileInput");
+        fileInput.addEventListener("change", () => {
+            document.getElementById("chatFileName").textContent = fileInput.files[0] ? `📎 ${fileInput.files[0].name}` : "";
+        });
 
         document.getElementById("chatForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const input = document.getElementById("chatInput");
             const message = input.value.trim();
-            if (!message) return;
+            const file = fileInput.files[0];
 
-            const sendResponse = await fetch(`${API_BASE}/conversations/${conversationId}/messages`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-                body: JSON.stringify({ message }),
-            });
+            if (!message && !file) return;
 
-            if (sendResponse.ok) {
-                input.value = "";
-                openConversation(conversationId);
+            try {
+                let image_url = null;
+                if (file) {
+                    image_url = await uploadImage(file);
+                }
+
+                const sendResponse = await fetch(`${API_BASE}/conversations/${conversationId}/messages`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ message, image_url }),
+                });
+
+                if (sendResponse.ok) {
+                    input.value = "";
+                    fileInput.value = "";
+                    openConversation(conversationId);
+                }
+            } catch (error) {
+                console.error(error);
+                alert(error.message || "Erro ao enviar a mensagem.");
             }
         });
 

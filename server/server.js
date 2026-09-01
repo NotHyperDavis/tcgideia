@@ -14,13 +14,26 @@ const pool = require("./db");
 const reviewsRoutes = require("./routes/reviews");
 const walletRoutes = require("./routes/wallet");
 const cartRoutes = require("./routes/cart");
+const { generalLimiter, authLimiter } = require("./middleware/ratelimit");
 
 const app = express();
 
-app.use(cors());
+// Em desenvolvimento (sem ALLOWED_ORIGIN definido no .env) aceita qualquer origem.
+// Em produção, define ALLOWED_ORIGIN no .env com o domínio real do teu frontend
+// (ex: ALLOWED_ORIGIN=https://tcgideia.pt) para só esse site poder chamar a API.
+const allowedOrigin = process.env.ALLOWED_ORIGIN;
+
+app.use(cors(
+    allowedOrigin ? { origin: allowedOrigin } : {}
+));
 app.use(express.json());
 
+// Limite geral em toda a API
+app.use(generalLimiter);
+
 app.use("/cards", cardsRoutes);
+app.use("/auth/login", authLimiter);
+app.use("/auth/register", authLimiter);
 app.use("/auth", authRoutes);
 app.use("/listings", listingsRoutes);
 app.use("/orders", ordersRoutes);

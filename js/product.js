@@ -1,4 +1,3 @@
-const API_BASE = "http://localhost:3000"; // troca pelo domínio real quando publicares o site
 const COMMISSION_RATE = 0.08; // tem de bater certo com o COMMISSION_RATE do .env do servidor
 
 const params = new URLSearchParams(window.location.search);
@@ -45,7 +44,8 @@ async function loadProduct() {
         container.innerHTML = `
             <div class="product">
 
-                <img src="${listing.card_image ?? ""}">
+                <img src="${listing.real_photo_url || listing.card_image || ""}">
+                ${listing.real_photo_url ? `<p style="font-size:12px; color:var(--text-dim);">📷 Foto real da carta, tirada pelo vendedor</p>` : ""}
 
                 <div class="info">
 

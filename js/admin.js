@@ -1,5 +1,3 @@
-const API_BASE = "http://localhost:3000"; // troca pelo domínio real quando publicares o site
-
 const token = localStorage.getItem("token");
 const container = document.getElementById("orders");
 
