@@ -305,3 +305,83 @@ header .logo {
     text-decoration: none;
     color: inherit;
 }
+/* ---- Ajustes para telemóvel (main.html: hero, categorias, destaques) ---- */
+
+@media (max-width: 860px) {
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 50px 24px 50px;
+        gap: 30px;
+    }
+
+    .hero-text {
+        max-width: 100%;
+    }
+
+    .hero h1,
+    .hero-text h1 {
+        font-size: 36px;
+    }
+
+    .hero p,
+    .hero-text p {
+        font-size: 16px;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-visual {
+        width: 200px;
+    }
+
+    .hero-visual::before {
+        width: 260px;
+        height: 260px;
+    }
+
+    .categories,
+    .featured {
+        padding: 20px 24px 50px;
+    }
+
+    .trust-strip {
+        grid-template-columns: 1fr;
+        padding: 0 24px 50px;
+        gap: 12px;
+    }
+
+    .category-grid,
+    .games,
+    #results,
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .game {
+        padding: 26px 14px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .hero h1,
+    .hero-text h1 {
+        font-size: 28px;
+    }
+
+    .hero-visual {
+        display: none;
+    }
+
+    .category-grid,
+    .games,
+    #results,
+    .cards {
+        grid-template-columns: 1fr 1fr;
+    }
+}

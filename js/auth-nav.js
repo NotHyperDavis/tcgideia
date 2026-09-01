@@ -201,8 +201,30 @@ async function markAllRead(token) {
     }
 }
 
+// Cria o botão de menu hambúrguer (só visível em ecrãs pequenos, via CSS) —
+// corre sempre, mesmo sem sessão iniciada, para o menu abrir em qualquer página.
+function setupMobileNavToggle() {
+    const navbar = document.querySelector(".navbar");
+    if (!navbar || navbar.querySelector(".navbar-toggle")) return;
+
+    const toggle = document.createElement("button");
+    toggle.className = "navbar-toggle";
+    toggle.type = "button";
+    toggle.setAttribute("aria-label", "Abrir menu");
+    toggle.textContent = "☰";
+
+    toggle.addEventListener("click", () => {
+        const isOpen = navbar.classList.toggle("nav-open");
+        toggle.textContent = isOpen ? "✕" : "☰";
+    });
+
+    navbar.appendChild(toggle);
+}
+
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", updateAuthNav);
+    document.addEventListener("DOMContentLoaded", setupMobileNavToggle);
 } else {
     updateAuthNav();
+    setupMobileNavToggle();
 }
