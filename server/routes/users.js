@@ -62,32 +62,69 @@ router.get("/me", requireAuth, async (req, res) => {
 });
 
 // PATCH /users/me — editar o meu nome e/ou país (usado para os portes internacionais)
+// O tipo de conta (Particular/Loja) NÃO se edita aqui de propósito — só um admin
+// pode mudar isso (ver rota /admin/account-type mais abaixo), para ninguém se
+// autodeclarar "Loja" só para pagar menos comissão.
 router.patch("/me", requireAuth, async (req, res) => {
-    const { name, country, account_type } = req.body;
+    const { name, country } = req.body;
 
     if (country && !["PT", "ES"].includes(country)) {
         return res.status(400).json({ error: "País inválido." });
-    }
-
-    if (account_type && !["individual", "store"].includes(account_type)) {
-        return res.status(400).json({ error: "Tipo de conta inválido." });
     }
 
     try {
         const result = await pool.query(
             `UPDATE users
              SET name = COALESCE($1, name),
-                 country = COALESCE($2, country),
-                 account_type = COALESCE($3, account_type)
-             WHERE id = $4
+                 country = COALESCE($2, country)
+             WHERE id = $3
              RETURNING id, name, email, country, account_type, created_at`,
-            [name || null, country || null, account_type || null, req.user.id]
+            [name || null, country || null, req.user.id]
         );
 
         res.json(result.rows[0]);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Erro ao atualizar o teu perfil." });
+    }
+});
+
+function isAdmin(user) {
+    return user.email === process.env.ADMIN_EMAIL;
+}
+
+// PATCH /users/admin/account-type — só o admin pode mudar o tipo de conta
+// (Particular/Loja) de qualquer utilizador, identificado pelo email.
+router.patch("/admin/account-type", requireAuth, async (req, res) => {
+    if (!isAdmin(req.user)) {
+        return res.status(403).json({ error: "Acesso restrito ao administrador do site." });
+    }
+
+    const { email, account_type } = req.body;
+
+    if (!email || !account_type) {
+        return res.status(400).json({ error: "Indica o email e o tipo de conta." });
+    }
+
+    if (!["individual", "store"].includes(account_type)) {
+        return res.status(400).json({ error: "Tipo de conta inválido." });
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE users SET account_type = $1 WHERE email = $2
+             RETURNING id, name, email, account_type`,
+            [account_type, email]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Não existe nenhum utilizador com esse email." });
+        }
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao atualizar o tipo de conta." });
     }
 });
 
