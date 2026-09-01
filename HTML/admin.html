@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - TCG Ideia</title>
+    <title>Admin - TCGMarketPortugal</title>
 
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/footer.css">
@@ -27,6 +27,21 @@
     
     <h1>Painel de Admin</h1>
 
+    <h2>Tipo de Conta de um Vendedor</h2>
+    <div class="panel">
+        <label for="accountTypeEmail">Email do utilizador</label>
+        <input type="email" id="accountTypeEmail" placeholder="vendedor@exemplo.com">
+
+        <label for="accountTypeSelect">Novo tipo de conta</label>
+        <select id="accountTypeSelect">
+            <option value="individual">Particular (comissão normal)</option>
+            <option value="store">Loja (comissão reduzida)</option>
+        </select>
+
+        <button id="updateAccountTypeBtn">Atualizar tipo de conta</button>
+        <p id="accountTypeMessage"></p>
+    </div>
+
     <h2>Carteira — pedidos pendentes</h2>
     <div id="walletRequests"></div>
 
@@ -40,7 +55,7 @@
 <script src="../js/admin.js"></script>
 
 <footer class="site-footer">
-    <p>&copy; 2026 TCG Ideia <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
+    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
 </footer>
 
 </body>

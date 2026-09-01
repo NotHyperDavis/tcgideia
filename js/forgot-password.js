@@ -21,7 +21,7 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        message.textContent = "Se esse email tiver conta no TCG Ideia, vais receber um link para repores a password.";
+        message.textContent = "Se esse email tiver conta no TCGMarketPortugal, vais receber um link para repores a password.";
         form.reset();
 
     } catch (error) {

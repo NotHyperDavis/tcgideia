@@ -57,7 +57,7 @@ router.post("/deposit/checkout", requireAuth, async (req, res) => {
             line_items: [{
                 price_data: {
                     currency: "eur",
-                    product_data: { name: "Depósito na carteira TCG Ideia" },
+                    product_data: { name: "Depósito na carteira TCGMarketPortugal" },
                     unit_amount: amountCents,
                 },
                 quantity: 1,

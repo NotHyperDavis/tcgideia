@@ -10,6 +10,13 @@ if (!token) {
     walletFlow.style.display = "none";
 } else {
     loadWallet();
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("deposit") === "success") {
+        document.getElementById("instantDepositMessage").textContent = "Pagamento confirmado! O saldo já deve estar atualizado.";
+    } else if (params.get("deposit") === "cancelled") {
+        document.getElementById("instantDepositMessage").textContent = "Depósito cancelado.";
+    }
 }
 
 async function loadWallet() {
@@ -38,7 +45,7 @@ async function loadWallet() {
                 <div class="order-row">
                     <div>
                         <h3>${m.kind}: ${m.sign}${Number(m.amount).toFixed(2)} €</h3>
-                        <p>Estado: ${statusLabel(m.status)}</p>
+                        <p>Estado: ${statusLabel(m.status)} ${m.method === "stripe" ? "· Cartão/MB WAY" : m.method === "bank_transfer" ? "· Transferência bancária" : ""}</p>
                         <small>${new Date(m.created_at).toLocaleString("pt-PT")}</small>
                     </div>
                 </div>
@@ -55,6 +62,33 @@ function statusLabel(status) {
     const labels = { pending: "Pendente", confirmed: "Confirmado", completed: "Concluído", rejected: "Rejeitado" };
     return labels[status] || status;
 }
+
+document.getElementById("instantDepositForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const amount = document.getElementById("instantDepositAmount").value;
+    const message = document.getElementById("instantDepositMessage");
+    message.textContent = "A abrir o pagamento...";
+
+    try {
+        const response = await fetch(`${API_BASE}/wallet/deposit/checkout`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ amount }),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            message.textContent = data.error || "Erro ao iniciar o depósito.";
+            return;
+        }
+
+        window.location.href = data.url;
+
+    } catch (error) {
+        console.error(error);
+        message.textContent = "Erro ao ligar ao servidor.";
+    }
+});
 
 document.getElementById("depositForm").addEventListener("submit", async (e) => {
     e.preventDefault();

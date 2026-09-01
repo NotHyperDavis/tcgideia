@@ -74,7 +74,7 @@ app.get("/", (req, res) => {
 app.use(express.static(path.join(__dirname, "..")));
 
 app.get("/api-status", (req, res) => {
-    res.send("🚀 API do TCG Ideia está online!");
+    res.send("🚀 API do TCGMarketPortugal está online!");
 });
 
 app.get("/test-db", async (req, res) => {

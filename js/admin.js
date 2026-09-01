@@ -175,3 +175,40 @@ async function updateOrder(id, body) {
         alert("Erro ao ligar ao servidor.");
     }
 }
+document.getElementById("updateAccountTypeBtn").addEventListener("click", async () => {
+    const email = document.getElementById("accountTypeEmail").value.trim();
+    const account_type = document.getElementById("accountTypeSelect").value;
+    const messageEl = document.getElementById("accountTypeMessage");
+
+    if (!email) {
+        messageEl.textContent = "Indica o email do utilizador.";
+        return;
+    }
+
+    messageEl.textContent = "A atualizar...";
+
+    try {
+        const response = await fetch(`${API_BASE}/users/admin/account-type`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ email, account_type }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            messageEl.textContent = data.error || "Erro ao atualizar.";
+            return;
+        }
+
+        messageEl.textContent = `Feito! ${data.name} (${data.email}) passou a "${data.account_type === "store" ? "Loja" : "Particular"}".`;
+        document.getElementById("accountTypeEmail").value = "";
+
+    } catch (error) {
+        console.error(error);
+        messageEl.textContent = "Erro ao ligar ao servidor.";
+    }
+});

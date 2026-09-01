@@ -1,7 +1,7 @@
 {
   "name": "tcgideia-server",
   "version": "1.0.0",
-  "description": "Backend do TCG Ideia",
+  "description": "Backend do TCGMarketPortugal",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
