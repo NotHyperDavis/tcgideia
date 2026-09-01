@@ -2,8 +2,11 @@ const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
 const { notify } = require("../utils/notifications");
+const stripe = require("../utils/stripe");
 
 const router = express.Router();
+
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:5500";
 
 function isAdmin(user) {
     return user.email === process.env.ADMIN_EMAIL;
@@ -32,6 +35,47 @@ router.get("/", requireAuth, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Erro ao obter a carteira." });
+    }
+});
+
+// POST /wallet/deposit/checkout — depósito instantâneo por cartão ou MB WAY (Stripe).
+// Ao contrário de /deposit (transferência bancária), este não fica "pendente":
+// assim que a Stripe confirmar o pagamento, o saldo é creditado sozinho (ver o webhook).
+router.post("/deposit/checkout", requireAuth, async (req, res) => {
+    const { amount } = req.body;
+
+    if (!amount || Number(amount) <= 0) {
+        return res.status(400).json({ error: "Indica um valor válido." });
+    }
+
+    try {
+        const amountCents = Math.round(Number(amount) * 100);
+
+        const session = await stripe.checkout.sessions.create({
+            mode: "payment",
+            payment_method_types: ["card", "mb_way"],
+            line_items: [{
+                price_data: {
+                    currency: "eur",
+                    product_data: { name: "Depósito na carteira TCG Ideia" },
+                    unit_amount: amountCents,
+                },
+                quantity: 1,
+            }],
+            metadata: {
+                type: "wallet_deposit",
+                user_id: String(req.user.id),
+                amount: String(amount),
+            },
+            success_url: `${FRONTEND_URL}/HTML/carteira.html?deposit=success`,
+            cancel_url: `${FRONTEND_URL}/HTML/carteira.html?deposit=cancelled`,
+        });
+
+        res.json({ url: session.url });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao iniciar o depósito." });
     }
 });
 

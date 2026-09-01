@@ -21,6 +21,44 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
 
     if (event.type === "checkout.session.completed") {
         const session = event.data.object;
+
+        // Depósito na carteira (Cartão/MB WAY) — não é uma compra de carta.
+        if (session.metadata.type === "wallet_deposit") {
+            const { user_id, amount } = session.metadata;
+
+            const client = await pool.connect();
+
+            try {
+                await client.query("BEGIN");
+
+                const existing = await client.query("SELECT id FROM deposits WHERE stripe_session_id = $1", [session.id]);
+                if (existing.rows.length > 0) {
+                    await client.query("ROLLBACK");
+                    return res.json({ received: true });
+                }
+
+                await client.query(
+                    `INSERT INTO deposits (user_id, amount, status, method, stripe_session_id, confirmed_at)
+                     VALUES ($1, $2, 'confirmed', 'stripe', $3, NOW())`,
+                    [user_id, amount, session.id]
+                );
+
+                await client.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [amount, user_id]);
+
+                await client.query("COMMIT");
+
+                await notify(user_id, "order_update", `O teu depósito de ${Number(amount).toFixed(2)} € foi confirmado.`, "carteira.html");
+
+            } catch (error) {
+                await client.query("ROLLBACK");
+                console.error("Erro ao processar depósito Stripe:", error);
+            } finally {
+                client.release();
+            }
+
+            return res.json({ received: true });
+        }
+
         const { listing_id, buyer_id, seller_id, quantity, unit_price, shipping_cost, platform_fee, total_price, seller_payout } = session.metadata;
 
         const client = await pool.connect();
