@@ -15,6 +15,10 @@ const reviewsRoutes = require("./routes/reviews");
 const walletRoutes = require("./routes/wallet");
 const cartRoutes = require("./routes/cart");
 const { generalLimiter, authLimiter } = require("./middleware/ratelimit");
+const uploadRoutes = require("./routes/upload");
+const stripeConnectRoutes = require("./routes/stripe-connect");
+const checkoutRoutes = require("./routes/checkout");
+const stripeWebhookRoutes = require("./routes/stripe-webhook");
 
 const app = express();
 
@@ -26,6 +30,12 @@ const allowedOrigin = process.env.ALLOWED_ORIGIN;
 app.use(cors(
     allowedOrigin ? { origin: allowedOrigin } : {}
 ));
+
+// IMPORTANTE: o webhook da Stripe tem de vir ANTES do express.json(), porque
+// precisa do corpo do pedido em bruto (raw) para confirmar a assinatura.
+// Se isto vier depois do express.json(), a verificação da assinatura falha sempre.
+app.use("/stripe/webhook", stripeWebhookRoutes);
+
 app.use(express.json());
 
 // Limite geral em toda a API
@@ -44,6 +54,9 @@ app.use("/notifications", notificationsRoutes);
 app.use("/reviews", reviewsRoutes);
 app.use("/wallet", walletRoutes);
 app.use("/cart", cartRoutes);
+app.use("/upload", uploadRoutes);
+app.use("/stripe-connect", stripeConnectRoutes);
+app.use("/checkout", checkoutRoutes);
 
 app.get("/", (req, res) => {
     res.send("🚀 API do TCG Ideia está online!");

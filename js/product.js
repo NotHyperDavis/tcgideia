@@ -132,8 +132,8 @@ function renderBuyArea(listing) {
                 </label>
 
                 <label>
-                    <input type="radio" name="payment_method" value="stripe" disabled>
-                    Cartão (Stripe) — brevemente
+                    <input type="radio" name="payment_method" value="stripe">
+                    Cartão de crédito/débito (Stripe)
                 </label>
             </fieldset>
 
@@ -174,6 +174,37 @@ async function submitOrder(e, listing) {
     const buyMessage = document.getElementById("buyMessage");
 
     buyMessage.textContent = "A processar...";
+
+    // Pagamento por cartão segue um caminho totalmente diferente: cria-se uma sessão
+    // Stripe e o browser é redirecionado para lá — a encomenda só é criada depois,
+    // pelo webhook, quando a Stripe confirmar que o pagamento foi mesmo feito.
+    if (payment_method === "stripe") {
+        try {
+            const response = await fetch(`${API_BASE}/checkout/session`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify({ listing_id: listing.id, quantity }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                buyMessage.textContent = data.error || "Erro ao iniciar o pagamento.";
+                return;
+            }
+
+            window.location.href = data.url;
+
+        } catch (error) {
+            console.error(error);
+            buyMessage.textContent = "Erro ao ligar ao servidor.";
+        }
+
+        return;
+    }
 
     try {
         const response = await fetch(`${API_BASE}/orders`, {
