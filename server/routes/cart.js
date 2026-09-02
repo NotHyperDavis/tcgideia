@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
 const { notify } = require("../utils/notifications");
 
 const router = express.Router();
@@ -172,7 +173,7 @@ router.delete("/:listingId", requireAuth, async (req, res) => {
 });
 
 // POST /cart/checkout — comprar tudo o que está no carrinho de uma vez, pago pela carteira
-router.post("/checkout", requireAuth, async (req, res) => {
+router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => {
     const { shipping } = req.body;
 
     if (!shipping || !shipping.name || !shipping.address_line || !shipping.postal_code || !shipping.city) {

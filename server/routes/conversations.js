@@ -1,12 +1,13 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
 const { notify } = require("../utils/notifications");
 
 const router = express.Router();
 
 // POST /conversations — encontra a conversa com outro utilizador, ou cria uma nova
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
     const { other_user_id, listing_id } = req.body;
 
     if (!other_user_id) {
@@ -112,7 +113,7 @@ router.get("/:id/messages", requireAuth, async (req, res) => {
 });
 
 // POST /conversations/:id/messages
-router.post("/:id/messages", requireAuth, async (req, res) => {
+router.post("/:id/messages", requireAuth, requireVerifiedEmail, async (req, res) => {
     const { message } = req.body;
 
     if (!message || !message.trim()) {

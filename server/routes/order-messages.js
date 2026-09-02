@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
 const { notify } = require("../utils/notifications");
 
 // mergeParams para conseguir ler :orderId, que vem do caminho onde este router é montado
@@ -44,7 +45,7 @@ router.get("/", requireAuth, async (req, res) => {
 });
 
 // POST /orders/:orderId/messages — enviar uma mensagem nessa encomenda
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
     const { orderId } = req.params;
     const { message } = req.body;
 

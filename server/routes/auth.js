@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const pool = require("../db");
 const { sendVerificationEmail, sendPasswordResetEmail } = require("../utils/email");
+const requireAuth = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -175,6 +176,33 @@ router.post("/reset-password", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Erro ao repor a password." });
+    }
+});
+
+// Reenviar o email de confirmação (para quem se registou mas ainda não confirmou)
+router.post("/resend-verification", requireAuth, async (req, res) => {
+    try {
+        const userResult = await pool.query("SELECT email, email_verified FROM users WHERE id = $1", [req.user.id]);
+        const user = userResult.rows[0];
+
+        if (!user) {
+            return res.status(404).json({ error: "Utilizador não encontrado." });
+        }
+
+        if (user.email_verified) {
+            return res.json({ ok: true, already_verified: true });
+        }
+
+        const verification_token = crypto.randomBytes(32).toString("hex");
+        await pool.query("UPDATE users SET verification_token = $1 WHERE id = $2", [verification_token, req.user.id]);
+
+        await sendVerificationEmail(user.email, verification_token);
+
+        res.json({ ok: true });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao reenviar o email." });
     }
 });
 

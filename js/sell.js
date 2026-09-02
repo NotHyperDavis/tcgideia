@@ -1,3 +1,31 @@
+// Reutilizável: mostra um aviso com botão de reenviar, se o erro for de email por confirmar.
+function showVerificationPrompt(container, data) {
+    if (data.code !== "EMAIL_NOT_VERIFIED") return false;
+
+    container.innerHTML = `Confirma o teu email antes de continuares. <button id="resendVerifyBtn" type="button">Reenviar email de confirmação</button>`;
+    container.className = "error";
+
+    document.getElementById("resendVerifyBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("resendVerifyBtn");
+        btn.disabled = true;
+        btn.textContent = "A enviar...";
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
+            });
+            const result = await response.json();
+            container.textContent = response.ok ? "Email reenviado! Verifica a tua caixa de correio." : (result.error || "Erro ao reenviar.");
+        } catch (error) {
+            console.error(error);
+            container.textContent = "Erro ao ligar ao servidor.";
+        }
+    });
+
+    return true;
+}
+
 const loginWarning = document.getElementById("loginWarning");
 const sellFlow = document.getElementById("sellFlow");
 const results = document.getElementById("results");
@@ -177,8 +205,10 @@ listingForm.addEventListener("submit", async (e) => {
         const data = await response.json();
 
         if (!response.ok) {
-            message.textContent = data.error || "Erro ao publicar anúncio.";
-            message.className = "error";
+            if (!showVerificationPrompt(message, data)) {
+                message.textContent = data.error || "Erro ao publicar anúncio.";
+                message.className = "error";
+            }
             return;
         }
 

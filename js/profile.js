@@ -33,6 +33,25 @@ async function loadMyProfile() {
             return;
         }
 
+        // --- ATUALIZAÇÃO DOS ELEMENTOS DO TOPO DO PERFIL ---
+        const displayNameEl = document.getElementById("profileDisplayName");
+        const profileCountryEl = document.getElementById("profileCountry");
+        const heroRatingEl = document.getElementById("heroRating");
+
+        if (displayNameEl) {
+            displayNameEl.textContent = user.name || "Utilizador";
+        }
+
+        if (profileCountryEl) {
+            const countries = {
+                PT: "🇵🇹 Portugal",
+                ES: "🇪🇸 Espanha"
+            };
+
+            profileCountryEl.textContent = countries[user.country] || user.country || "🌍";
+        }
+        // --------------------------------------------------
+
         document.getElementById("email").textContent = user.email;
         document.getElementById("name").value = user.name;
         document.getElementById("country").value = user.country || "PT";
@@ -61,6 +80,8 @@ async function loadMyProfile() {
         if (salesEl) salesEl.textContent = user.stats?.sales ?? 0;
         if (purchasesEl) purchasesEl.textContent = user.stats?.purchases ?? 0;
         if (ratingEl) ratingEl.textContent = user.stats?.rating ?? "—";
+
+        if (heroRatingEl) heroRatingEl.textContent = user.stats?.rating ?? "—";
 
         if (listingCountTextEl) {
             listingCountTextEl.textContent = listings.length === 1
@@ -149,7 +170,6 @@ async function loadReviews(profileUserId) {
         }
 
         reviewsList.innerHTML = data.reviews.map(review => {
-            // Distingue se a avaliação foi feita por ti ou recebida por ti
             const isAuthor = review.reviewer_id === Number(profileUserId);
             const label = isAuthor 
                 ? `Avalieste <strong>${review.reviewed_user_name || "um utilizador"}</strong>` 
@@ -203,6 +223,12 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
         const avatarEl = document.getElementById("profileAvatar");
         if (avatarEl) {
             avatarEl.textContent = name.trim().charAt(0).toUpperCase();
+        }
+
+        // Atualizar também o topo do perfil após submeter o formulário de edição
+        const displayNameEl = document.getElementById("profileDisplayName");
+        if (displayNameEl) {
+            displayNameEl.textContent = name.trim() || "Utilizador";
         }
 
         setTimeout(() => { message.textContent = ""; }, 2000);

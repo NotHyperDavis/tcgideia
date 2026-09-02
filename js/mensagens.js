@@ -150,6 +150,19 @@ async function openConversation(conversationId) {
                     input.value = "";
                     fileInput.value = "";
                     openConversation(conversationId);
+                } else {
+                    const data = await sendResponse.json();
+                    if (data.code === "EMAIL_NOT_VERIFIED") {
+                        if (confirm("Confirma o teu email antes de continuares. Queres que reenviemos o link de confirmação agora?")) {
+                            await fetch(`${API_BASE}/auth/resend-verification`, {
+                                method: "POST",
+                                headers: { "Authorization": `Bearer ${token}` },
+                            });
+                            alert("Email reenviado! Verifica a tua caixa de correio.");
+                        }
+                    } else {
+                        alert(data.error || "Erro ao enviar a mensagem.");
+                    }
                 }
             } catch (error) {
                 console.error(error);

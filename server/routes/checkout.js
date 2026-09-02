@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
 const stripe = require("../utils/stripe");
 
 const router = express.Router();
@@ -41,7 +42,7 @@ function calcShipping(totalWeightGrams, country = "PT") {
 // repasse ao vendedor é feito (ver PATCH /orders/:id em orders.js). Por isso, ao
 // contrário de uma "destination charge", aqui NÃO usamos transfer_data/application_fee_amount
 // na criação da sessão — isso faria o dinheiro sair logo no momento do pagamento.
-router.post("/session", requireAuth, async (req, res) => {
+router.post("/session", requireAuth, requireVerifiedEmail, async (req, res) => {
     const { listing_id, quantity, shipping } = req.body;
 
     if (!listing_id || !quantity) {

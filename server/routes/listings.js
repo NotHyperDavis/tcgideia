@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
 
 const router = express.Router();
 
@@ -62,7 +63,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /listings — cria um anúncio novo (exige login)
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
     const { card_id, card_name, card_image, price, condition, quantity, description, real_photo_url } = req.body;
 
     if (!card_id || !card_name || !price || !condition) {

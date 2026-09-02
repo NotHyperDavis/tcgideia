@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
+const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
 const { notify } = require("../utils/notifications");
 const stripe = require("../utils/stripe");
 
@@ -40,7 +41,7 @@ function calcShipping(totalWeightGrams, country = "PT") {
 }
 
 // Comprometer-se a comprar (equivalente ao "commit to buy" do Cardmarket)
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
     const { listing_id, quantity, payment_method, shipping } = req.body;
 
     if (!listing_id || !quantity || !payment_method) {

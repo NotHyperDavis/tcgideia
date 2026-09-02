@@ -211,6 +211,34 @@ function updatePriceBreakdown(listing) {
     `;
 }
 
+// Reutilizável: mostra um aviso com botão de reenviar, se o erro for de email por confirmar.
+// Devolve true se tratou o erro (não precisas de mostrar mais nada), false caso contrário.
+function showVerificationPrompt(container, data) {
+    if (data.code !== "EMAIL_NOT_VERIFIED") return false;
+
+    container.innerHTML = `Confirma o teu email antes de continuares. <button id="resendVerifyBtn" type="button">Reenviar email de confirmação</button>`;
+
+    document.getElementById("resendVerifyBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("resendVerifyBtn");
+        btn.disabled = true;
+        btn.textContent = "A enviar...";
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
+            });
+            const result = await response.json();
+            container.textContent = response.ok ? "Email reenviado! Verifica a tua caixa de correio." : (result.error || "Erro ao reenviar.");
+        } catch (error) {
+            console.error(error);
+            container.textContent = "Erro ao ligar ao servidor.";
+        }
+    });
+
+    return true;
+}
+
 async function submitOrder(e, listing) {
     e.preventDefault();
 
@@ -241,7 +269,7 @@ async function submitOrder(e, listing) {
             const data = await response.json();
 
             if (!response.ok) {
-                buyMessage.textContent = data.error || "Erro ao iniciar o pagamento.";
+                if (!showVerificationPrompt(buyMessage, data)) buyMessage.textContent = data.error || "Erro ao iniciar o pagamento.";
                 return;
             }
 
@@ -273,7 +301,7 @@ async function submitOrder(e, listing) {
         const data = await response.json();
 
         if (!response.ok) {
-            buyMessage.textContent = data.error || "Erro ao processar a compra.";
+            if (!showVerificationPrompt(buyMessage, data)) buyMessage.textContent = data.error || "Erro ao processar a compra.";
             return;
         }
 
@@ -351,7 +379,17 @@ async function contactSeller(listing) {
         const data = await response.json();
 
         if (!response.ok) {
-            alert(data.error || "Erro ao iniciar conversa.");
+            if (data.code === "EMAIL_NOT_VERIFIED") {
+                if (confirm("Confirma o teu email antes de continuares. Queres que reenviemos o link de confirmação agora?")) {
+                    await fetch(`${API_BASE}/auth/resend-verification`, {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${token}` },
+                    });
+                    alert("Email reenviado! Verifica a tua caixa de correio.");
+                }
+            } else {
+                alert(data.error || "Erro ao iniciar conversa.");
+            }
             return;
         }
 

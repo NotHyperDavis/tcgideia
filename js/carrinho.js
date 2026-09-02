@@ -1,5 +1,32 @@
 const token = localStorage.getItem("token");
 
+// Reutilizável: mostra um aviso com botão de reenviar, se o erro for de email por confirmar.
+function showVerificationPrompt(container, data) {
+    if (data.code !== "EMAIL_NOT_VERIFIED") return false;
+
+    container.innerHTML = `Confirma o teu email antes de continuares. <button id="resendVerifyBtn" type="button">Reenviar email de confirmação</button>`;
+
+    document.getElementById("resendVerifyBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("resendVerifyBtn");
+        btn.disabled = true;
+        btn.textContent = "A enviar...";
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+            const result = await response.json();
+            container.textContent = response.ok ? "Email reenviado! Verifica a tua caixa de correio." : (result.error || "Erro ao reenviar.");
+        } catch (error) {
+            console.error(error);
+            container.textContent = "Erro ao ligar ao servidor.";
+        }
+    });
+
+    return true;
+}
+
 const loginWarning = document.getElementById("loginWarning");
 const cartFlow = document.getElementById("cartFlow");
 const cartItemsEl = document.getElementById("cartItems");
@@ -174,7 +201,7 @@ document.getElementById("checkoutBtn")?.addEventListener("click", async () => {
         const data = await response.json();
 
         if (!response.ok) {
-            cartMessage.textContent = data.error || "Erro ao finalizar compra.";
+            if (!showVerificationPrompt(cartMessage, data)) cartMessage.textContent = data.error || "Erro ao finalizar compra.";
             return;
         }
 
