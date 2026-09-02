@@ -36,6 +36,10 @@ async function loadMyProfile() {
         document.getElementById("email").textContent = user.email;
         document.getElementById("name").value = user.name;
         document.getElementById("country").value = user.country || "PT";
+        document.getElementById("addressName").value = user.address_name || "";
+        document.getElementById("addressLine").value = user.address_line || "";
+        document.getElementById("addressPostalCode").value = user.address_postal_code || "";
+        document.getElementById("addressCity").value = user.address_city || "";
         document.getElementById("accountTypeDisplay").textContent = (user.account_type === "store") ? "🏪 Loja" : "🟢 Particular";
         document.getElementById("memberSince").textContent = "Membro desde " + new Date(user.created_at)
             .toLocaleDateString("pt-PT", { year: "numeric", month: "long" });
@@ -171,6 +175,10 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
 
     const name = document.getElementById("name").value;
     const country = document.getElementById("country").value;
+    const address_name = document.getElementById("addressName").value;
+    const address_line = document.getElementById("addressLine").value;
+    const address_postal_code = document.getElementById("addressPostalCode").value;
+    const address_city = document.getElementById("addressCity").value;
     message.textContent = "A guardar...";
 
     try {
@@ -180,7 +188,7 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`,
             },
-            body: JSON.stringify({ name, country }),
+            body: JSON.stringify({ name, country, address_name, address_line, address_postal_code, address_city }),
         });
 
         const data = await response.json();

@@ -42,10 +42,14 @@ function calcShipping(totalWeightGrams, country = "PT") {
 // contrário de uma "destination charge", aqui NÃO usamos transfer_data/application_fee_amount
 // na criação da sessão — isso faria o dinheiro sair logo no momento do pagamento.
 router.post("/session", requireAuth, async (req, res) => {
-    const { listing_id, quantity } = req.body;
+    const { listing_id, quantity, shipping } = req.body;
 
     if (!listing_id || !quantity) {
         return res.status(400).json({ error: "Indica a carta e a quantidade." });
+    }
+
+    if (!shipping || !shipping.name || !shipping.address_line || !shipping.postal_code || !shipping.city) {
+        return res.status(400).json({ error: "Preenche a morada de envio completa (nome, morada, código postal e localidade)." });
     }
 
     try {
@@ -112,6 +116,11 @@ router.post("/session", requireAuth, async (req, res) => {
                 quantity: String(quantity),
                 unit_price: String(listing.price),
                 shipping_cost: String(shippingCost),
+                shipping_name: shipping.name,
+                shipping_address_line: shipping.address_line,
+                shipping_postal_code: shipping.postal_code,
+                shipping_city: shipping.city,
+                shipping_country: buyerCountry,
                 platform_fee: String(platformFee),
                 total_price: String(totalPrice),
                 seller_payout: String(sellerPayout),

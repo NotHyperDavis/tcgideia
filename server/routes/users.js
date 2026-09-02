@@ -10,7 +10,9 @@ router.get("/me", requireAuth, async (req, res) => {
         const userId = req.user.id;
 
         const userResult = await pool.query(
-            `SELECT id, name, email, country, account_type, created_at FROM users WHERE id = $1`,
+            `SELECT id, name, email, country, account_type, created_at,
+                    address_name, address_line, address_postal_code, address_city
+             FROM users WHERE id = $1`,
             [userId]
         );
 
@@ -66,7 +68,7 @@ router.get("/me", requireAuth, async (req, res) => {
 // pode mudar isso (ver rota /admin/account-type mais abaixo), para ninguém se
 // autodeclarar "Loja" só para pagar menos comissão.
 router.patch("/me", requireAuth, async (req, res) => {
-    const { name, country } = req.body;
+    const { name, country, address_name, address_line, address_postal_code, address_city } = req.body;
 
     if (country && !["PT", "ES"].includes(country)) {
         return res.status(400).json({ error: "País inválido." });
@@ -76,10 +78,20 @@ router.patch("/me", requireAuth, async (req, res) => {
         const result = await pool.query(
             `UPDATE users
              SET name = COALESCE($1, name),
-                 country = COALESCE($2, country)
-             WHERE id = $3
-             RETURNING id, name, email, country, account_type, created_at`,
-            [name || null, country || null, req.user.id]
+                 country = COALESCE($2, country),
+                 address_name = COALESCE($3, address_name),
+                 address_line = COALESCE($4, address_line),
+                 address_postal_code = COALESCE($5, address_postal_code),
+                 address_city = COALESCE($6, address_city)
+             WHERE id = $7
+             RETURNING id, name, email, country, account_type, created_at,
+                       address_name, address_line, address_postal_code, address_city`,
+            [
+                name || null, country || null,
+                address_name || null, address_line || null,
+                address_postal_code || null, address_city || null,
+                req.user.id
+            ]
         );
 
         res.json(result.rows[0]);

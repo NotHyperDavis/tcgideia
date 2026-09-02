@@ -33,6 +33,8 @@ function calcShipping(totalWeightGrams, country = "PT") {
     return 5.55;
 }
 
+let buyerProfile = null;
+
 async function loadBuyerCountry() {
     if (!token) return;
     try {
@@ -42,6 +44,7 @@ async function loadBuyerCountry() {
         if (response.ok) {
             const user = await response.json();
             buyerCountry = user.country || "PT";
+            buyerProfile = user;
         }
     } catch (error) {
         console.error(error);
@@ -141,6 +144,26 @@ function renderBuyArea(listing) {
             <input type="number" id="quantity" min="1" max="${listing.quantity}" value="1" required>
 
             <fieldset>
+                <legend>Morada de envio</legend>
+
+                <label for="shipName">Nome de quem recebe</label>
+                <input type="text" id="shipName" value="${buyerProfile?.address_name || buyerProfile?.name || ""}" required>
+
+                <label for="shipAddress">Morada</label>
+                <input type="text" id="shipAddress" value="${buyerProfile?.address_line || ""}" placeholder="Rua, número, andar" required>
+
+                <label for="shipPostalCode">Código postal</label>
+                <input type="text" id="shipPostalCode" value="${buyerProfile?.address_postal_code || ""}" placeholder="0000-000" required>
+
+                <label for="shipCity">Localidade</label>
+                <input type="text" id="shipCity" value="${buyerProfile?.address_city || ""}" placeholder="Ex: Porto" required>
+
+                <p style="font-size:12px; color:var(--text-dim);">
+                    Pré-preenchida a partir do teu perfil. Podes alterá-la só para esta compra.
+                </p>
+            </fieldset>
+
+            <fieldset>
                 <legend>Método de pagamento</legend>
 
                 <label>
@@ -195,6 +218,13 @@ async function submitOrder(e, listing) {
     const payment_method = document.querySelector('input[name="payment_method"]:checked').value;
     const buyMessage = document.getElementById("buyMessage");
 
+    const shipping = {
+        name: document.getElementById("shipName").value.trim(),
+        address_line: document.getElementById("shipAddress").value.trim(),
+        postal_code: document.getElementById("shipPostalCode").value.trim(),
+        city: document.getElementById("shipCity").value.trim(),
+    };
+
     buyMessage.textContent = "A processar...";
 
     if (payment_method === "stripe") {
@@ -205,7 +235,7 @@ async function submitOrder(e, listing) {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`,
                 },
-                body: JSON.stringify({ listing_id: listing.id, quantity }),
+                body: JSON.stringify({ listing_id: listing.id, quantity, shipping }),
             });
 
             const data = await response.json();
@@ -236,6 +266,7 @@ async function submitOrder(e, listing) {
                 listing_id: listing.id,
                 quantity,
                 payment_method,
+                shipping,
             }),
         });
 

@@ -59,7 +59,8 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             return res.json({ received: true });
         }
 
-        const { listing_id, buyer_id, seller_id, quantity, unit_price, shipping_cost, platform_fee, total_price, seller_payout } = session.metadata;
+        const { listing_id, buyer_id, seller_id, quantity, unit_price, shipping_cost, platform_fee, total_price, seller_payout,
+                shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country } = session.metadata;
 
         const client = await pool.connect();
 
@@ -78,10 +79,12 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             const listing = listingResult.rows[0];
 
             const orderResult = await client.query(
-                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost, stripe_session_id, stripe_payment_intent_id)
-                 VALUES ($1, $2, $3, $4, $5, $6, 'stripe', 'paid', $7, $8, $9, $10, $11)
+                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost, stripe_session_id, stripe_payment_intent_id,
+                                     shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'stripe', 'paid', $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
                  RETURNING *`,
-                [listing_id, buyer_id, seller_id, quantity, unit_price, total_price, platform_fee, seller_payout, shipping_cost, session.id, session.payment_intent]
+                [listing_id, buyer_id, seller_id, quantity, unit_price, total_price, platform_fee, seller_payout, shipping_cost, session.id, session.payment_intent,
+                 shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country]
             );
 
             const remaining = listing.quantity - Number(quantity);

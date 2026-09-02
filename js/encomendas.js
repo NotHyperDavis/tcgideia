@@ -119,6 +119,18 @@ async function loadSales() {
                 <div>
                     <h3>${order.card_name} (x${order.quantity})</h3>
                     <p>Comprador: ${order.buyer_name} — ${order.buyer_email}</p>
+
+                    ${order.shipping_name ? `
+                        <div style="background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:12px; margin:10px 0;">
+                            <strong style="font-size:13px; color:var(--text-dim);">📦 ENVIAR PARA</strong>
+                            <p style="margin:6px 0 0; line-height:1.5;">
+                                ${escapeHtml(order.shipping_name)}<br>
+                                ${escapeHtml(order.shipping_address_line)}<br>
+                                ${escapeHtml(order.shipping_postal_code)} ${escapeHtml(order.shipping_city)}<br>
+                                ${order.shipping_country === "ES" ? "Espanha" : "Portugal"}
+                            </p>
+                        </div>
+                    ` : `<p style="color:var(--text-dim); font-size:13px;"><em>Sem morada registada (encomenda anterior a esta funcionalidade) — pede-a ao comprador pela conversa.</em></p>`}
                     <p>Vais receber: <strong>${Number(order.seller_payout).toFixed(2)} €</strong>
                         ${order.payout_status === "paid_out"
                             ? ` <span style="color:var(--success, #4ADE80);">✓ já repassado</span>`

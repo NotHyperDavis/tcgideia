@@ -41,10 +41,15 @@ function calcShipping(totalWeightGrams, country = "PT") {
 
 // Comprometer-se a comprar (equivalente ao "commit to buy" do Cardmarket)
 router.post("/", requireAuth, async (req, res) => {
-    const { listing_id, quantity, payment_method } = req.body;
+    const { listing_id, quantity, payment_method, shipping } = req.body;
 
     if (!listing_id || !quantity || !payment_method) {
         return res.status(400).json({ error: "Indica a carta, a quantidade e o método de pagamento." });
+    }
+
+    // A morada é obrigatória — sem ela o vendedor não sabe para onde enviar.
+    if (!shipping || !shipping.name || !shipping.address_line || !shipping.postal_code || !shipping.city) {
+        return res.status(400).json({ error: "Preenche a morada de envio completa (nome, morada, código postal e localidade)." });
     }
 
     if (!["bank_transfer", "stripe", "instant", "wallet"].includes(payment_method)) {
@@ -100,13 +105,15 @@ router.post("/", requireAuth, async (req, res) => {
         const sellerPayout = Number((totalPrice - platformFee).toFixed(2));
 
         const orderResult = await client.query(
-            `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost,
+                                 shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
              RETURNING *`,
             [
                 listing.id, req.user.id, listing.user_id, quantity, listing.price, totalPrice, payment_method,
                 payment_method === "wallet" ? "paid" : "pending",
-                platformFee, sellerPayout, shippingCost
+                platformFee, sellerPayout, shippingCost,
+                shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry
             ]
         );
 

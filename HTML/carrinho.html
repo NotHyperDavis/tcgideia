@@ -39,6 +39,26 @@
             <p style="font-size:20px; font-weight:800;">Total: <span id="sumTotal"></span> €</p>
             <p style="color:var(--text-dim); font-size:14px;">Saldo na carteira: <span id="sumBalance"></span> €</p>
 
+            <fieldset style="margin-top:16px;">
+                <legend>Morada de envio</legend>
+
+                <label for="shipName">Nome de quem recebe</label>
+                <input type="text" id="shipName" required>
+
+                <label for="shipAddress">Morada</label>
+                <input type="text" id="shipAddress" placeholder="Rua, número, andar" required>
+
+                <label for="shipPostalCode">Código postal</label>
+                <input type="text" id="shipPostalCode" placeholder="0000-000" required>
+
+                <label for="shipCity">Localidade</label>
+                <input type="text" id="shipCity" placeholder="Ex: Porto" required>
+
+                <p style="font-size:12px; color:var(--text-dim);">
+                    Pré-preenchida a partir do teu perfil. Podes alterá-la só para esta compra.
+                </p>
+            </fieldset>
+
             <button id="checkoutBtn">Finalizar compra (pagar com a carteira)</button>
         </div>
 

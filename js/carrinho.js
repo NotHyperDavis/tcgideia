@@ -18,8 +18,27 @@ if (!token) {
     loadCart();
 }
 
+async function prefillShippingFromProfile() {
+    try {
+        const response = await fetch(`${API_BASE}/users/me`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+        if (!response.ok) return;
+
+        const user = await response.json();
+        document.getElementById("shipName").value = user.address_name || user.name || "";
+        document.getElementById("shipAddress").value = user.address_line || "";
+        document.getElementById("shipPostalCode").value = user.address_postal_code || "";
+        document.getElementById("shipCity").value = user.address_city || "";
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function loadCart() {
     cartItemsEl.innerHTML = "<p>A carregar...</p>";
+
+    prefillShippingFromProfile();
 
     try {
         const response = await fetch(`${API_BASE}/cart`, {
@@ -129,12 +148,28 @@ async function removeItem(listingId) {
 }
 
 document.getElementById("checkoutBtn")?.addEventListener("click", async () => {
+    const shipping = {
+        name: document.getElementById("shipName").value.trim(),
+        address_line: document.getElementById("shipAddress").value.trim(),
+        postal_code: document.getElementById("shipPostalCode").value.trim(),
+        city: document.getElementById("shipCity").value.trim(),
+    };
+
+    if (!shipping.name || !shipping.address_line || !shipping.postal_code || !shipping.city) {
+        cartMessage.textContent = "Preenche a morada de envio completa.";
+        return;
+    }
+
     cartMessage.textContent = "A processar...";
 
     try {
         const response = await fetch(`${API_BASE}/cart/checkout`, {
             method: "POST",
-            headers: { "Authorization": `Bearer ${token}` },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ shipping }),
         });
         const data = await response.json();
 

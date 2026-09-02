@@ -98,11 +98,24 @@
                                 <option value="ES">Espanha</option>
                             </select>
 
-                            <label for="accountType" style="font-size: 0.8rem; color: #aaa; margin-top:10px; display:block;">Tipo de conta (afeta a comissão quando vendes)</label>
-                            <select id="accountType" class="edit-name-input">
-                                <option value="individual">Particular</option>
-                                <option value="store">Loja</option>
-                            </select>
+                            <label style="font-size: 0.8rem; color: #aaa; margin-top:10px; display:block;">Tipo de conta (afeta a comissão quando vendes)</label>
+                            <p style="margin: 5px 0; font-size: 1.1rem; font-weight: bold;" id="accountTypeDisplay">Particular</p>
+                            <p style="margin: 0 0 5px; font-size: 0.75rem; color: #888;">Só o suporte pode mudar isto para "Loja" — contacta-nos se fores um vendedor profissional.</p>
+
+                            <label style="font-size: 0.8rem; color: #aaa; margin-top:16px; display:block; font-weight:bold;">Morada de envio</label>
+                            <p style="margin: 0 0 8px; font-size: 0.75rem; color: #888;">Usada por omissão quando compras. Podes alterá-la em cada compra.</p>
+
+                            <label for="addressName" style="font-size: 0.8rem; color: #aaa; display:block;">Nome de quem recebe</label>
+                            <input type="text" id="addressName" class="edit-name-input" style="font-size:1rem;" placeholder="Ex: David Ferreira">
+
+                            <label for="addressLine" style="font-size: 0.8rem; color: #aaa; display:block;">Morada</label>
+                            <input type="text" id="addressLine" class="edit-name-input" style="font-size:1rem;" placeholder="Rua, número, andar">
+
+                            <label for="addressPostalCode" style="font-size: 0.8rem; color: #aaa; display:block;">Código postal</label>
+                            <input type="text" id="addressPostalCode" class="edit-name-input" style="font-size:1rem;" placeholder="0000-000">
+
+                            <label for="addressCity" style="font-size: 0.8rem; color: #aaa; display:block;">Localidade</label>
+                            <input type="text" id="addressCity" class="edit-name-input" style="font-size:1rem;" placeholder="Ex: Porto">
 
                             <p style="margin: 5px 0;"><strong>Email:</strong> <span id="email"></span></p>
                             <p id="memberSince" style="margin: 5px 0;">Membro desde...</p>

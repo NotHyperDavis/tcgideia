@@ -173,6 +173,12 @@ router.delete("/:listingId", requireAuth, async (req, res) => {
 
 // POST /cart/checkout — comprar tudo o que está no carrinho de uma vez, pago pela carteira
 router.post("/checkout", requireAuth, async (req, res) => {
+    const { shipping } = req.body;
+
+    if (!shipping || !shipping.name || !shipping.address_line || !shipping.postal_code || !shipping.city) {
+        return res.status(400).json({ error: "Preenche a morada de envio completa (nome, morada, código postal e localidade)." });
+    }
+
     const client = await pool.connect();
 
     try {
@@ -275,10 +281,12 @@ router.post("/checkout", requireAuth, async (req, res) => {
             );
 
             const orderResult = await client.query(
-                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost)
-                 VALUES ($1, $2, $3, $4, $5, $6, 'wallet', 'paid', $7, $8, $9)
+                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost,
+                                     shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'wallet', 'paid', $7, $8, $9, $10, $11, $12, $13, $14)
                  RETURNING *`,
-                [listing.id, req.user.id, order.seller_id, order.quantity, order.unit_price, order.total_price, order.platform_fee, order.seller_payout, order.shipping_cost]
+                [listing.id, req.user.id, order.seller_id, order.quantity, order.unit_price, order.total_price, order.platform_fee, order.seller_payout, order.shipping_cost,
+                 shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry]
             );
 
             // O vendedor só é creditado quando o comprador confirmar a receção
