@@ -5,6 +5,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 18px 50px;
+    min-height: 84px;
+    box-sizing: border-box;
     background: rgba(26, 34, 51, 0.75);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid #2C3854;
@@ -21,6 +23,17 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+/* Algumas páginas envolvem o texto do logo num <h2> — sem isto, o browser aplica
+   o tamanho de letra próprio dos títulos, maior do que o das outras páginas. */
+.logo h2 {
+    font: inherit;
+    margin: 0;
+    -webkit-background-clip: inherit;
+    background-clip: inherit;
+    -webkit-text-fill-color: inherit;
+    background: inherit;
 }
 
 .search {

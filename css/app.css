@@ -503,6 +503,18 @@
     padding: 45px 30px 80px;
 }
 
+@media (max-width: 500px) {
+    .auth-container {
+        margin: 30px auto;
+        padding: 28px 20px;
+        max-width: calc(100% - 32px);
+    }
+
+    .page {
+        padding: 30px 16px 60px;
+    }
+}
+
 
 /* Loading */
 
@@ -987,4 +999,29 @@
         height: 300px;
     }
 
+}
+/* ---- Página de mensagens ---- */
+.messages-layout {
+    display: flex;
+    gap: 20px;
+}
+
+.conversation-list {
+    min-width: 220px;
+}
+
+.conversation-view {
+    flex: 1;
+    min-width: 0; /* evita que mensagens/imagens compridas estourem a largura */
+}
+
+@media (max-width: 700px) {
+    .messages-layout {
+        flex-direction: column;
+    }
+
+    .conversation-list {
+        min-width: 0;
+        width: 100%;
+    }
 }

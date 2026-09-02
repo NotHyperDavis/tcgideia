@@ -5,6 +5,14 @@
     padding: 40px 60px;
 }
 
+@media (max-width: 860px) {
+    .marketplace {
+        grid-template-columns: 1fr;
+        padding: 24px 16px;
+        gap: 20px;
+    }
+}
+
 .filters {
     background: linear-gradient(160deg, #1A2233, #212B42);
     border: 1px solid #2C3854;

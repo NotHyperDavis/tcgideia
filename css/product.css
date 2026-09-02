@@ -65,3 +65,31 @@
     transform: translateY(-2px);
     box-shadow: 0 14px 30px rgba(37, 99, 235, 0.45);
 }
+/* ---- Telemóvel ---- */
+@media (max-width: 780px) {
+    .product {
+        flex-direction: column;
+        gap: 24px;
+        padding: 24px 16px;
+    }
+
+    .product-images {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .product-images img {
+        width: 150px;
+    }
+
+    .info h1 {
+        font-size: 26px;
+    }
+
+    .buy,
+    .info button {
+        width: 100%;
+        padding: 15px;
+    }
+}
