@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,207 +10,329 @@
     <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/app.css">
-    <style>
-        /* Estilos extra para o formulário se integrar bem no design */
-        .edit-name-input {
-            font-size: 2rem;
-            font-weight: bold;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid #444;
-            color: inherit;
-            padding: 5px 10px;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 10px;
-        }
-        .edit-name-input:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-        #country {
-            cursor: pointer;
-        }
-        #country option,
-        #accountType option {
-            background: #1A2233;
-            color: white;
-            padding: 8px;
-        }
-        #accountType {
-            cursor: pointer;
-        }
-        .quick-links {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .quick-links a {
-            text-align: center;
-            text-decoration: none;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/profile.css">
 </head>
 
 <body>
 
-    
-
-    
 <header class="navbar">
-        <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
-        <nav>
-            <a href="marketplace.html">Marketplace</a>
-            <a href="sell.html">Vender</a>
-            <a href="login.html">Entrar</a>
-        </nav>
-    </header>
+    <a href="main.html" class="logo">
+        <h2>TCGMarketPortugal</h2>
+    </a>
+
+    <nav>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="sell.html">Vender</a>
+        <a href="login.html">Entrar</a>
+    </nav>
+</header>
 
 <main class="profile-page">
 
-        <!-- AVISO DE LOGIN -->
-        <div id="loginWarning" class="profile-error" style="display:none;">
-            <h1>Sessão não iniciada</h1>
-            <p>Precisas de <a href="login.html" style="color: #007bff;">iniciar sessão</a> para veres o teu perfil.</p>
-        </div>
+    <!-- Sessão não iniciada -->
+    <div id="loginWarning" class="profile-error" style="display:none;">
+        <div class="profile-error-icon">🔐</div>
+        <h1>Sessão não iniciada</h1>
+        <p>Precisas de iniciar sessão para veres o teu perfil.</p>
+        <a href="login.html" class="profile-primary-btn">Iniciar sessão</a>
+    </div>
 
-        <!-- FLUXO DO PERFIL (Oculto até o JS carregar) -->
-        <div id="profileFlow">
-            
-            <section id="profileContent">
+    <div id="profileFlow">
 
-                <div class="profile-header">
-                    <div class="profile-avatar" id="profileAvatar">
-                        ?
-                    </div>
+        <section id="profileContent">
 
-                    <div class="profile-user-info">
-                        
-                        <!-- FORMULÁRIO DE EDIÇÃO INTEGRADO NO CABEÇALHO -->
-                        <form id="editForm">
-                            <label for="name" style="font-size: 0.8rem; color: #aaa;">O teu Nome</label><br>
-                            <input type="text" id="name" class="edit-name-input" required>
+            <!-- HERO -->
+            <section class="profile-hero">
+                <div class="profile-hero-glow"></div>
 
-                            <label for="country" style="font-size: 0.8rem; color: #aaa; margin-top:10px; display:block;">País (para calcular os portes)</label>
-                            <select id="country" class="edit-name-input">
-                                <option value="PT">Portugal</option>
-                                <option value="ES">Espanha</option>
-                            </select>
+                <div class="profile-identity">
+                    <div class="profile-avatar" id="profileAvatar">?</div>
 
-                            <label style="font-size: 0.8rem; color: #aaa; margin-top:10px; display:block;">Tipo de conta (afeta a comissão quando vendes)</label>
-                            <p style="margin: 5px 0; font-size: 1.1rem; font-weight: bold;" id="accountTypeDisplay">Particular</p>
-                            <p style="margin: 0 0 5px; font-size: 0.75rem; color: #888;">Só o suporte pode mudar isto para "Loja" — contacta-nos se fores um vendedor profissional.</p>
+                    <div class="profile-identity-text">
+                        <div class="profile-eyebrow">PERFIL DO UTILIZADOR</div>
 
-                            <label style="font-size: 0.8rem; color: #aaa; margin-top:16px; display:block; font-weight:bold;">Morada de envio</label>
-                            <p style="margin: 0 0 8px; font-size: 0.75rem; color: #888;">Usada por omissão quando compras. Podes alterá-la em cada compra.</p>
-
-                            <label for="addressName" style="font-size: 0.8rem; color: #aaa; display:block;">Nome de quem recebe</label>
-                            <input type="text" id="addressName" class="edit-name-input" style="font-size:1rem;" placeholder="Ex: David Ferreira">
-
-                            <label for="addressLine" style="font-size: 0.8rem; color: #aaa; display:block;">Morada</label>
-                            <input type="text" id="addressLine" class="edit-name-input" style="font-size:1rem;" placeholder="Rua, número, andar">
-
-                            <label for="addressPostalCode" style="font-size: 0.8rem; color: #aaa; display:block;">Código postal</label>
-                            <input type="text" id="addressPostalCode" class="edit-name-input" style="font-size:1rem;" placeholder="0000-000">
-
-                            <label for="addressCity" style="font-size: 0.8rem; color: #aaa; display:block;">Localidade</label>
-                            <input type="text" id="addressCity" class="edit-name-input" style="font-size:1rem;" placeholder="Ex: Porto">
-
-                            <p style="margin: 5px 0;"><strong>Email:</strong> <span id="email"></span></p>
-                            <p id="memberSince" style="margin: 5px 0;">Membro desde...</p>
-                            
-                            <span class="profile-badge" style="margin-top: 10px; display: inline-block;">
-                                🟢 A minha conta
+                        <div class="profile-name-row">
+                            <h1 id="profileDisplayName">David</h1>
+                            <span class="profile-status">
+                                <span></span> Conta ativa
                             </span>
+                        </div>
 
-                            <div style="margin-top: 15px;">
-                                <button type="submit" class="profile-message-btn">Guardar alterações</button>
-                            </div>
-                            <p id="message" style="margin-top: 10px; font-size: 0.9rem;"></p>
-                        </form>
+                        <div class="profile-meta">
+                            <span id="profileCountry">🇵🇹 Portugal</span>
+                            <span class="meta-dot">•</span>
+                            <span id="memberSince">Membro desde...</span>
+                        </div>
 
-                    </div>
-
-                    <!-- ATALHOS RÁPIDOS -->
-                    <div class="profile-actions quick-links">
-                        <a href="my-listings.html" class="profile-message-btn" style="background-color: #333; border: 1px solid #555;">Os Meus Anúncios</a>
-                        <a href="encomendas.html" class="profile-message-btn" style="background-color: #333; border: 1px solid #555;">As Minhas Encomendas</a>
-                        <a href="mensagens.html" class="profile-message-btn" style="background-color: #333; border: 1px solid #555;">Mensagens</a>
-                        <a href="carteira.html" class="profile-message-btn" style="background-color: #333; border: 1px solid #555;">Carteira</a>
-                        <a href="stripe-onboarding.html" class="profile-message-btn" style="background-color: #333; border: 1px solid #555;">💳 Receber Pagamentos por Cartão</a>
+                        <div class="profile-rating-inline">
+                            <span class="rating-stars">★★★★★</span>
+                            <strong id="heroRating">—</strong>
+                            <span>avaliação média</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- ESTATÍSTICAS -->
-                <div class="profile-stats">
-                    <div class="profile-stat">
+                <button type="button"
+                        class="profile-edit-trigger"
+                        onclick="document.getElementById('profileSettings').open = true; document.getElementById('profileSettings').scrollIntoView({behavior:'smooth', block:'center'});">
+                    ✏️ Editar perfil
+                </button>
+            </section>
+
+            <!-- STATS -->
+            <section class="profile-stats">
+                <div class="profile-stat">
+                    <div class="stat-icon">🃏</div>
+                    <div>
                         <strong id="activeListings">0</strong>
-                        <span>Anúncios</span>
+                        <span>Anúncios ativos</span>
                     </div>
-                    <div class="profile-stat">
+                </div>
+
+                <div class="profile-stat">
+                    <div class="stat-icon">📦</div>
+                    <div>
                         <strong id="sales">0</strong>
                         <span>Vendas</span>
                     </div>
-                    <div class="profile-stat">
+                </div>
+
+                <div class="profile-stat">
+                    <div class="stat-icon">🛒</div>
+                    <div>
                         <strong id="purchases">0</strong>
                         <span>Compras</span>
                     </div>
-                    <div class="profile-stat">
+                </div>
+
+                <div class="profile-stat">
+                    <div class="stat-icon">⭐</div>
+                    <div>
                         <strong id="rating">—</strong>
                         <span>Avaliação</span>
                     </div>
                 </div>
-
-                <!-- ANÚNCIOS ATIVOS -->
-                <section class="profile-listings-section">
-                    <div class="profile-section-header">
-                        <div>
-                            <h2>Os teus anúncios ativos</h2>
-                            <p id="listingCountText">Cartas que tens disponíveis para venda</p>
-                        </div>
-                    </div>
-
-                    <div id="profileListings" class="profile-listings-grid"></div>
-
-                    <div id="noListings" class="profile-empty hidden">
-                        <div class="profile-empty-icon">🃏</div>
-                        <h3>Nenhum anúncio ativo</h3>
-                        <p>Ainda não tens cartas à venda.</p>
-                        <a href="sell.html" class="profile-message-btn" style="margin-top:15px; display:inline-block; text-decoration:none;">Vender uma carta</a>
-                    </div>
-                </section>
-
-                <!-- AVALIAÇÕES (ADICIONADO) -->
-                <section class="profile-listings-section" style="margin-top: 40px;">
-                    <div class="profile-section-header">
-                        <div>
-                            <h2>Avaliações</h2>
-                            <p>Histórico de avaliações dadas e recebidas</p>
-                        </div>
-                    </div>
-
-                    <div id="reviewsSummary" style="margin-bottom: 15px;"></div>
-                    <div id="reviewsList" class="reviews-grid"></div>
-
-                    <div id="noReviews" class="profile-empty hidden">
-                        <div class="profile-empty-icon">⭐</div>
-                        <h3>Sem avaliações</h3>
-                        <p>Ainda não tens avaliações registadas.</p>
-                    </div>
-                </section>
-
             </section>
-        </div>
 
-    </main>
+            <!-- CONTEÚDO -->
+            <div class="profile-layout">
 
-    <script src="../js/config.js"></script>
-<script src="../js/auth-nav.js"></script>
-    <script src="../js/profile.js"></script>
+                <div class="profile-main-column">
+
+                    <!-- ANÚNCIOS -->
+                    <section class="profile-card profile-listings-section">
+                        <div class="profile-section-header">
+                            <div>
+                                <span class="section-kicker">MARKETPLACE</span>
+                                <h2>Os teus anúncios</h2>
+                                <p id="listingCountText">Cartas que tens disponíveis para venda</p>
+                            </div>
+
+                            <a href="my-listings.html" class="section-link">
+                                Ver todos <span>→</span>
+                            </a>
+                        </div>
+
+                        <div id="profileListings" class="profile-listings-grid"></div>
+
+                        <div id="noListings" class="profile-empty hidden">
+                            <div class="profile-empty-icon">🃏</div>
+                            <h3>Nenhum anúncio ativo</h3>
+                            <p>Ainda não tens cartas à venda.</p>
+                            <a href="sell.html" class="profile-primary-btn">Vender uma carta</a>
+                        </div>
+                    </section>
+
+                    <!-- AVALIAÇÕES -->
+                    <section class="profile-card profile-listings-section reviews-section">
+                        <div class="profile-section-header">
+                            <div>
+                                <span class="section-kicker">REPUTAÇÃO</span>
+                                <h2>Avaliações</h2>
+                                <p>O que os outros utilizadores dizem sobre ti</p>
+                            </div>
+                        </div>
+
+                        <div id="reviewsSummary" class="reviews-summary"></div>
+                        <div id="reviewsList" class="reviews-grid"></div>
+
+                        <div id="noReviews" class="profile-empty hidden">
+                            <div class="profile-empty-icon">⭐</div>
+                            <h3>Sem avaliações</h3>
+                            <p>Ainda não tens avaliações registadas.</p>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- SIDEBAR -->
+                <aside class="profile-sidebar">
+
+                    <section class="profile-card quick-links-card">
+                        <div class="sidebar-title">
+                            <span class="sidebar-title-icon">⚡</span>
+                            <div>
+                                <span class="section-kicker">ATALHOS</span>
+                                <h3>Acesso rápido</h3>
+                            </div>
+                        </div>
+
+                        <div class="quick-links">
+                            <a href="my-listings.html" class="quick-link">
+                                <span class="quick-link-icon">🃏</span>
+                                <span class="quick-link-text">
+                                    <strong>Os meus anúncios</strong>
+                                    <small>Gerir cartas à venda</small>
+                                </span>
+                                <span class="quick-link-arrow">→</span>
+                            </a>
+
+                            <a href="encomendas.html" class="quick-link">
+                                <span class="quick-link-icon">📦</span>
+                                <span class="quick-link-text">
+                                    <strong>As minhas encomendas</strong>
+                                    <small>Compras e vendas</small>
+                                </span>
+                                <span class="quick-link-arrow">→</span>
+                            </a>
+
+                            <a href="mensagens.html" class="quick-link">
+                                <span class="quick-link-icon">💬</span>
+                                <span class="quick-link-text">
+                                    <strong>Mensagens</strong>
+                                    <small>Fala com compradores</small>
+                                </span>
+                                <span class="quick-link-arrow">→</span>
+                            </a>
+
+                            <a href="carteira.html" class="quick-link">
+                                <span class="quick-link-icon">💰</span>
+                                <span class="quick-link-text">
+                                    <strong>Carteira</strong>
+                                    <small>Saldo e movimentos</small>
+                                </span>
+                                <span class="quick-link-arrow">→</span>
+                            </a>
+
+                            <a href="stripe-onboarding.html" class="quick-link">
+                                <span class="quick-link-icon">💳</span>
+                                <span class="quick-link-text">
+                                    <strong>Pagamentos por cartão</strong>
+                                    <small>Configurar recebimentos</small>
+                                </span>
+                                <span class="quick-link-arrow">→</span>
+                            </a>
+                        </div>
+                    </section>
+
+                    <!-- DEFINIÇÕES -->
+                    <details id="profileSettings" class="profile-card profile-settings">
+                        <summary>
+                            <span>
+                                <span class="section-kicker">CONTA</span>
+                                <strong>Definições do perfil</strong>
+                            </span>
+                            <span class="settings-chevron">⌄</span>
+                        </summary>
+
+                        <form id="editForm" class="profile-form">
+
+                            <div class="form-section">
+                                <div class="form-section-title">Dados do perfil</div>
+
+                                <label for="name">O teu nome</label>
+                                <input type="text" id="name" required>
+
+                                <label for="country">País <span>(para calcular os portes)</span></label>
+                                <select id="country">
+                                    <option value="PT">Portugal</option>
+                                    <option value="ES">Espanha</option>
+                                </select>
+
+                                <label>Tipo de conta</label>
+                                <div class="account-type-box">
+                                    <span class="account-dot"></span>
+                                    <strong id="accountTypeDisplay">Particular</strong>
+                                </div>
+
+                                <p class="form-help">
+                                    Só o suporte pode mudar isto para "Loja" — contacta-nos se fores um vendedor profissional.
+                                </p>
+                            </div>
+
+                            <div class="form-divider"></div>
+
+                            <div class="form-section">
+                                <div class="form-section-title">Morada de envio</div>
+
+                                <p class="form-help top-help">
+                                    Usada por omissão quando compras. Podes alterá-la em cada compra.
+                                </p>
+
+                                <label for="addressName">Nome de quem recebe</label>
+                                <input type="text" id="addressName" placeholder="Ex: David Ferreira">
+
+                                <label for="addressLine">Morada</label>
+                                <input type="text" id="addressLine" placeholder="Rua, número, andar">
+
+                                <div class="form-two-columns">
+                                    <div>
+                                        <label for="addressPostalCode">Código postal</label>
+                                        <input type="text" id="addressPostalCode" placeholder="0000-000">
+                                    </div>
+
+                                    <div>
+                                        <label for="addressCity">Localidade</label>
+                                        <input type="text" id="addressCity" placeholder="Ex: Porto">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-divider"></div>
+
+                            <div class="account-details">
+                                <div>
+                                    <span>Email</span>
+                                    <strong id="email">—</strong>
+                                </div>
+                                <div>
+                                    <span>Estado</span>
+                                    <strong class="account-active">● Ativa</strong>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <span id="message" class="form-message"></span>
+                                <button type="submit" class="profile-primary-btn">
+                                    Guardar alterações
+                                </button>
+                            </div>
+
+                        </form>
+                    </details>
+
+                </aside>
+            </div>
+
+        </section>
+    </div>
+</main>
 
 <footer class="site-footer">
-    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
+    <p>
+        &copy; 2026 TCGMarketPortugal
+        <span class="footer-divider">·</span>
+        <a href="termos.html">Termos de Uso</a>
+        <span class="footer-divider">·</span>
+        <a href="privacidade.html">Privacidade</a>
+        <span class="footer-divider">·</span>
+        <a href="reembolsos.html">Reembolsos</a>
+    </p>
 </footer>
+
+<script src="../js/config.js"></script>
+<script src="../js/auth-nav.js"></script>
+<script src="../js/profile.js"></script>
 
 </body>
 </html>
