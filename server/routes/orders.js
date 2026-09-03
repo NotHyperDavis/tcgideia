@@ -4,6 +4,7 @@ const requireAuth = require("../middleware/auth");
 const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
 const { notify } = require("../utils/notifications");
 const stripe = require("../utils/stripe");
+const isAdmin = require("../utils/isAdmin");
 
 const router = express.Router();
 
