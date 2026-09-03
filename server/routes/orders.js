@@ -269,6 +269,15 @@ router.patch("/:id", requireAuth, async (req, res) => {
                 await client.query("ROLLBACK");
                 return res.status(400).json({ error: "Ainda não podes enviar: o pagamento não está confirmado." });
             }
+
+            const photoCheck = await client.query(
+                `SELECT id FROM order_messages WHERE order_id = $1 AND sender_id = $2 AND image_url IS NOT NULL LIMIT 1`,
+                [order.id, req.user.id]
+            );
+            if (photoCheck.rows.length === 0) {
+                await client.query("ROLLBACK");
+                return res.status(400).json({ error: "Antes de enviares, manda uma foto da carta ao comprador pela conversa da encomenda." });
+            }
         }
 
         if (status === "completed" && !isBuyer && !admin) {
@@ -279,6 +288,14 @@ router.patch("/:id", requireAuth, async (req, res) => {
         if (status === "cancelled" && order.status !== "committed") {
             await client.query("ROLLBACK");
             return res.status(400).json({ error: "Já não é possível cancelar esta encomenda." });
+        }
+
+        if (status === "cancelled") {
+            const hoursSinceCommitted = (Date.now() - new Date(order.created_at).getTime()) / (1000 * 60 * 60);
+            if (hoursSinceCommitted > 24) {
+                await client.query("ROLLBACK");
+                return res.status(400).json({ error: "Já não é possível cancelar — passaram mais de 24 horas desde o compromisso de compra." });
+            }
         }
 
         // Repasse manual (só para transferência bancária, e só o admin) — agora exige

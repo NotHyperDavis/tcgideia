@@ -64,6 +64,10 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ error: "Credenciais inválidas." });
         }
 
+        if (user.is_suspended) {
+            return res.status(403).json({ error: "A tua conta foi suspensa por incumprimentos repetidos de prazos (envio ou pagamento). Contacta o suporte se achares que isto é um engano." });
+        }
+
         const token = jwt.sign(
             { id: user.id, name: user.name, email: user.email },
             process.env.JWT_SECRET,

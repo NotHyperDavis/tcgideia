@@ -63,6 +63,35 @@ async function loadMyProfile() {
         document.getElementById("memberSince").textContent = "Membro desde " + new Date(user.created_at)
             .toLocaleDateString("pt-PT", { year: "numeric", month: "long" });
 
+        const statusBadge = document.getElementById("profileStatusBadge");
+        if (statusBadge) {
+            if (user.is_suspended) {
+                statusBadge.classList.add("profile-status--suspended");
+                statusBadge.innerHTML = `<span></span> Conta Suspensa`;
+            } else {
+                statusBadge.classList.remove("profile-status--suspended");
+                statusBadge.innerHTML = `<span></span> Conta ativa`;
+            }
+        }
+
+        const strikesWarning = document.getElementById("profileStrikesWarning");
+        if (strikesWarning) {
+            const strikeMessages = [];
+            if (user.late_shipment_strikes > 0) {
+                strikeMessages.push(`⚠️ ${user.late_shipment_strikes}/3 avisos de envio em atraso (vendedor)`);
+            }
+            if (user.late_payment_strikes > 0) {
+                strikeMessages.push(`⚠️ ${user.late_payment_strikes}/3 avisos de pagamento em atraso (comprador)`);
+            }
+
+            if (strikeMessages.length > 0) {
+                strikesWarning.innerHTML = strikeMessages.join(" · ");
+                strikesWarning.style.display = "block";
+            } else {
+                strikesWarning.style.display = "none";
+            }
+        }
+
         const avatarEl = document.getElementById("profileAvatar");
         if (avatarEl) {
             avatarEl.textContent = user.name ? user.name.trim().charAt(0).toUpperCase() : "?";

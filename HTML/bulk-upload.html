@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
+    <link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
+    <title>Publicar Várias Cartas - TCGMarketPortugal</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/app.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        .bulk-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        .bulk-table th, .bulk-table td { padding: 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+        .bulk-table img { width: 40px; border-radius: 4px; }
+        .bulk-status-ok { color: #4ADE80; }
+        .bulk-status-error { color: #F87171; }
+        .bulk-status-pending { color: var(--text-dim); }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
+    <nav>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="sell.html">Vender</a>
+        <a href="login.html">Entrar</a>
+    </nav>
+</header>
+
+<div class="page">
+
+    <h1>Publicar Várias Cartas de Uma Vez</h1>
+
+    <div id="loginWarning" style="display:none;">
+        <p>Precisas de <a href="login.html">iniciar sessão</a> para usares isto.</p>
+    </div>
+
+    <div id="bulkFlow">
+
+        <div class="panel">
+            <p>Carrega um ficheiro CSV com uma carta por linha. As colunas têm de ser exatamente estas, por esta ordem:</p>
+            <p><code>nome,preco,condicao,quantidade,idioma,foil,descricao</code></p>
+            <ul style="font-size:13px; color:var(--text-dim); line-height:1.8;">
+                <li><strong>nome</strong> — o nome da carta (ex: Charizard)</li>
+                <li><strong>condicao</strong> — mint, near_mint, excellent, good, played ou poor</li>
+                <li><strong>idioma</strong> — PT, EN, ES, FR, DE, IT, JP, KO ou ZH</li>
+                <li><strong>foil</strong> — sim ou não</li>
+                <li><strong>descricao</strong> — opcional, pode ficar vazio</li>
+            </ul>
+
+            <p><a href="#" id="downloadTemplate">📥 Descarregar um modelo de exemplo</a></p>
+
+            <input type="file" id="csvFile" accept=".csv">
+        </div>
+
+        <div id="previewSection" style="display:none;">
+            <h2 style="margin-top:24px;">Pré-visualização</h2>
+            <p style="color:var(--text-dim); font-size:13px;">Confirma que cada carta foi bem identificada antes de publicares. Desmarca as que não queiras publicar.</p>
+
+            <table class="bulk-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Imagem</th>
+                        <th>Pediste</th>
+                        <th>Encontrado</th>
+                        <th>Preço</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="previewBody"></tbody>
+            </table>
+
+            <button id="publishAllBtn" style="margin-top:20px;">Publicar selecionadas</button>
+            <p id="bulkMessage"></p>
+        </div>
+
+    </div>
+
+</div>
+
+<footer class="site-footer">
+    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
+</footer>
+
+<script src="../js/config.js"></script>
+<script src="../js/auth-nav.js"></script>
+<script src="../js/bulk-upload.js"></script>
+
+</body>
+</html>

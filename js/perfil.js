@@ -112,7 +112,29 @@ async function loadProfile() {
 
         const accountTypeBadge = document.getElementById("accountTypeBadge");
         if (accountTypeBadge) {
-            accountTypeBadge.textContent = user.account_type === "store" ? "🏪 Loja" : "🟢 Particular";
+            accountTypeBadge.textContent = user.is_suspended
+                ? "🚫 Conta Suspensa"
+                : (user.account_type === "store" ? "🏪 Loja" : "🟢 Particular");
+
+            if (user.is_suspended) {
+                accountTypeBadge.style.color = "#F87171";
+                accountTypeBadge.style.fontWeight = "bold";
+            }
+
+            const strikeMessages = [];
+            if (user.late_shipment_strikes > 0) {
+                strikeMessages.push(`⚠️ ${user.late_shipment_strikes}/3 avisos de envio em atraso (como vendedor)`);
+            }
+            if (user.late_payment_strikes > 0) {
+                strikeMessages.push(`⚠️ ${user.late_payment_strikes}/3 avisos de pagamento em atraso (como comprador)`);
+            }
+
+            if (strikeMessages.length > 0) {
+                const strikesEl = document.createElement("p");
+                strikesEl.style.cssText = "margin: 8px 0 0; font-size: 0.85rem; color: #F87171;";
+                strikesEl.innerHTML = strikeMessages.join("<br>");
+                accountTypeBadge.insertAdjacentElement("afterend", strikesEl);
+            }
         }
 
         /*

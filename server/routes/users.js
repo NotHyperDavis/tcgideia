@@ -12,7 +12,8 @@ router.get("/me", requireAuth, async (req, res) => {
 
         const userResult = await pool.query(
             `SELECT id, name, email, country, account_type, created_at,
-                    address_name, address_line, address_postal_code, address_city
+                    address_name, address_line, address_postal_code, address_city,
+                    late_shipment_strikes, late_payment_strikes, is_suspended
              FROM users WHERE id = $1`,
             [userId]
         );
@@ -143,7 +144,7 @@ router.get("/:id", async (req, res) => {
         const userId = req.params.id;
 
         const userResult = await pool.query(
-            `SELECT id, name, account_type, created_at FROM users WHERE id = $1`,
+            `SELECT id, name, account_type, created_at, late_shipment_strikes, late_payment_strikes, is_suspended FROM users WHERE id = $1`,
             [userId]
         );
         

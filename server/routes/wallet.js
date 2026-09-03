@@ -106,6 +106,10 @@ router.post("/withdraw", requireAuth, async (req, res) => {
         return res.status(400).json({ error: "Indica o valor e o IBAN para onde enviar o dinheiro." });
     }
 
+    if (Number(amount) < 10) {
+        return res.status(400).json({ error: "O levantamento mínimo é de 10 €." });
+    }
+
     const client = await pool.connect();
 
     try {

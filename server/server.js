@@ -87,8 +87,14 @@ app.get("/test-db", async (req, res) => {
     }
 });
 
+const checkOverdueShipments = require("./utils/checkOverdueShipments");
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Servidor a correr em http://localhost:${PORT}`);
+
+    // Verifica logo ao arrancar, e depois de hora a hora.
+    checkOverdueShipments();
+    setInterval(checkOverdueShipments, 60 * 60 * 1000);
 });
