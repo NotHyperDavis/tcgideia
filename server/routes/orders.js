@@ -18,10 +18,6 @@ function commissionRateFor(accountType) {
     return accountType === "store" ? COMMISSION_RATE_STORE : COMMISSION_RATE_INDIVIDUAL;
 }
 
-function isAdmin(user) {
-    return user.email === process.env.ADMIN_EMAIL;
-}
-
 function estimateWeight(quantity) {
     return 15 + quantity * 2;
 }

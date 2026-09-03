@@ -9,9 +9,6 @@ const router = express.Router();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:5500";
 
-function isAdmin(user) {
-    return user.email === process.env.ADMIN_EMAIL;
-}
 
 // GET /wallet — o meu saldo + histórico de depósitos/levantamentos
 router.get("/", requireAuth, async (req, res) => {

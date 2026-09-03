@@ -40,6 +40,65 @@ router.get("/mine", requireAuth, async (req, res) => {
     }
 });
 
+// GET /listings/trend/:card_id — preço de referência de uma carta (para ajudar a
+// definir preço ao vender, e mostrar ao comprador se um anúncio está caro/barato).
+//
+// Prioriza vendas reais e concluídas dos últimos 60 dias. Se não houver vendas
+// suficientes (site ainda novo, ou carta pouco vendida), usa os anúncios ativos
+// dessa carta como referência alternativa.
+router.get("/trend/:card_id", async (req, res) => {
+    try {
+        const salesResult = await pool.query(
+            `SELECT AVG(orders.unit_price) AS avg_price, MIN(orders.unit_price) AS min_price,
+                    MAX(orders.unit_price) AS max_price, COUNT(*) AS count
+             FROM orders
+             JOIN listings ON listings.id = orders.listing_id
+             WHERE listings.card_id = $1
+               AND orders.status = 'completed'
+               AND orders.created_at > NOW() - INTERVAL '60 days'`,
+            [req.params.card_id]
+        );
+
+        const sales = salesResult.rows[0];
+
+        if (Number(sales.count) >= 3) {
+            return res.json({
+                source: "sales",
+                avg_price: Number(sales.avg_price),
+                min_price: Number(sales.min_price),
+                max_price: Number(sales.max_price),
+                sample_size: Number(sales.count),
+            });
+        }
+
+        // Sem vendas suficientes — usa os anúncios ativos dessa carta como referência.
+        const listingsResult = await pool.query(
+            `SELECT AVG(price) AS avg_price, MIN(price) AS min_price, MAX(price) AS max_price, COUNT(*) AS count
+             FROM listings
+             WHERE card_id = $1 AND status = 'active'`,
+            [req.params.card_id]
+        );
+
+        const listings = listingsResult.rows[0];
+
+        if (Number(listings.count) === 0) {
+            return res.json({ source: "none" });
+        }
+
+        res.json({
+            source: "active_listings",
+            avg_price: Number(listings.avg_price),
+            min_price: Number(listings.min_price),
+            max_price: Number(listings.max_price),
+            sample_size: Number(listings.count),
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao obter o preço de referência." });
+    }
+});
+
 // GET /listings/:id — detalhe de um anúncio (usado na página do produto)
 router.get("/:id", async (req, res) => {
     try {

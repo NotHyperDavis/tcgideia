@@ -150,11 +150,36 @@ function selectCard(card, imageUrl) {
     selectedCardPreview.innerHTML = `
         <img src="${imageUrl}">
         <p><strong>${card.name}</strong></p>
+        <p id="trendPriceInfo" style="font-size:13px; color:var(--text-dim);">A verificar preço de referência...</p>
     `;
 
     results.innerHTML = "";
     document.getElementById("searchCard").value = card.name;
     listingForm.style.display = "block";
+
+    loadTrendPrice(card.id);
+}
+
+async function loadTrendPrice(cardId) {
+    const trendEl = document.getElementById("trendPriceInfo");
+    if (!trendEl) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/listings/trend/${cardId}`);
+        const data = await response.json();
+
+        if (!response.ok || data.source === "none") {
+            trendEl.textContent = "Sem dados de preço para esta carta ainda — tu és dos primeiros a vendê-la.";
+            return;
+        }
+
+        const label = data.source === "sales" ? "vendas recentes" : "anúncios ativos";
+        trendEl.innerHTML = `💡 Preço de referência (${label}, ${data.sample_size} ${data.sample_size === 1 ? "amostra" : "amostras"}): <strong>${data.avg_price.toFixed(2)} €</strong> (entre ${data.min_price.toFixed(2)} € e ${data.max_price.toFixed(2)} €)`;
+
+    } catch (error) {
+        console.error(error);
+        trendEl.textContent = "";
+    }
 }
 
 listingForm.addEventListener("submit", async (e) => {

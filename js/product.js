@@ -35,6 +35,35 @@ function calcShipping(totalWeightGrams, country = "PT") {
 
 let buyerProfile = null;
 
+async function loadTrendPrice(cardId, listingPrice) {
+    const trendEl = document.getElementById("trendPriceInfo");
+    if (!trendEl || !cardId) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/listings/trend/${cardId}`);
+        const data = await response.json();
+
+        if (!response.ok || data.source === "none") {
+            trendEl.textContent = "";
+            return;
+        }
+
+        const label = data.source === "sales" ? "vendas recentes" : "outros anúncios ativos";
+        let comparison = "";
+
+        if (listingPrice) {
+            const diff = ((listingPrice - data.avg_price) / data.avg_price) * 100;
+            if (diff <= -10) comparison = ` — <span style="color:#4ADE80;">abaixo da média 👍</span>`;
+            else if (diff >= 15) comparison = ` — <span style="color:#F87171;">acima da média</span>`;
+        }
+
+        trendEl.innerHTML = `💡 Preço de referência (${label}): <strong>${data.avg_price.toFixed(2)} €</strong>${comparison}`;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function loadBuyerCountry() {
     if (!token) return;
     try {
@@ -60,59 +89,656 @@ async function loadProduct() {
         const response = await fetch(`${API_BASE}/listings/${id}`);
 
         if (!response.ok) {
-            container.innerHTML = "<p>Anúncio não encontrado (pode já ter sido vendido ou removido).</p>";
+
+            container.innerHTML = `
+                <div class="product-unavailable">
+                    <h1>Anúncio não encontrado</h1>
+                    <p>
+                        Este anúncio pode já ter sido vendido,
+                        removido ou estar indisponível.
+                    </p>
+                </div>
+            `;
+
             return;
         }
 
         const listing = await response.json();
 
+        const cardImage =
+            listing.card_image ||
+            listing.real_photo_url ||
+            "";
+
+        const realPhoto =
+            listing.real_photo_url || "";
+
+        const condition =
+            CONDITION_LABELS[listing.condition] ??
+            listing.condition ??
+            "Não especificada";
+
+        const price =
+            Number(listing.price).toFixed(2);
+
+        const sellerName =
+            listing.seller_name || "Vendedor";
+
+        const sellerInitial =
+            sellerName.charAt(0).toUpperCase();
+
         container.innerHTML = `
-            <div class="product">
 
-                <img src="${listing.real_photo_url || listing.card_image || ""}">
-                ${listing.real_photo_url ? `<p style="font-size:12px; color:var(--text-dim);">📷 Foto real da carta, tirada pelo vendedor</p>` : ""}
+            <div class="product-breadcrumb">
 
-                <div class="info">
+                <a href="marketplace.html">
+                    Marketplace
+                </a>
 
-                    <h1>${listing.card_name}</h1>
+                <span class="separator">›</span>
 
-                    <p><strong>Preço:</strong> ${Number(listing.price).toFixed(2)} € / unidade</p>
+                <span>Pokémon</span>
 
-                    <p><strong>Vendedor:</strong> <a href="perfil.html?id=${listing.user_id}">${listing.seller_name}</a>
-                        ${token ? `<button id="contactSellerBtn" type="button">Contactar vendedor</button>` : ""}
-                    </p>
+                <span class="separator">›</span>
 
-                    <p><strong>Condição:</strong> ${CONDITION_LABELS[listing.condition] ?? listing.condition}</p>
+                <span>${listing.card_name}</span>
 
-                    <p><strong>Quantidade disponível:</strong> ${listing.quantity}</p>
+            </div>
 
-                    ${listing.description ? `<p><strong>Descrição:</strong> ${listing.description}</p>` : ""}
 
-                    ${renderBuyArea(listing)}
+            <div class="product-page">
+
+
+                <!-- =====================================
+                     LEFT SIDE
+                     ===================================== -->
+
+                <div class="product-main">
+
+                    <section class="product-top">
+
+
+                        <!-- IMAGE -->
+                        <div class="product-gallery">
+
+                            <div class="product-main-image-wrap">
+
+                                <img
+                                    id="mainProductImage"
+                                    class="product-main-image"
+                                    src="${cardImage}"
+                                    alt="${listing.card_name}"
+                                >
+
+                            </div>
+
+
+                            <div class="product-thumbnails">
+
+                                <img
+                                    class="product-thumbnail active"
+                                    src="${cardImage}"
+                                    data-image="${cardImage}"
+                                    alt="${listing.card_name}"
+                                >
+
+                                ${
+                                    realPhoto &&
+                                    realPhoto !== cardImage
+                                    ?
+                                    `
+                                    <img
+                                        class="product-thumbnail"
+                                        src="${realPhoto}"
+                                        data-image="${realPhoto}"
+                                        alt="Foto real da carta"
+                                    >
+                                    `
+                                    :
+                                    ""
+                                }
+
+                            </div>
+
+
+                            ${
+                                listing.real_photo_url
+                                ?
+                                `
+                                <div class="real-photo-note">
+                                    📷
+                                    <span>
+                                        Foto real da carta,
+                                        tirada pelo vendedor.
+                                    </span>
+                                </div>
+                                `
+                                :
+                                ""
+                            }
+
+                        </div>
+
+
+                        <!-- INFO -->
+                        <div class="product-info">
+
+                            <span class="product-tag">
+                                Pokémon
+                            </span>
+
+
+                            <h1>
+                                ${listing.card_name}
+                            </h1>
+
+
+                            <div class="product-subtitle">
+
+                                <span class="product-pill">
+                                    Pokémon TCG
+                                </span>
+
+                                <span class="product-pill">
+                                    Anúncio #${listing.id}
+                                </span>
+
+                            </div>
+
+
+                            <div class="product-price">
+                                ${price} €
+                            </div>
+
+                            <div class="product-price-label">
+                                Preço por unidade
+                            </div>
+
+
+                            <span class="product-condition">
+                                ${condition}
+                            </span>
+
+
+                            <div class="product-stock">
+
+                                <span class="stock-dot"></span>
+
+                                <span>
+                                    Quantidade disponível:
+                                    <strong>
+                                        ${listing.quantity}
+                                    </strong>
+                                </span>
+
+                            </div>
+
+
+                            <!-- SELLER -->
+
+                            <div class="seller-card">
+
+                                <div class="seller-title">
+                                    VENDEDOR
+                                </div>
+
+
+                                <div class="seller-content">
+
+                                    <div class="seller-avatar">
+                                        ${sellerInitial}
+                                    </div>
+
+                                    <div>
+
+                                        <div class="seller-name">
+                                            ${sellerName}
+                                        </div>
+
+                                        <div class="seller-country">
+                                            Vendedor TCGMarketPortugal
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="seller-actions">
+
+                                    <a
+                                        href="perfil.html?id=${listing.user_id}"
+                                    >
+                                        Ver perfil
+                                    </a>
+
+                                    ${
+                                        token
+                                        ?
+                                        `
+                                        <button
+                                            id="contactSellerBtn"
+                                            type="button"
+                                        >
+                                            Mensagem
+                                        </button>
+                                        `
+                                        :
+                                        ""
+                                    }
+
+                                </div>
+
+                            </div>
+
+
+                            ${
+                                listing.description
+                                ?
+                                `
+                                <div class="product-description">
+                                    ${listing.description}
+                                </div>
+                                `
+                                :
+                                ""
+                            }
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================
+                         BENEFITS
+                         ===================================== -->
+
+                    <section class="product-benefits">
+
+                        <div class="benefit">
+
+                            <div class="benefit-icon">
+                                🛡️
+                            </div>
+
+                            <div>
+
+                                <div class="benefit-title">
+                                    Proteção ao comprador
+                                </div>
+
+                                <div class="benefit-text">
+                                    Compra com segurança
+                                    através do marketplace.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="benefit">
+
+                            <div class="benefit-icon">
+                                📦
+                            </div>
+
+                            <div>
+
+                                <div class="benefit-title">
+                                    Envio
+                                </div>
+
+                                <div class="benefit-text">
+                                    O vendedor prepara
+                                    a encomenda após pagamento.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="benefit">
+
+                            <div class="benefit-icon">
+                                ⭐
+                            </div>
+
+                            <div>
+
+                                <div class="benefit-title">
+                                    Comunidade
+                                </div>
+
+                                <div class="benefit-text">
+                                    Avaliações ajudam a
+                                    criar confiança.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="benefit">
+
+                            <div class="benefit-icon">
+                                💬
+                            </div>
+
+                            <div>
+
+                                <div class="benefit-title">
+                                    Mensagens
+                                </div>
+
+                                <div class="benefit-text">
+                                    Fala diretamente com
+                                    o vendedor.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================
+                         DETAILS
+                         ===================================== -->
+
+                    <section class="product-details">
+
+                        <div class="details-header">
+
+                            <span class="details-tab active">
+                                Detalhes
+                            </span>
+
+                        </div>
+
+
+                        <div class="details-content">
+
+                            <div class="detail-list">
+
+                                <span class="detail-label">
+                                    Jogo
+                                </span>
+
+                                <span class="detail-value">
+                                    Pokémon
+                                </span>
+
+
+                                <span class="detail-label">
+                                    Condição
+                                </span>
+
+                                <span class="detail-value">
+                                    ${condition}
+                                </span>
+
+
+                                <span class="detail-label">
+                                    Quantidade
+                                </span>
+
+                                <span class="detail-value">
+                                    ${listing.quantity}
+                                    unidade(s)
+                                </span>
+
+
+                                <span class="detail-label">
+                                    Anúncio
+                                </span>
+
+                                <span class="detail-value">
+                                    #${listing.id}
+                                </span>
+
+                            </div>
+
+
+                            <div>
+
+                                <h3 style="
+                                    margin-top:0;
+                                    margin-bottom:10px;
+                                ">
+                                    Sobre esta venda
+                                </h3>
+
+                                <p style="
+                                    margin:0;
+                                    color:#94a3b8;
+                                    font-size:13px;
+                                    line-height:1.7;
+                                ">
+                                    ${
+                                        listing.description
+                                        ||
+                                        "O vendedor não adicionou uma descrição."
+                                    }
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </section>
 
                 </div>
+
+
+                <!-- =====================================
+                     PURCHASE CARD
+                     ===================================== -->
+
+                <aside class="purchase-card">
+
+                    <div class="purchase-inner">
+
+                        <h2 class="purchase-title">
+
+                            <span class="purchase-title-icon">
+                                🛒
+                            </span>
+
+                            Comprar esta carta
+
+                        </h2>
+
+
+                        ${
+                            listing.status !== "active" ||
+                            listing.quantity < 1
+
+                            ?
+
+                            `
+                            <div class="product-unavailable">
+
+                                <h2>
+                                    Indisponível
+                                </h2>
+
+                                <p>
+                                    Este anúncio já não
+                                    está disponível.
+                                </p>
+
+                            </div>
+                            `
+
+                            :
+
+                            renderBuyArea(listing)
+                        }
+
+                    </div>
+
+                </aside>
 
             </div>
         `;
 
-        document.getElementById("contactSellerBtn")?.addEventListener("click", () => contactSeller(listing));
-        document.getElementById("addToCartBtn")?.addEventListener("click", () => addToCart(listing));
+
+        /* =========================================
+           CONTACT SELLER
+           ========================================= */
+
+        document
+            .getElementById("contactSellerBtn")
+            ?.addEventListener(
+                "click",
+                () => contactSeller(listing)
+            );
+
+
+        /* =========================================
+           IMAGE THUMBNAILS
+           ========================================= */
+
+        const mainImage =
+            document.getElementById("mainProductImage");
+
+        document
+            .querySelectorAll(".product-thumbnail")
+            .forEach(thumbnail => {
+
+                thumbnail.addEventListener(
+                    "click",
+                    () => {
+
+                        if (mainImage) {
+                            mainImage.src =
+                                thumbnail.dataset.image;
+                        }
+
+                        document
+                            .querySelectorAll(".product-thumbnail")
+                            .forEach(t =>
+                                t.classList.remove("active")
+                            );
+
+                        thumbnail.classList.add("active");
+
+                    }
+                );
+
+            });
+
+
+        /* =========================================
+           CART
+           ========================================= */
+
+        document
+            .getElementById("addToCartBtn")
+            ?.addEventListener(
+                "click",
+                () => addToCart(listing)
+            );
+
+
+        /* =========================================
+           BUY FORM
+           ========================================= */
 
         if (token) {
-            const form = document.getElementById("buyForm");
-            if (form) {
-                form.addEventListener("submit", (e) => submitOrder(e, listing));
 
-                const quantityInput = document.getElementById("quantity");
-                quantityInput.addEventListener("input", () => updatePriceBreakdown(listing));
+            const form =
+                document.getElementById("buyForm");
+
+            if (form) {
+
+                form.addEventListener(
+                    "submit",
+                    (e) => submitOrder(e, listing)
+                );
+
+
+                const quantityInput =
+                    document.getElementById("quantity");
+
+
+                const minusBtn =
+                    document.getElementById("quantityMinus");
+
+
+                const plusBtn =
+                    document.getElementById("quantityPlus");
+
+
+                minusBtn?.addEventListener(
+                    "click",
+                    () => {
+
+                        const current =
+                            Number(quantityInput.value) || 1;
+
+                        quantityInput.value =
+                            Math.max(1, current - 1);
+
+                        updatePriceBreakdown(listing);
+
+                    }
+                );
+
+
+                plusBtn?.addEventListener(
+                    "click",
+                    () => {
+
+                        const current =
+                            Number(quantityInput.value) || 1;
+
+                        quantityInput.value =
+                            Math.min(
+                                listing.quantity,
+                                current + 1
+                            );
+
+                        updatePriceBreakdown(listing);
+
+                    }
+                );
+
+
+                quantityInput?.addEventListener(
+                    "input",
+                    () => updatePriceBreakdown(listing)
+                );
+
+
                 updatePriceBreakdown(listing);
+
             }
+
         }
 
     } catch (error) {
 
         console.error(error);
-        container.innerHTML = "<p>Erro ao carregar o anúncio.</p>";
+
+        container.innerHTML = `
+            <div class="product-unavailable">
+
+                <h1>
+                    Erro ao carregar o anúncio
+                </h1>
+
+                <p>
+                    Não foi possível carregar
+                    esta página.
+                </p>
+
+            </div>
+        `;
 
     }
 
@@ -120,95 +746,433 @@ async function loadProduct() {
 
 function renderBuyArea(listing) {
 
-    if (listing.status !== "active" || listing.quantity < 1) {
-        return `<p><em>Este anúncio já não está disponível.</em></p>`;
+    if (
+        listing.status !== "active" ||
+        listing.quantity < 1
+    ) {
+
+        return `
+            <div class="product-unavailable">
+
+                <h2>
+                    Indisponível
+                </h2>
+
+                <p>
+                    Este anúncio já não está disponível.
+                </p>
+
+            </div>
+        `;
+
     }
+
 
     if (!token) {
-        return `<p>Precisas de <a href="login.html">iniciar sessão</a> para comprares.</p>`;
+
+        return `
+            <div class="product-unavailable">
+
+                <h2>
+                    Inicia sessão
+                </h2>
+
+                <p>
+                    Precisas de iniciar sessão
+                    para comprar esta carta.
+                </p>
+
+                <a
+                    href="login.html"
+                    class="btn-primary"
+                    style="
+                        display:block;
+                        text-decoration:none;
+                        margin-top:18px;
+                    "
+                >
+                    Iniciar sessão
+                </a>
+
+            </div>
+        `;
+
     }
 
+
     return `
-        <div style="margin-bottom:16px;">
-            <label for="cartQuantity">Quantidade</label>
-            <input type="number" id="cartQuantity" min="1" max="${listing.quantity}" value="1" style="max-width:100px;">
-            <button id="addToCartBtn" type="button">Adicionar ao carrinho</button>
-            <p id="cartMessage" style="font-size:14px;"></p>
+
+        <!-- QUANTITY -->
+
+        <label class="quantity-label">
+            Quantidade
+        </label>
+
+
+        <div class="quantity-control">
+
+            <button
+                id="quantityMinus"
+                type="button"
+                aria-label="Diminuir quantidade"
+            >
+                −
+            </button>
+
+
+            <input
+                type="number"
+                id="quantity"
+                min="1"
+                max="${listing.quantity}"
+                value="1"
+                required
+            >
+
+
+            <button
+                id="quantityPlus"
+                type="button"
+                aria-label="Aumentar quantidade"
+            >
+                +
+            </button>
+
         </div>
 
-        <h2 style="margin-top:24px;">Ou comprar já</h2>
 
-        <form id="buyForm">
+        <!-- CART -->
 
-            <label for="quantity">Quantidade</label>
-            <input type="number" id="quantity" min="1" max="${listing.quantity}" value="1" required>
+        <div style="margin-top:14px;">
 
-            <fieldset>
-                <legend>Morada de envio</legend>
+            <button
+                id="addToCartBtn"
+                type="button"
+                class="btn-secondary"
+            >
+                🛒 Adicionar ao carrinho
+            </button>
 
-                <label for="shipName">Nome de quem recebe</label>
-                <input type="text" id="shipName" value="${buyerProfile?.address_name || buyerProfile?.name || ""}" required>
+            <p id="cartMessage"></p>
 
-                <label for="shipAddress">Morada</label>
-                <input type="text" id="shipAddress" value="${buyerProfile?.address_line || ""}" placeholder="Rua, número, andar" required>
+        </div>
 
-                <label for="shipPostalCode">Código postal</label>
-                <input type="text" id="shipPostalCode" value="${buyerProfile?.address_postal_code || ""}" placeholder="0000-000" required>
 
-                <label for="shipCity">Localidade</label>
-                <input type="text" id="shipCity" value="${buyerProfile?.address_city || ""}" placeholder="Ex: Porto" required>
+        <!-- CHECKOUT -->
 
-                <p style="font-size:12px; color:var(--text-dim);">
-                    Pré-preenchida a partir do teu perfil. Podes alterá-la só para esta compra.
+        <form
+            id="buyForm"
+            class="checkout-form"
+        >
+
+
+            <!-- SHIPPING -->
+
+            <div class="checkout-section">
+
+                <h3 class="checkout-section-title">
+                    📦 Morada de envio
+                </h3>
+
+
+                <div class="form-group">
+
+                    <label for="shipName">
+                        Nome de quem recebe
+                    </label>
+
+                    <input
+                        type="text"
+                        id="shipName"
+                        value="${
+                            buyerProfile?.address_name ||
+                            buyerProfile?.name ||
+                            ""
+                        }"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="shipAddress">
+                        Morada
+                    </label>
+
+                    <input
+                        type="text"
+                        id="shipAddress"
+                        value="${
+                            buyerProfile?.address_line ||
+                            ""
+                        }"
+                        placeholder="Rua, número, andar"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="checkout-grid">
+
+                    <div class="form-group">
+
+                        <label for="shipPostalCode">
+                            Código postal
+                        </label>
+
+                        <input
+                            type="text"
+                            id="shipPostalCode"
+                            value="${
+                                buyerProfile?.address_postal_code ||
+                                ""
+                            }"
+                            placeholder="0000-000"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="shipCity">
+                            Localidade
+                        </label>
+
+                        <input
+                            type="text"
+                            id="shipCity"
+                            value="${
+                                buyerProfile?.address_city ||
+                                ""
+                            }"
+                            placeholder="Ex: Porto"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <p style="
+                    margin:10px 0 0;
+                    color:#64748b;
+                    font-size:11px;
+                    line-height:1.5;
+                ">
+                    A morada é pré-preenchida
+                    a partir do teu perfil.
+                    Podes alterá-la apenas para esta compra.
                 </p>
-            </fieldset>
 
-            <fieldset>
-                <legend>Método de pagamento</legend>
+            </div>
 
-                <label>
-                    <input type="radio" name="payment_method" value="wallet" checked>
-                    Carteira do site
-                </label>
 
-                <label>
-                    <input type="radio" name="payment_method" value="bank_transfer">
-                    Transferência bancária
-                </label>
+            <!-- PAYMENT -->
 
-                <label>
-                    <input type="radio" name="payment_method" value="stripe">
-                    Cartão de crédito/débito (Stripe)
-                </label>
-            </fieldset>
+            <div class="checkout-section">
 
-            <div id="priceBreakdown"></div>
+                <h3 class="checkout-section-title">
+                    💳 Método de pagamento
+                </h3>
 
-            <button type="submit">Comprometer-me a comprar</button>
+
+                <div class="payment-options">
+
+
+                    <label class="payment-option">
+
+                        <input
+                            type="radio"
+                            name="payment_method"
+                            value="wallet"
+                            checked
+                        >
+
+                        <span>
+                            Carteira TCGMarketPortugal
+                        </span>
+
+                    </label>
+
+
+                    <label class="payment-option">
+
+                        <input
+                            type="radio"
+                            name="payment_method"
+                            value="bank_transfer"
+                        >
+
+                        <span>
+                            Transferência bancária
+                        </span>
+
+                    </label>
+
+
+                    <label class="payment-option">
+
+                        <input
+                            type="radio"
+                            name="payment_method"
+                            value="stripe"
+                        >
+
+                        <span>
+                            Cartão / MB WAY
+                        </span>
+
+                    </label>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- PRICE -->
+
+            <div
+                id="priceBreakdown"
+                class="price-breakdown"
+            ></div>
+
+
+            <!-- BUY -->
+
+            <button
+                type="submit"
+                class="btn-primary"
+            >
+                ⚡ Comprar agora
+            </button>
+
+
+            <p id="buyMessage"></p>
 
         </form>
 
-        <p id="buyMessage"></p>
     `;
+
 }
 
 function updatePriceBreakdown(listing) {
-    const quantity = Number(document.getElementById("quantity").value) || 1;
-    const basePrice = listing.price * quantity;
-    const totalWeight = estimateWeight(quantity);
-    const shippingCost = calcShipping(totalWeight, buyerCountry);
-    const total = basePrice + shippingCost;
 
-    document.getElementById("priceBreakdown").innerHTML = `
-        <p>
-            Cartas: ${basePrice.toFixed(2)} €<br>
-            Portes (${buyerCountry === "ES" ? "Espanha" : "Portugal"}): ${shippingCost.toFixed(2)} €<br>
-            <strong>Total a pagar: ${total.toFixed(2)} €</strong>
+    const quantityInput =
+        document.getElementById("quantity");
+
+    if (!quantityInput) return;
+
+
+    let quantity =
+        Number(quantityInput.value) || 1;
+
+
+    quantity = Math.max(
+        1,
+        Math.min(
+            quantity,
+            Number(listing.quantity)
+        )
+    );
+
+
+    quantityInput.value = quantity;
+
+
+    const basePrice =
+        Number(listing.price) * quantity;
+
+
+    const totalWeight =
+        estimateWeight(quantity);
+
+
+    const shippingCost =
+        calcShipping(
+            totalWeight,
+            buyerCountry
+        );
+
+
+    const total =
+        basePrice + shippingCost;
+
+
+    const countryLabel =
+        buyerCountry === "ES"
+            ? "Espanha"
+            : "Portugal";
+
+
+    const priceBreakdown =
+        document.getElementById(
+            "priceBreakdown"
+        );
+
+
+    if (!priceBreakdown) return;
+
+
+    priceBreakdown.innerHTML = `
+
+        <div class="price-line">
+
+            <span>
+                Cartas × ${quantity}
+            </span>
+
+            <span>
+                ${basePrice.toFixed(2)} €
+            </span>
+
+        </div>
+
+
+        <div class="price-line">
+
+            <span>
+                Portes (${countryLabel})
+            </span>
+
+            <span>
+                ${shippingCost.toFixed(2)} €
+            </span>
+
+        </div>
+
+
+        <div class="price-total">
+
+            <span>
+                Total
+            </span>
+
+            <strong>
+                ${total.toFixed(2)} €
+            </strong>
+
+        </div>
+
+
+        <p style="
+            margin:13px 0 0;
+            color:#64748b;
+            font-size:11px;
+            line-height:1.5;
+        ">
+            Os portes são calculados de acordo
+            com o país e peso estimado da encomenda.
         </p>
-        <p style="font-size:12px; color:var(--text-dim);">
-            Os portes dependem do país da tua conta. Podes mudar em <a href="profile.html">O Meu Perfil</a>.
-        </p>
+
     `;
+
 }
 
 // Reutilizável: mostra um aviso com botão de reenviar, se o erro for de email por confirmar.

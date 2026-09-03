@@ -102,10 +102,6 @@ router.patch("/me", requireAuth, async (req, res) => {
     }
 });
 
-function isAdmin(user) {
-    return user.email === process.env.ADMIN_EMAIL;
-}
-
 // PATCH /users/admin/account-type — só o admin pode mudar o tipo de conta
 // (Particular/Loja) de qualquer utilizador, identificado pelo email.
 router.patch("/admin/account-type", requireAuth, async (req, res) => {

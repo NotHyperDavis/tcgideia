@@ -3,53 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
     <link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
     <link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
+
     <title>Mensagens - TCGMarketPortugal</title>
 
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/app.css">
+    <link rel="stylesheet" href="../css/mensagens.css">
 </head>
+
 <body>
 
-
 <header class="navbar">
-        <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
-        <nav>
-            <a href="marketplace.html">Marketplace</a>
-            <a href="sell.html">Vender</a>
-            <a href="login.html">Entrar</a>
-        </nav>
-    </header>
+    <a href="main.html" class="logo">
+        <h2>TCGMarketPortugal</h2>
+    </a>
 
-<div class="page">
+    <nav>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="sell.html">Vender</a>
+        <a href="login.html">Entrar</a>
+    </nav>
+</header>
 
-    
-    <h1>Mensagens</h1>
+<main class="messages-page">
 
-    <div id="loginWarning" style="display:none;">
-        <p>Precisas de <a href="login.html">iniciar sessão</a> para veres as tuas mensagens.</p>
+    <div id="loginWarning" class="messages-login-warning" style="display:none;">
+        <div class="empty-icon">🔐</div>
+        <h1>Precisas de iniciar sessão</h1>
+        <p>Entra na tua conta para veres e responderes às tuas mensagens.</p>
+        <a href="login.html" class="primary-button">Iniciar sessão</a>
     </div>
 
-    <div id="messagesLayout" class="messages-layout">
-        <div id="conversationList" class="conversation-list"></div>
-        <div id="conversationView" class="conversation-view">
-            <p><em>Escolhe uma conversa à esquerda.</em></p>
-        </div>
-    </div>
+    <section id="messagesLayout" class="messages-shell">
 
-</div>
+        <aside class="messages-sidebar">
+
+            <div class="messages-sidebar-top">
+                <div>
+                    <span class="eyebrow">TCGMarketPortugal</span>
+                    <h1>Mensagens</h1>
+                </div>
+                <span class="messages-count" id="messagesCount">0</span>
+            </div>
+
+            <div class="conversation-search">
+                <span>⌕</span>
+                <input
+                    type="search"
+                    id="conversationSearch"
+                    placeholder="Pesquisar conversas..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="conversation-heading">
+                <span>Conversas</span>
+                <span class="conversation-heading-line"></span>
+            </div>
+
+            <div id="conversationList" class="conversation-list">
+                <div class="conversation-loading">
+                    <span class="loading-dot"></span>
+                    A carregar conversas...
+                </div>
+            </div>
+
+        </aside>
+
+        <section id="conversationView" class="conversation-view">
+
+            <div class="conversation-empty">
+                <div class="empty-chat-icon">💬</div>
+                <h2>As tuas mensagens</h2>
+                <p>
+                    Escolhe uma conversa para falares com compradores ou vendedores.
+                </p>
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <p>
+        &copy; 2026 TCGMarketPortugal
+        <span class="footer-divider">·</span>
+        <a href="termos.html">Termos de Uso</a>
+        <span class="footer-divider">·</span>
+        <a href="privacidade.html">Privacidade</a>
+        <span class="footer-divider">·</span>
+        <a href="reembolsos.html">Reembolsos</a>
+    </p>
+</footer>
 
 <script src="../js/config.js"></script>
 <script src="../js/auth-nav.js"></script>
 <script src="../js/mensagens.js"></script>
-
-<footer class="site-footer">
-    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
-</footer>
 
 </body>
 </html>
