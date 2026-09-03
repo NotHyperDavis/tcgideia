@@ -15,6 +15,11 @@ const CONDITION_LABELS = {
     poor: "Danificada",
 };
 
+const LANGUAGE_LABELS = {
+    PT: "Português", EN: "Inglês", ES: "Espanhol", FR: "Francês",
+    DE: "Alemão", IT: "Italiano", JP: "Japonês", KO: "Coreano", ZH: "Chinês",
+};
+
 function estimateWeight(quantity) {
     return 15 + quantity * 2;
 }
@@ -117,6 +122,13 @@ async function loadProduct() {
             CONDITION_LABELS[listing.condition] ??
             listing.condition ??
             "Não especificada";
+
+        const language =
+            LANGUAGE_LABELS[listing.language] ??
+            listing.language ??
+            "Não especificado";
+
+        const variant = listing.is_foil ? "Foil / Holo" : "Normal";
 
         const price =
             Number(listing.price).toFixed(2);
@@ -479,6 +491,24 @@ async function loadProduct() {
 
                                 <span class="detail-value">
                                     ${condition}
+                                </span>
+
+
+                                <span class="detail-label">
+                                    Idioma
+                                </span>
+
+                                <span class="detail-value">
+                                    ${language}
+                                </span>
+
+
+                                <span class="detail-label">
+                                    Variante
+                                </span>
+
+                                <span class="detail-value">
+                                    ${variant}
                                 </span>
 
 

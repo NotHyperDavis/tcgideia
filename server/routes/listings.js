@@ -122,8 +122,10 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /listings — cria um anúncio novo (exige login)
+const VALID_LANGUAGES = ["PT", "EN", "ES", "FR", "DE", "IT", "JP", "KO", "ZH"];
+
 router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
-    const { card_id, card_name, card_image, price, condition, quantity, description, real_photo_url } = req.body;
+    const { card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, is_foil } = req.body;
 
     if (!card_id || !card_name || !price || !condition) {
         return res.status(400).json({ error: "Faltam campos obrigatórios (carta, preço, condição)." });
@@ -133,16 +135,20 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
         return res.status(400).json({ error: "Condição inválida." });
     }
 
+    if (language && !VALID_LANGUAGES.includes(language)) {
+        return res.status(400).json({ error: "Idioma inválido." });
+    }
+
     if (Number(price) <= 0) {
         return res.status(400).json({ error: "O preço tem de ser maior que zero." });
     }
 
     try {
         const result = await pool.query(
-            `INSERT INTO listings (user_id, card_id, card_name, card_image, price, condition, quantity, description, real_photo_url)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            `INSERT INTO listings (user_id, card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, is_foil)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
              RETURNING *`,
-            [req.user.id, card_id, card_name, card_image || null, price, condition, quantity || 1, description || null, real_photo_url || null]
+            [req.user.id, card_id, card_name, card_image || null, price, condition, quantity || 1, description || null, real_photo_url || null, language || "EN", !!is_foil]
         );
 
         res.status(201).json(result.rows[0]);
@@ -154,7 +160,7 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
 
 // PATCH /listings/:id — edita um anúncio (só o dono pode editar)
 router.patch("/:id", requireAuth, async (req, res) => {
-    const { price, condition, quantity, description, status } = req.body;
+    const { price, condition, quantity, description, status, language, is_foil } = req.body;
 
     try {
         const existing = await pool.query("SELECT * FROM listings WHERE id = $1", [req.params.id]);
@@ -174,10 +180,12 @@ router.patch("/:id", requireAuth, async (req, res) => {
                 quantity = COALESCE($3, quantity),
                 description = COALESCE($4, description),
                 status = COALESCE($5, status),
+                language = COALESCE($6, language),
+                is_foil = COALESCE($7, is_foil),
                 updated_at = NOW()
-             WHERE id = $6
+             WHERE id = $8
              RETURNING *`,
-            [price, condition, quantity, description, status, req.params.id]
+            [price, condition, quantity, description, status, language, is_foil, req.params.id]
         );
 
         res.json(result.rows[0]);

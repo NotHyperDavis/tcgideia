@@ -9,6 +9,11 @@ const CONDITION_LABELS = {
     poor: "Danificada",
 };
 
+const LANGUAGE_LABELS = {
+    PT: "Português", EN: "Inglês", ES: "Espanhol", FR: "Francês",
+    DE: "Alemão", IT: "Italiano", JP: "Japonês", KO: "Coreano", ZH: "Chinês",
+};
+
 let allListings = [];
 
 async function loadCards() {
@@ -39,6 +44,15 @@ function applyFiltersAndRender() {
         listings = listings.filter(l => checkedConditions.includes(l.condition));
     }
 
+    const checkedLanguages = Array.from(document.querySelectorAll(".language-filter:checked")).map(c => c.value);
+    if (checkedLanguages.length > 0) {
+        listings = listings.filter(l => checkedLanguages.includes(l.language));
+    }
+
+    if (document.getElementById("foilFilter").checked) {
+        listings = listings.filter(l => l.is_foil);
+    }
+
     renderListings(listings);
 }
 
@@ -61,7 +75,7 @@ function renderListings(listings) {
             <img src="${listing.card_image ?? ""}">
             <h3>${listing.card_name}</h3>
             <p><a href="perfil.html?id=${listing.user_id}" class="seller-link">${listing.seller_name}</a></p>
-            <span>${CONDITION_LABELS[listing.condition] ?? listing.condition}</span>
+            <span>${CONDITION_LABELS[listing.condition] ?? listing.condition} · ${LANGUAGE_LABELS[listing.language] ?? listing.language}${listing.is_foil ? " ✨" : ""}</span>
             <strong>${Number(listing.price).toFixed(2)} €</strong>
         `;
 
@@ -78,5 +92,7 @@ function renderListings(listings) {
 
 document.getElementById("searchInput").addEventListener("input", applyFiltersAndRender);
 document.querySelectorAll(".condition-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
+document.querySelectorAll(".language-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
+document.getElementById("foilFilter").addEventListener("change", applyFiltersAndRender);
 
 loadCards();

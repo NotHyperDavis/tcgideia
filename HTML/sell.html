@@ -82,6 +82,24 @@
             <label for="quantity">Quantidade</label>
             <input type="number" id="quantity" min="1" value="1" required>
 
+            <label for="language">Idioma da carta</label>
+            <select id="language" required>
+                <option value="EN">Inglês</option>
+                <option value="PT">Português</option>
+                <option value="ES">Espanhol</option>
+                <option value="FR">Francês</option>
+                <option value="DE">Alemão</option>
+                <option value="IT">Italiano</option>
+                <option value="JP">Japonês</option>
+                <option value="KO">Coreano</option>
+                <option value="ZH">Chinês</option>
+            </select>
+
+            <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
+                <input type="checkbox" id="isFoil" style="width:auto;">
+                Foil / Holo
+            </label>
+
             <label for="description">Descrição (opcional)</label>
             <textarea id="description" placeholder="Ex: sem marcas, guardada em bicho"></textarea>
 
