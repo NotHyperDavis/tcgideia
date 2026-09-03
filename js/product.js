@@ -339,6 +339,21 @@ async function loadProduct() {
                                         ""
                                     }
 
+                                    ${
+                                        token
+                                        ?
+                                        `
+                                        <button
+                                            id="wishlistBtn"
+                                            type="button"
+                                        >
+                                            ❤️ Adicionar aos desejos
+                                        </button>
+                                        `
+                                        :
+                                        ""
+                                    }
+
                                 </div>
 
                             </div>
@@ -626,6 +641,18 @@ async function loadProduct() {
             ?.addEventListener(
                 "click",
                 () => contactSeller(listing)
+            );
+
+
+        /* =========================================
+           WISHLIST
+           ========================================= */
+
+        document
+            .getElementById("wishlistBtn")
+            ?.addEventListener(
+                "click",
+                () => addToWishlist(listing)
             );
 
 
@@ -1388,6 +1415,36 @@ async function contactSeller(listing) {
         }
 
         window.location.href = `mensagens.html?conversation=${data.id}`;
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao ligar ao servidor.");
+    }
+}
+
+async function addToWishlist(listing) {
+    try {
+        const response = await fetch(`${API_BASE}/wishlist`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                card_id: listing.card_id,
+                card_name: listing.card_name,
+                card_image: listing.card_image,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error || "Erro ao adicionar à lista de desejos.");
+            return;
+        }
+
+        alert(data.already_saved ? "Já tinhas esta carta na tua lista de desejos." : "Adicionada à tua lista de desejos! ❤️");
 
     } catch (error) {
         console.error(error);
