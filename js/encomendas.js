@@ -23,7 +23,6 @@ async function uploadImage(file) {
 const loginWarning = document.getElementById("loginWarning");
 const ordersFlow = document.getElementById("ordersFlow");
 const purchasesEl = document.getElementById("purchases");
-const salesEl = document.getElementById("sales");
 
 const PAYMENT_STATUS_LABELS = { pending: "Pendente", paid: "Pago", cancelled: "Cancelado" };
 const STATUS_LABELS = { committed: "Comprometido", shipped: "Enviado", completed: "Concluído", cancelled: "Cancelado" };
@@ -33,7 +32,6 @@ if (!token) {
     ordersFlow.style.display = "none";
 } else {
     loadPurchases();
-    loadSales();
 }
 
 async function loadPurchases() {
@@ -88,75 +86,6 @@ async function loadPurchases() {
     } catch (error) {
         console.error(error);
         purchasesEl.innerHTML = "<p>Erro ao ligar ao servidor.</p>";
-    }
-}
-
-async function loadSales() {
-    salesEl.innerHTML = "<p>A carregar...</p>";
-
-    try {
-        const response = await fetch(`${API_BASE}/orders/selling`, {
-            headers: { "Authorization": `Bearer ${token}` },
-        });
-        const orders = await response.json();
-
-        if (!response.ok) {
-            salesEl.innerHTML = `<p>${orders.error || "Erro ao carregar vendas."}</p>`;
-            return;
-        }
-
-        if (orders.length === 0) {
-            salesEl.innerHTML = "<p>Ainda não vendeste nada.</p>";
-            return;
-        }
-
-        salesEl.innerHTML = "";
-
-        orders.forEach(order => {
-            const el = document.createElement("div");
-            el.className = "order-row";
-            el.innerHTML = `
-                <img src="${order.card_image ?? ""}">
-                <div>
-                    <h3>${order.card_name} (x${order.quantity})</h3>
-                    <p>Comprador: ${order.buyer_name} — ${order.buyer_email}</p>
-
-                    ${order.shipping_name ? `
-                        <div style="background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:12px; margin:10px 0;">
-                            <strong style="font-size:13px; color:var(--text-dim);">📦 ENVIAR PARA</strong>
-                            <p style="margin:6px 0 0; line-height:1.5;">
-                                ${escapeHtml(order.shipping_name)}<br>
-                                ${escapeHtml(order.shipping_address_line)}<br>
-                                ${escapeHtml(order.shipping_postal_code)} ${escapeHtml(order.shipping_city)}<br>
-                                ${order.shipping_country === "ES" ? "Espanha" : "Portugal"}
-                            </p>
-                        </div>
-                    ` : `<p style="color:var(--text-dim); font-size:13px;"><em>Sem morada registada (encomenda anterior a esta funcionalidade) — pede-a ao comprador pela conversa.</em></p>`}
-                    <p>Vais receber: <strong>${Number(order.seller_payout).toFixed(2)} €</strong>
-                        ${order.payout_status === "paid_out"
-                            ? ` <span style="color:var(--success, #4ADE80);">✓ já repassado</span>`
-                            : ` <span style="color:var(--text-dim);">(retido até o comprador confirmar receção)</span>`}
-                    </p>
-                    <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]}</p>
-
-                    <div class="seller-actions">
-                        ${order.payment_status === "paid" && order.status === "committed" ? `<button class="mark-shipped-btn">Marcar como enviado</button>` : ""}
-                        ${order.payment_status !== "paid" ? `<p><em>Aguarda a confirmação do pagamento pelo site antes de enviares.</em></p>` : ""}
-                    </div>
-
-                    <button class="chat-btn" data-order-id="${order.id}" data-conversation-id="${order.conversation_id ?? ''}" data-other-user-id="${order.buyer_id}" data-listing-id="${order.listing_id}">💬 Conversa</button>
-                </div>
-            `;
-
-            el.querySelector(".mark-shipped-btn")?.addEventListener("click", () => updateOrder(order.id, { status: "shipped" }, loadSales));
-            el.querySelector(".chat-btn").addEventListener("click", (e) => openConversation(e.currentTarget));
-
-            salesEl.appendChild(el);
-        });
-
-    } catch (error) {
-        console.error(error);
-        salesEl.innerHTML = "<p>Erro ao ligar ao servidor.</p>";
     }
 }
 

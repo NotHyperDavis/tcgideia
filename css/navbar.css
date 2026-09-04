@@ -1,433 +1,350 @@
-/* NAVBAR */
+/* =========================================================
+   TCGMARKETPORTUGAL — NAVBAR
+   ========================================================= */
 
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 18px 50px;
-    min-height: 84px;
-    box-sizing: border-box;
-    background: rgba(26, 34, 51, 0.75);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid #2C3854;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 76px;
+    padding: 0 48px;
+
+    background: rgba(245, 241, 232, 0.94);
+    backdrop-filter: blur(16px);
+
+    border-bottom: 1px solid var(--border);
 }
+
+/* LOGO */
 
 .logo {
-    font-size: 26px;
-    font-weight: 800;
+    display: flex;
+    align-items: center;
+
+    color: var(--text);
+    text-decoration: none;
+
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #ffffff, #9DB8FF);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
 }
 
-/* Algumas páginas envolvem o texto do logo num <h2> — sem isto, o browser aplica
-   o tamanho de letra próprio dos títulos, maior do que o das outras páginas. */
 .logo h2 {
-    font: inherit;
     margin: 0;
-    -webkit-background-clip: inherit;
-    background-clip: inherit;
-    -webkit-text-fill-color: inherit;
-    background: inherit;
+    font: inherit;
 }
 
-.search {
-    width: 420px;
-    padding: 12px 16px;
-    border: 1px solid #2C3854;
-    border-radius: 999px;
-    outline: none;
-    background: #10182B;
-    color: white;
-    font-size: 14px;
-    transition: border-color .15s, box-shadow .15s;
+.logo::before {
+    content: "▱";
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    margin-right: 10px;
+
+    color: var(--accent);
+
+    font-size: 28px;
+    line-height: 1;
 }
 
-.search::placeholder {
-    color: #6B7A94;
-}
-
-.search:focus {
-    border-color: #2563EB;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
-}
+/* NAV */
 
 nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+nav a {
+    color: var(--text);
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    transition:
+        color .2s ease,
+        transform .2s ease;
+}
+
+nav a:hover {
+    color: var(--accent);
+}
+
+/* USER NAV */
+
+.user-nav {
     display: flex;
     align-items: center;
     gap: 26px;
 }
 
-nav a {
-    color: #E4E9F2;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    transition: color .15s;
+.user-nav > a {
+    position: relative;
 }
 
-nav a:hover {
-    color: #7DA2FF;
+.user-nav > a::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    bottom: -7px;
+
+    width: 0;
+    height: 2px;
+
+    background: var(--accent);
+
+    transition: width .2s ease;
 }
 
-/* HERO (fallback para páginas simples que só usam .hero sem .hero-text) */
-
-.hero h1 {
-    text-align: center;
+.user-nav > a:hover::after {
+    width: 100%;
 }
 
-/* Menu "As Minhas Coisas" */
-
-.user-nav {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 22px;
-}
-
-.user-nav a {
-    color: #E4E9F2;
-    text-decoration: none;
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 14px;
-}
+/* DROPDOWN */
 
 .dropdown {
     position: relative;
-    display: inline-block;
 }
 
 .dropdown-content {
     display: none;
+
     position: absolute;
     top: calc(100% + 14px);
-    left: 0;
-    background: #1A2233;
-    border: 1px solid #2C3854;
-    border-radius: 12px;
-    min-width: 200px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    left: -16px;
+
+    min-width: 220px;
+
+    padding: 8px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    box-shadow: var(--shadow-lg);
+
     overflow: hidden;
-    z-index: 10;
-}
-
-.dropdown::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    height: 14px;
-    background: transparent;
-}
-
-.dropdown-content a {
-    color: white;
-    padding: 14px 18px;
-    text-decoration: none;
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background .15s;
-}
-
-.dropdown-content a:hover {
-    background: #2563EB;
 }
 
 .dropdown:hover .dropdown-content {
     display: block;
 }
 
-.nav-link {
-    color: #E4E9F2;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-}
-
-.left-links,
-.right-links {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-/* ---- Sino, carrinho, carteira e utilizador (injetados pelo auth-nav.js) ---- */
-
-.nav-utility-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0 18px;
-    margin: 0 2px;
-    border-left: 1px solid #2C3854;
-    border-right: 1px solid #2C3854;
-}
-
-.nav-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #1A2233;
-    border: 1px solid #2C3854;
-    padding: 7px 14px;
-    border-radius: 999px;
-    text-decoration: none;
-    color: white;
-    font-size: 13px;
-    font-weight: 700;
-    transition: border-color .15s, transform .15s;
-}
-
-.nav-pill:hover {
-    border-color: #2563EB;
-    transform: translateY(-1px);
-}
-
-.nav-pill-icon {
-    font-size: 14px;
-}
-
-.nav-bell {
-    position: relative;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: #1A2233;
-    border: 1px solid #2C3854;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 16px;
-    transition: border-color .15s, transform .15s;
-}
-
-.nav-bell:hover {
-    border-color: #2563EB;
-    transform: translateY(-1px);
-}
-
-.nav-bell-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    background: #EF4444;
-    color: white;
-    border-radius: 50%;
-    font-size: 10px;
-    font-weight: 700;
-    min-width: 16px;
-    height: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-}
-
-.nav-dropdown-panel {
-    display: none;
-    position: absolute;
-    top: 46px;
-    right: 0;
-    background: #1A2233;
-    border: 1px solid #2C3854;
-    border-radius: 14px;
-    width: 280px;
-    max-height: 400px;
-    overflow-y: auto;
-    z-index: 1000;
-    padding: 10px;
-    text-align: left;
-    box-shadow: 0 20px 40px rgba(0,0,0,.5);
-}
-
-.nav-dropdown-panel--fixed {
-    position: fixed;
-    top: 56px;
-    right: 16px;
-}
-
-.nav-dropdown-item {
+.dropdown-content a {
     display: block;
-    padding: 10px 8px;
-    border-bottom: 1px solid #2C3854;
-    text-decoration: none;
-    color: white;
+
+    padding: 11px 13px;
+
+    border-radius: 9px;
+
+    color: var(--text-dim);
+
     font-size: 13px;
-    border-radius: 8px;
+    font-weight: 550;
+
+    transition:
+        background .15s ease,
+        color .15s ease;
 }
 
-.nav-dropdown-item:last-child {
-    border-bottom: none;
+.dropdown-content a:hover {
+    background: var(--bg-soft);
+    color: var(--accent);
 }
 
-.nav-dropdown-item:hover {
-    background: #212B42;
+.nav-link {
+    border: 0;
+    padding: 0;
+
+    background: transparent;
+
+    color: var(--text);
+
+    font: inherit;
+    cursor: pointer;
 }
 
-.nav-user-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-left: 16px;
-    margin-left: 4px;
+/* SEARCH */
+
+.search {
+    width: 400px;
+
+    padding: 11px 16px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+    border-radius: 999px;
+
+    color: var(--text);
+
+    outline: none;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
 }
 
-.nav-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #2563EB, #7C3AED);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 800;
-    color: white;
-    flex-shrink: 0;
+.search::placeholder {
+    color: var(--text-dimmer);
 }
 
-.nav-user-name {
-    color: white !important;
-    font-weight: 700 !important;
+.search:focus {
+    border-color: var(--accent);
+
+    box-shadow:
+        0 0 0 3px rgba(139, 30, 45, .10);
 }
 
-.nav-logout {
-    color: #9CA8BD !important;
-    font-size: 13px !important;
-    font-weight: 500 !important;
-}
-
-.nav-logout:hover {
-    color: #EF4444 !important;
-}
-
-/* Páginas sem <nav> a sério: tudo agrupado numa única bolha fixa no canto */
+/* INJECTED CART / WALLET */
 
 #topBarExtras {
     position: fixed;
-    top: 14px;
-    right: 20px;
+
+    top: 86px;
+    right: 24px;
+
     display: flex;
     align-items: center;
-    gap: 4px;
-    z-index: 1000;
-    background: #1A2233;
-    border: 1px solid #2C3854;
-    padding: 6px 10px;
+    gap: 8px;
+
+    z-index: 900;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
     border-radius: 999px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+
+    padding: 6px;
+
+    box-shadow: var(--shadow-md);
 }
 
-#topBarExtras .nav-utility-group,
-#topBarExtras .nav-user-group {
-    border: none;
-    padding: 0 8px;
-    margin: 0;
+#topBarExtras a {
+    display: flex;
+    align-items: center;
+
+    padding: 8px 13px;
+
+    background: transparent !important;
+
+    border: 0 !important;
+
+    color: var(--text) !important;
+
+    border-radius: 999px;
+
+    font-size: 12px !important;
+    font-weight: 700 !important;
 }
 
-#topBarExtras .nav-utility-group {
-    border-right: 1px solid #2C3854;
+#topBarExtras a:hover {
+    background: var(--bg-soft) !important;
+    color: var(--accent) !important;
 }
-/* ---- Menu hambúrguer para ecrãs pequenos ---- */
+
+/* MOBILE */
 
 .navbar-toggle {
     display: none;
-    background: none;
-    border: 1px solid #2C3854;
-    color: white;
-    font-size: 20px;
-    line-height: 1;
-    padding: 8px 12px;
-    border-radius: 8px;
+
+    padding: 8px 11px;
+
+    background: transparent;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    color: var(--text);
+
     cursor: pointer;
 }
 
-.navbar-toggle:hover {
-    border-color: #2563EB;
-}
-
-@media (max-width: 860px) {
+@media (max-width: 900px) {
 
     .navbar {
-        flex-wrap: wrap;
-        padding: 14px 20px;
-        row-gap: 14px;
+        padding: 0 22px;
     }
 
     .navbar-toggle {
         display: block;
     }
 
-    .navbar > .search,
     .navbar > nav {
         display: none;
-        width: 100%;
     }
 
-    .navbar.nav-open > .search,
     .navbar.nav-open > nav {
         display: flex;
-    }
 
-    .navbar > .search {
-        order: 3;
-    }
+        position: absolute;
 
-    .navbar > nav {
-        order: 4;
+        left: 16px;
+        right: 16px;
+        top: calc(100% + 8px);
+
         flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-        padding-top: 14px;
-        border-top: 1px solid #2C3854;
+        align-items: stretch;
+
+        padding: 16px;
+
+        background: var(--panel);
+
+        border: 1px solid var(--border);
+        border-radius: 16px;
+
+        box-shadow: var(--shadow-lg);
     }
 
-    .navbar > nav .nav-utility-group,
-    .navbar > nav .nav-user-group {
-        border: none;
-        padding: 0;
-        margin: 0;
-        width: 100%;
-        justify-content: flex-start;
+    .user-nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
     }
 
-    .search {
-        width: 100%;
-    }
-
-    /* O dropdown "As Minhas Coisas" passa a ficar sempre aberto por baixo do link,
-       em vez de depender de :hover (que não existe em ecrãs de toque). */
     .dropdown-content {
-        display: block;
         position: static;
-        box-shadow: none;
-        border: none;
-        background: none;
-        margin: 6px 0 0 14px;
-        min-width: 0;
-    }
 
-    .dropdown-content a {
-        padding: 8px 0;
-        color: #9CA8BD;
+        display: block;
+
+        margin-top: 8px;
+
+        border: 0;
+        box-shadow: none;
+
+        background: var(--bg-soft);
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 520px) {
+
+    .navbar {
+        min-height: 68px;
+        padding: 0 16px;
+    }
+
     .logo {
-        font-size: 20px;
+        font-size: 19px;
+    }
+
+    .logo::before {
+        width: 28px;
+        height: 28px;
+
+        font-size: 23px;
     }
 }

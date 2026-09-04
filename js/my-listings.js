@@ -18,6 +18,9 @@ const STATUS_LABELS = {
     removed: "Removido",
 };
 
+const PAYMENT_STATUS_LABELS = { pending: "Pendente", paid: "Pago", cancelled: "Cancelado" };
+const ORDER_STATUS_LABELS = { committed: "Comprometido", shipped: "Enviado", completed: "Concluído", cancelled: "Cancelado" };
+
 if (!token) {
     loginWarning.style.display = "block";
 } else {
@@ -28,16 +31,25 @@ async function loadMyListings() {
     listingsContainer.innerHTML = "<p>A carregar...</p>";
 
     try {
-        const response = await fetch(`${API_BASE}/listings/mine`, {
-            headers: { "Authorization": `Bearer ${token}` },
-        });
+        const [listingsResponse, ordersResponse] = await Promise.all([
+            fetch(`${API_BASE}/listings/mine`, { headers: { "Authorization": `Bearer ${token}` } }),
+            fetch(`${API_BASE}/orders/selling`, { headers: { "Authorization": `Bearer ${token}` } }),
+        ]);
 
-        if (!response.ok) {
+        if (!listingsResponse.ok) {
             listingsContainer.innerHTML = "<p>Erro ao carregar os teus anúncios.</p>";
             return;
         }
 
-        const listings = await response.json();
+        const listings = await listingsResponse.json();
+        const orders = ordersResponse.ok ? await ordersResponse.json() : [];
+
+        // Agrupa as encomendas por anúncio, para mostrar cada venda junto do anúncio a que pertence.
+        const ordersByListing = {};
+        orders.forEach(order => {
+            if (!ordersByListing[order.listing_id]) ordersByListing[order.listing_id] = [];
+            ordersByListing[order.listing_id].push(order);
+        });
 
         if (listings.length === 0) {
             listingsContainer.innerHTML = "<p>Ainda não tens nenhum anúncio. <a href='sell.html'>Vender uma carta</a>.</p>";
@@ -45,7 +57,7 @@ async function loadMyListings() {
         }
 
         listingsContainer.innerHTML = "";
-        listings.forEach(renderListing);
+        listings.forEach(listing => renderListing(listing, ordersByListing[listing.id] || []));
 
     } catch (error) {
         console.error(error);
@@ -53,7 +65,7 @@ async function loadMyListings() {
     }
 }
 
-function renderListing(listing) {
+function renderListing(listing, orders) {
     const el = document.createElement("div");
     el.className = "listing-row";
     el.dataset.id = listing.id;
@@ -94,12 +106,136 @@ function renderListing(listing) {
         </div>
 
         <p class="listing-message"></p>
+
+        ${orders.length > 0 ? `
+            <div class="listing-sales">
+                <h4>Vendas deste anúncio</h4>
+                ${orders.map(order => renderOrder(order)).join("")}
+            </div>
+        ` : ""}
     `;
 
     el.querySelector(".save-btn").addEventListener("click", () => saveListing(el, listing.id));
     el.querySelector(".delete-btn").addEventListener("click", () => deleteListing(el, listing.id));
 
+    orders.forEach(order => {
+        el.querySelector(`.mark-shipped-btn[data-order-id="${order.id}"]`)
+            ?.addEventListener("click", () => updateOrder(order.id, { status: "shipped" }, loadMyListings));
+
+        el.querySelector(`.chat-btn[data-order-id="${order.id}"]`)
+            ?.addEventListener("click", (e) => openConversation(e.currentTarget));
+    });
+
     listingsContainer.appendChild(el);
+}
+
+function renderOrder(order) {
+    return `
+        <div class="order-row" style="margin-top:10px;">
+            <div>
+                <p>Comprador: ${escapeHtml(order.buyer_name)} — ${escapeHtml(order.buyer_email)} (x${order.quantity})</p>
+
+                ${order.shipping_name ? `
+                    <div style="background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:12px; margin:10px 0;">
+                        <strong style="font-size:13px; color:var(--text-dim);">📦 ENVIAR PARA</strong>
+                        <p style="margin:6px 0 0; line-height:1.5;">
+                            ${escapeHtml(order.shipping_name)}<br>
+                            ${escapeHtml(order.shipping_address_line)}<br>
+                            ${escapeHtml(order.shipping_postal_code)} ${escapeHtml(order.shipping_city)}<br>
+                            ${order.shipping_country === "ES" ? "Espanha" : "Portugal"}
+                        </p>
+                    </div>
+                ` : `<p style="color:var(--text-dim); font-size:13px;"><em>Sem morada registada — pede-a ao comprador pela conversa.</em></p>`}
+
+                <p>Vais receber: <strong>${Number(order.seller_payout).toFixed(2)} €</strong>
+                    ${order.payout_status === "paid_out"
+                        ? ` <span style="color:var(--success, #4ADE80);">✓ já repassado</span>`
+                        : ` <span style="color:var(--text-dim);">(retido até o comprador confirmar receção)</span>`}
+                </p>
+                <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${ORDER_STATUS_LABELS[order.status]}</p>
+
+                ${order.payment_status === "paid" && order.status === "committed" ? `<button class="mark-shipped-btn" data-order-id="${order.id}">Marcar como enviado</button>` : ""}
+                ${order.payment_status !== "paid" ? `<p><em>Aguarda a confirmação do pagamento pelo site antes de enviares.</em></p>` : ""}
+
+                <button class="chat-btn" data-order-id="${order.id}" data-conversation-id="${order.conversation_id ?? ''}" data-other-user-id="${order.buyer_id}" data-listing-id="${order.listing_id}">💬 Conversa</button>
+            </div>
+        </div>
+    `;
+}
+
+async function openConversation(button) {
+    const conversationId = button.dataset.conversationId;
+
+    if (conversationId) {
+        window.location.href = `mensagens.html?conversation=${conversationId}`;
+        return;
+    }
+
+    const otherUserId = button.dataset.otherUserId;
+    const listingId = button.dataset.listingId;
+
+    button.disabled = true;
+    button.textContent = "A abrir...";
+
+    try {
+        const response = await fetch(`${API_BASE}/conversations`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ other_user_id: otherUserId, listing_id: listingId }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error || "Erro ao abrir a conversa.");
+            button.disabled = false;
+            button.textContent = "💬 Conversa";
+            return;
+        }
+
+        window.location.href = `mensagens.html?conversation=${data.id}`;
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao ligar ao servidor.");
+        button.disabled = false;
+        button.textContent = "💬 Conversa";
+    }
+}
+
+async function updateOrder(id, body, reload) {
+    try {
+        const response = await fetch(`${API_BASE}/orders/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify(body),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error || "Erro ao atualizar a encomenda.");
+            return;
+        }
+
+        reload();
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao ligar ao servidor.");
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
 }
 
 async function saveListing(el, id) {

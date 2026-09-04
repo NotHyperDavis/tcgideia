@@ -1,15 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-    --bg: #0B0F1A;
-    --panel: #1A2233;
-    --panel-2: #212B42;
-    --border: #2C3854;
-    --accent: #2563EB;
-    --accent-2: #7C3AED;
-    --gradient: linear-gradient(135deg, var(--accent), var(--accent-2));
-    --text-dim: #9CA8BD;
-    --text-dimmer: #6B7A94;
+    --bg: #F5F1E8;
+    --bg-soft: #EEE9DE;
+
+    --panel: #FFFFFF;
+    --panel-2: #F8F5EF;
+
+    --border: #DDD6C8;
+    --border-strong: #C9BFAE;
+
+    --accent: #8B1E2D;
+    --accent-dark: #681522;
+    --accent-light: #A92C3D;
+
+    --gold: #B88A3B;
+    --gold-light: #D1A85A;
+
+    --text: #201D1A;
+    --text-dim: #6F6961;
+    --text-dimmer: #9A9287;
+
+    --success: #46705A;
+    --danger: #A33A3A;
+
+    --gradient: linear-gradient(
+        135deg,
+        var(--accent),
+        var(--accent-dark)
+    );
+
+    --shadow-sm: 0 4px 14px rgba(45, 35, 25, 0.06);
+    --shadow-md: 0 12px 30px rgba(45, 35, 25, 0.10);
+    --shadow-lg: 0 25px 60px rgba(45, 35, 25, 0.14);
+
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
 }
 
 * {
@@ -20,13 +47,28 @@
 
 body {
     font-family: 'Inter', 'Poppins', Arial, sans-serif;
-    background: var(--bg);
-    background-image:
-        radial-gradient(ellipse 900px 500px at 15% -10%, rgba(37, 99, 235, 0.18), transparent),
-        radial-gradient(ellipse 700px 500px at 100% 0%, rgba(124, 58, 237, 0.14), transparent);
-    background-attachment: fixed;
-    color: white;
+
+    background:
+        radial-gradient(
+            circle at 10% 0%,
+            rgba(184, 138, 59, 0.07),
+            transparent 25%
+        ),
+        var(--bg);
+
+    color: var(--text);
     line-height: 1.5;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
 }
 
 h1, h2, h3 {

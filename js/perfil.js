@@ -35,6 +35,8 @@ const rating = document.getElementById("rating");
 
 const profileListings = document.getElementById("profileListings");
 const noListings = document.getElementById("noListings");
+const salesHistorySection = document.getElementById("salesHistorySection");
+const salesHistoryList = document.getElementById("salesHistoryList");
 const listingCountText = document.getElementById("listingCountText");
 const messageBtn = document.getElementById("messageBtn");
 
@@ -165,6 +167,7 @@ async function loadProfile() {
         Anúncios e Avaliações
         */
         renderListings(listings);
+        renderSalesHistory(user.sales_history || []);
         loadReviews(user.id);
 
         /*
@@ -261,6 +264,37 @@ function renderListings(listings) {
         `;
 
         profileListings.appendChild(card);
+    });
+}
+
+function renderSalesHistory(sales) {
+    if (!salesHistorySection || !salesHistoryList) return;
+
+    if (!sales || sales.length === 0) {
+        salesHistorySection.style.display = "none";
+        return;
+    }
+
+    salesHistorySection.style.display = "block";
+    salesHistoryList.innerHTML = "";
+
+    sales.forEach(sale => {
+        const card = document.createElement("div");
+        card.className = "profile-listing-card";
+
+        const date = new Date(sale.created_at).toLocaleDateString("pt-PT", { year: "numeric", month: "long", day: "numeric" });
+
+        card.innerHTML = `
+            <div class="profile-card-image-wrapper">
+                <img src="${sale.card_image ?? ""}" alt="${sale.card_name}" class="profile-card-image">
+            </div>
+            <div class="profile-card-info">
+                <h3>${sale.card_name}</h3>
+                <span class="profile-card-condition">Vendida em ${date}</span>
+            </div>
+        `;
+
+        salesHistoryList.appendChild(card);
     });
 }
 

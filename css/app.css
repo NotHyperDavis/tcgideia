@@ -1025,3 +1025,15 @@
         width: 100%;
     }
 }
+/* ---- Vendas embutidas em "Os Meus Anúncios" ---- */
+.listing-sales {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.listing-sales h4 {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}

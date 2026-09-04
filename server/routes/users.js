@@ -194,6 +194,18 @@ router.get("/:id", async (req, res) => {
             [userId]
         );
 
+        // Histórico público de vendas — só a carta e a data, nunca o comprador
+        // (isso fica reservado ao próprio vendedor, em "Os Meus Anúncios").
+        const salesHistoryResult = await pool.query(
+            `SELECT listings.card_name, listings.card_image, orders.created_at
+             FROM orders
+             JOIN listings ON listings.id = orders.listing_id
+             WHERE orders.seller_id = $1 AND orders.status = 'completed'
+             ORDER BY orders.created_at DESC
+             LIMIT 50`,
+            [userId]
+        );
+
         const user = userResult.rows[0];
 
         res.json({
@@ -207,7 +219,8 @@ router.get("/:id", async (req, res) => {
                         : null,
                 review_count: Number(ratingResult.rows[0].count)
             },
-            active_listings: listingsResult.rows
+            active_listings: listingsResult.rows,
+            sales_history: salesHistoryResult.rows
         });
 
     } catch (error) {
