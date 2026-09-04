@@ -1,165 +1,149 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
-    <link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
-    <link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
-    <title>TCGMarketPortugal</title>
-
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/footer.css">
-    <link rel="stylesheet" href="../css/navbar.css">
-    <link rel="stylesheet" href="../css/marketplace.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+<link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
+<title>TCGMarketPortugal — Compra e vende cartas TCG</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/footer.css">
+<link rel="stylesheet" href="../css/navbar.css">
+<link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 
-    <!-- NAVBAR -->
-    <header class="navbar">
+<header class="navbar">
+    <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
 
-        <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
 
-        <input
-            id="searchInput"
-            type="text"
-            placeholder="🔍 Pesquisar cartas..."
-            class="search"
-        >
-
-        <nav class="user-nav">
-            <div class="dropdown">
-                <a href="#" class="nav-link"> As Minhas Coisas ▼ </a>
-                <div class="dropdown-content">
-                    <a href="mensagens.html">As Minhas Mensagens</a>
-                    <a href="encomendas.html">Compras e Vendas</a>
-                    <a href="my-listings.html">Os Meus Anúncios</a>
-                    <a href="wishlist.html">❤️ Lista de Desejos</a>
-                </div>
+    <nav class="user-nav">
+        <div class="dropdown">
+            <a href="#" class="nav-link">As Minhas Coisas ▼</a>
+            <div class="dropdown-content">
+                <a href="mensagens.html">As Minhas Mensagens</a>
+                <a href="encomendas.html">Compras e Vendas</a>
+                <a href="my-listings.html">Os Meus Anúncios</a>
+                <a href="wishlist.html">❤️ Lista de Desejos</a>
             </div>
-            <a href="marketplace.html">Marketplace</a>
-            <a href="sell.html">Vender</a>
-            <a href="login.html">Entrar</a>
-        </nav>
+        </div>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="sell.html">Vender</a>
+        <a href="login.html">Entrar</a>
+    </nav>
+</header>
 
-    </header>
+<main>
+<section class="home-hero">
+    <div class="hero-glow hero-glow-one"></div>
+    <div class="hero-glow hero-glow-two"></div>
 
-    <!-- HERO -->
+    <div class="hero-copy">
+        <div class="hero-kicker"><span></span> Marketplace português de cartas TCG</div>
+        <h1>A tua coleção.<br><em>O teu mercado.</em></h1>
+        <p>Compra, vende e descobre cartas de Pokémon e outros TCG num marketplace criado para colecionadores.</p>
 
-    <section class="hero">
-
-        <div class="hero-text">
-            <h1>Compra e vende cartas TCG</h1>
-
-            <p>
-                O maior marketplace português para Pokémon,
-                One Piece, Yu-Gi-Oh! e Magic.
-            </p>
-
-            <button onclick="window.location.href='marketplace.html'">Explorar Marketplace</button>
+        <div class="hero-actions">
+            <a href="marketplace.html" class="hero-button hero-button-primary">Explorar marketplace <b>→</b></a>
+            <a href="sell.html" class="hero-button hero-button-secondary">Começar a vender</a>
         </div>
 
-        <div class="hero-visual">
-            <svg viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="cardGradA" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#2563EB"/>
-                        <stop offset="100%" stop-color="#7C3AED"/>
-                    </linearGradient>
-                    <linearGradient id="cardGradB" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#7C3AED"/>
-                        <stop offset="100%" stop-color="#2563EB"/>
-                    </linearGradient>
-                </defs>
-                <g transform="translate(130 110)">
-                    <rect x="-95" y="-70" width="120" height="160" rx="14" transform="rotate(-16)" fill="#1A2233" stroke="#2C3854" stroke-width="2"/>
-                    <rect x="-65" y="-80" width="120" height="160" rx="14" transform="rotate(8)" fill="url(#cardGradB)" opacity="0.9"/>
-                    <rect x="-60" y="-80" width="120" height="160" rx="14" fill="#1A2233" stroke="#2C3854" stroke-width="2"/>
-                    <circle cx="-60" cy="-40" r="26" fill="url(#cardGradA)"/>
-                    <rect x="-84" y="4" width="48" height="8" rx="4" fill="#2C3854"/>
-                    <rect x="-84" y="20" width="72" height="8" rx="4" fill="#2C3854"/>
-                    <rect x="-84" y="36" width="60" height="8" rx="4" fill="#2C3854"/>
-                </g>
-            </svg>
+        <div class="hero-meta">
+            <span>✓ Compra e venda entre colecionadores</span>
+            <span>✓ Pagamentos através da plataforma</span>
         </div>
+    </div>
 
-    </section>
-
-    <!-- PORQUÊ O TCGMARKETPORTUGAL -->
-
-    <section class="trust-strip">
-        <div class="trust-item">
-            <span class="trust-icon">🔒</span>
-            <span>Pagamentos seguros pela carteira do site</span>
+    <div class="hero-cards" aria-hidden="true">
+        <div class="floating-card card-back"><div class="card-back-pattern"></div></div>
+        <div class="floating-card card-middle">
+            <small>TCG</small><div class="fake-art">✦</div><div class="fake-lines"></div>
         </div>
-        <div class="trust-item">
-            <span class="trust-icon">🚚</span>
-            <span>Portes calculados automaticamente</span>
+        <div class="floating-card card-front">
+            <small>TCGMARKET</small><strong>✦</strong><b>COLLECT</b><i>TRADE • DISCOVER</i><small>PORTUGAL</small>
         </div>
-        <div class="trust-item">
-            <span class="trust-icon">⭐</span>
-            <span>Vendedores avaliados pela comunidade</span>
-        </div>
-        <div class="trust-item">
-            <span class="trust-icon">💬</span>
-            <span>Fala diretamente com o vendedor</span>
-        </div>
-    </section>
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+    </div>
+</section>
 
-    <!-- CATEGORIAS -->
+<section class="home-search-section">
+    <div class="home-search-box">
+        <span>⌕</span>
+        <input id="heroSearch" type="search" placeholder="Procura uma carta, por exemplo: Charizard..." autocomplete="off">
+        <button id="heroSearchButton" type="button">Pesquisar</button>
+    </div>
+    <div class="search-suggestions">
+        <span>Pesquisas populares</span>
+        <button data-search="Charizard">Charizard</button>
+        <button data-search="Pikachu">Pikachu</button>
+        <button data-search="Umbreon">Umbreon</button>
+        <button data-search="Gengar">Gengar</button>
+    </div>
+</section>
 
-    <section class="categories">
+<section class="trust-grid">
+    <div><b>🛡️</b><span><strong>Compra com confiança</strong>Transações pensadas para proteger compradores e vendedores.</span></div>
+    <div><b>💬</b><span><strong>Fala diretamente</strong>Contacta o vendedor através das mensagens da plataforma.</span></div>
+    <div><b>⭐</b><span><strong>Comunidade</strong>Avalia as tuas experiências e constrói reputação.</span></div>
+</section>
 
-        <h2>Explorar por jogo</h2>
+<section class="home-section">
+    <div class="section-heading">
+        <div><small>EXPLORA</small><h2>Encontra o teu TCG</h2></div>
+        <a href="marketplace.html">Ver marketplace →</a>
+    </div>
 
-        <div class="games">
+    <div class="category-grid">
+        <a href="marketplace.html" class="category-card category-pokemon">
+            <div class="category-bg">⚡</div>
+            <div><small>DISPONÍVEL AGORA</small><h3>Pokémon</h3><p>Cartas, raridades e colecionáveis.</p><b>Explorar →</b></div>
+        </a>
+        <div class="category-card disabled"><div class="category-bg">🏴‍☠️</div><div><small>EM BREVE</small><h3>One Piece</h3><p>Estamos a preparar esta categoria.</p></div></div>
+        <div class="category-card disabled"><div class="category-bg">🃏</div><div><small>EM BREVE</small><h3>Yu-Gi-Oh!</h3><p>Mais cartas, mais coleções.</p></div></div>
+        <div class="category-card disabled"><div class="category-bg">🔮</div><div><small>EM BREVE</small><h3>Magic</h3><p>Uma nova categoria a caminho.</p></div></div>
+    </div>
+</section>
 
-            <div class="game" onclick="window.location.href='marketplace.html'" style="cursor:pointer;">
-                <span class="game-icon">⚡</span>
-                Pokémon
-            </div>
+<section class="home-section">
+    <div class="section-heading">
+        <div><small>DESCOBRE</small><h2>Cartas em destaque</h2></div>
+        <a href="marketplace.html">Ver todas →</a>
+    </div>
+    <div class="featured-shell"><div id="featuredCards" class="cards home-cards"><div class="loading">A carregar cartas...</div></div></div>
+</section>
 
-            <div class="game game-disabled">
-                <span class="game-icon">🏴‍☠️</span>
-                One Piece
-                <small>Brevemente</small>
-            </div>
+<section class="home-section how-section">
+    <div class="center-heading"><small>SIMPLES</small><h2>Como funciona</h2><p>Do anúncio à compra, sem complicações.</p></div>
+    <div class="steps">
+        <article><label>01</label><span>🔎</span><h3>Encontra</h3><p>Pesquisa a carta que procuras e compara os anúncios disponíveis.</p></article>
+        <i></i>
+        <article><label>02</label><span>🛒</span><h3>Compra</h3><p>Escolhe a condição, quantidade e método de pagamento.</p></article>
+        <i></i>
+        <article><label>03</label><span>📦</span><h3>Recebe</h3><p>Acompanha a encomenda e confirma quando a tua carta chegar.</p></article>
+    </div>
+</section>
 
-            <div class="game game-disabled">
-                <span class="game-icon">🃏</span>
-                Yu-Gi-Oh!
-                <small>Brevemente</small>
-            </div>
+<section class="sell-cta">
+    <div><small>PARA COLECIONADORES</small><h2>Tens cartas que já não precisas?</h2><p>Dá uma nova casa à tua coleção e começa a vender no TCGMarketPortugal.</p><a href="sell.html" class="hero-button hero-button-primary">Criar anúncio <b>→</b></a></div>
+    <aside><b>TCG</b><span>✦</span><small>TRADE • COLLECT • DISCOVER</small></aside>
+</section>
+</main>
 
-            <div class="game game-disabled">
-                <span class="game-icon">🔮</span>
-                Magic
-                <small>Brevemente</small>
-            </div>
-
-        </div>
-
-    </section>
-    
-    <section class="featured">
-
-        <h2>🔥 Cartas em Destaque</h2>
-
-        <div class="cards" id="featuredCards"></div>
-
-        <div class="featured-footer">
-            <a href="marketplace.html">Ver todas as cartas →</a>
-        </div>
-
-    </section>
+<footer class="site-footer">
+<p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
+</footer>
 
 <script src="../js/config.js"></script>
 <script src="../js/api.js"></script>
 <script src="../js/auth-nav.js"></script>
-
-<footer class="site-footer">
-    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a></p>
-</footer>
-
+<script>
+function goSearch(v){v=v.trim();if(v.length>=2)location.href='marketplace.html?q='+encodeURIComponent(v)}
+const hs=document.getElementById('heroSearch');
+document.getElementById('heroSearchButton').onclick=()=>goSearch(hs.value);
+hs.onkeydown=e=>{if(e.key==='Enter')goSearch(hs.value)};
+document.querySelectorAll('[data-search]').forEach(b=>b.onclick=()=>{hs.value=b.dataset.search;goSearch(hs.value)});
+</script>
 </body>
 </html>
