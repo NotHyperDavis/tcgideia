@@ -1209,3 +1209,177 @@ body {
         height: 330px;
     }
 }
+/* =========================================================
+   TCGMARKETPORTUGAL — LIGHT PRODUCT THEME FIX
+   ========================================================= */
+
+/* PAINÉIS PRINCIPAIS */
+
+.product-top,
+.product-details,
+.product-benefits,
+.description-section,
+.product-unavailable {
+    background: var(--product-card);
+    color: var(--product-text);
+}
+
+
+/* TÍTULOS */
+
+.product-info h1,
+.seller-name,
+.details-tab.active,
+.benefit-title,
+.secure-title {
+    color: var(--product-text);
+}
+
+
+/* TEXTOS */
+
+.product-description,
+.benefit-text,
+.secure-text {
+    color: var(--product-muted);
+}
+
+
+/* STOCK */
+
+.product-stock {
+    color: var(--product-text);
+}
+
+
+/* TAGS / PILLS */
+
+.product-pill {
+    color: var(--product-muted);
+    background: var(--product-card-2);
+}
+
+.product-tag {
+    color: var(--product-gold);
+    background: rgba(184, 138, 59, 0.08);
+}
+
+
+/* VENDEDOR */
+
+.seller-actions a,
+.seller-actions button {
+    color: var(--product-blue);
+    background: rgba(139, 30, 45, 0.04);
+}
+
+.seller-actions a:hover,
+.seller-actions button:hover {
+    color: var(--product-blue);
+    background: rgba(139, 30, 45, 0.09);
+}
+
+
+/* DETALHES */
+
+.detail-value {
+    color: var(--product-text);
+}
+
+
+/* QUANTIDADE */
+
+.quantity-control button {
+    background: var(--product-card);
+    color: var(--product-text);
+}
+
+.quantity-control input {
+    background: var(--product-card-2);
+    color: var(--product-text);
+}
+
+
+/* MÉTODO DE PAGAMENTO */
+
+.payment-option {
+    color: var(--product-text);
+    background: var(--product-card);
+}
+
+
+/* ÍCONE / TÍTULO DA COMPRA */
+
+.purchase-title {
+    color: var(--product-text);
+}
+
+.purchase-title-icon {
+    color: var(--product-blue);
+}
+
+
+/* BREADCRUMB */
+
+.product-breadcrumb a {
+    color: var(--product-muted);
+}
+
+.product-breadcrumb a:hover {
+    color: var(--product-blue);
+}
+
+
+/* BOTÃO PRINCIPAL */
+
+.btn-primary {
+    background: var(--product-blue);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background: var(--accent-dark);
+}
+
+
+/* MENSAGENS */
+
+#cartMessage,
+#buyMessage {
+    color: var(--product-muted);
+}
+
+#cartMessage a,
+#buyMessage a {
+    color: var(--product-blue);
+}
+
+
+/* BENEFÍCIOS */
+
+.benefit {
+    background: transparent;
+}
+
+
+/* IMAGEM */
+
+.product-main-image-wrap {
+    background:
+        radial-gradient(
+            circle,
+            rgba(139, 30, 45, 0.06),
+            transparent 65%
+        );
+}
+
+
+/* SOMBRAS MAIS SUAVES */
+
+.product-top,
+.product-details,
+.product-benefits,
+.description-section {
+    box-shadow:
+        0 12px 30px rgba(45, 35, 25, 0.07);
+}

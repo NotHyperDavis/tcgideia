@@ -229,7 +229,7 @@ listingForm.addEventListener("submit", async (e) => {
                 description,
                 real_photo_url,
                 language: document.getElementById("language").value,
-                is_foil: document.getElementById("isFoil").checked,
+                variant: document.getElementById("variantSelect").value,
             }),
         });
 

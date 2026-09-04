@@ -14,6 +14,10 @@ const LANGUAGE_LABELS = {
     DE: "Alemão", IT: "Italiano", JP: "Japonês", KO: "Coreano", ZH: "Chinês",
 };
 
+const VARIANT_LABELS = {
+    foil: " ✨ Foil", holo: " ✨ Holo", reverse_holo: " ✨ Reverse Holo",
+};
+
 const GAME_LABELS = {
     pokemon: "Pokémon", yugioh: "Yu-Gi-Oh!", magic: "Magic", onepiece: "One Piece",
 };
@@ -64,8 +68,9 @@ function applyFiltersAndRender() {
         listings = listings.filter(l => checkedLanguages.includes(l.language));
     }
 
-    if (document.getElementById("foilFilter").checked) {
-        listings = listings.filter(l => l.is_foil);
+    const checkedVariants = Array.from(document.querySelectorAll(".variant-filter:checked")).map(c => c.value);
+    if (checkedVariants.length > 0) {
+        listings = listings.filter(l => checkedVariants.includes(l.variant));
     }
 
     const setSearch = document.getElementById("setFilter")?.value.trim().toLowerCase();
@@ -120,13 +125,21 @@ if (emptyState) {
             <img src="${listing.card_image ?? ""}">
             <h3>${listing.card_name}</h3>
             <p><a href="perfil.html?id=${listing.user_id}" class="seller-link">${listing.seller_name}</a></p>
-            <span>${GAME_LABELS[listing.game] ?? listing.game} · ${CONDITION_LABELS[listing.condition] ?? listing.condition} · ${LANGUAGE_LABELS[listing.language] ?? listing.language}${listing.is_foil ? " ✨" : ""}</span>
-            <strong>${Number(listing.price).toFixed(2)} €</strong>
+            <span>${GAME_LABELS[listing.game] ?? listing.game} · ${CONDITION_LABELS[listing.condition] ?? listing.condition} · ${LANGUAGE_LABELS[listing.language] ?? listing.language}${VARIANT_LABELS[listing.variant] ?? ""}</span>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <strong>${Number(listing.price).toFixed(2)} €</strong>
+                <button class="quick-buy-btn" data-listing-id="${listing.id}" title="Adicionar ao carrinho rapidamente" style="background:var(--accent); color:#fff; border:none; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:16px; line-height:1;">🛒</button>
+            </div>
         `;
 
         card.addEventListener("click", (e) => {
-            if (e.target.closest(".seller-link")) return;
+            if (e.target.closest(".seller-link") || e.target.closest(".quick-buy-btn")) return;
             window.location.href = `product.html?id=${listing.id}`;
+        });
+
+        card.querySelector(".quick-buy-btn").addEventListener("click", (e) => {
+            e.stopPropagation();
+            quickAddToCart(listing.id, e.currentTarget);
         });
 
         container.appendChild(card);
@@ -141,6 +154,51 @@ document.getElementById("setFilter")?.addEventListener("input", applyFiltersAndR
 document.querySelectorAll(".condition-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
 document.querySelectorAll(".game-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
 document.querySelectorAll(".language-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
-document.getElementById("foilFilter").addEventListener("change", applyFiltersAndRender);
+document.querySelectorAll(".variant-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
+
+async function quickAddToCart(listingId, button) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = "...";
+
+    try {
+        const response = await fetch(`${API_BASE}/cart`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ listing_id: listingId, quantity: 1 }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error || "Erro ao adicionar ao carrinho.");
+            button.disabled = false;
+            button.textContent = originalText;
+            return;
+        }
+
+        button.textContent = "✓";
+        setTimeout(() => {
+            button.disabled = false;
+            button.textContent = originalText;
+        }, 1500);
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao ligar ao servidor.");
+        button.disabled = false;
+        button.textContent = originalText;
+    }
+}
 
 loadCards();

@@ -99,18 +99,13 @@
                 <option value="ZH">Chinês</option>
             </select>
 
-            <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
-                <input type="checkbox" id="isFoil" style="width:auto;">
-                Foil
-            </label>
-            <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
-                <input type="checkbox" id="isFoil" style="width:auto;">
-                Holo
-            </label>
-            <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
-                <input type="checkbox" id="isFoil" style="width:auto;">
-                Reverse Holo
-            </label>
+            <label for="variantSelect">Variante</label>
+            <select id="variantSelect">
+                <option value="normal">Normal</option>
+                <option value="foil">Foil</option>
+                <option value="holo">Holo</option>
+                <option value="reverse_holo">Reverse Holo</option>
+            </select>
 
             <label for="description">Descrição (opcional)</label>
             <textarea id="description" placeholder="Ex: sem marcas, guardada em bicho"></textarea>

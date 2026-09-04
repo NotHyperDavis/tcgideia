@@ -321,7 +321,7 @@ async function loadProduct() {
                                     <a
                                         href="perfil.html?id=${listing.user_id}"
                                     >
-                                        Ver perfil
+                                        🙎Ver perfil🙎
                                     </a>
 
                                     ${
@@ -332,7 +332,7 @@ async function loadProduct() {
                                             id="contactSellerBtn"
                                             type="button"
                                         >
-                                            Mensagem
+                                            💬Mensagem💬
                                         </button>
                                         `
                                         :
@@ -347,7 +347,7 @@ async function loadProduct() {
                                             id="wishlistBtn"
                                             type="button"
                                         >
-                                            ❤️ Adicionar aos desejos
+                                            ❤️Adicionar aos desejos❤️
                                         </button>
                                         `
                                         :

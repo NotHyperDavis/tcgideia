@@ -299,22 +299,105 @@ document.getElementById("exportDataBtn")?.addEventListener("click", async () => 
         }
 
         const data = await response.json();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const html = buildExportHtml(data);
+        const blob = new Blob([html], { type: "text/html" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "os-meus-dados-tcgmarketportugal.json";
+        a.download = "os-meus-dados-tcgmarketportugal.html";
         a.click();
         URL.revokeObjectURL(url);
 
-        gdprMessage.textContent = "Descarregado!";
-        setTimeout(() => { gdprMessage.textContent = ""; }, 3000);
+        gdprMessage.textContent = "Descarregado! Abre o ficheiro com duplo-clique.";
+        setTimeout(() => { gdprMessage.textContent = ""; }, 4000);
 
     } catch (error) {
         console.error(error);
         gdprMessage.textContent = "Erro ao ligar ao servidor.";
     }
 });
+
+function buildExportHtml(data) {
+    const esc = (v) => String(v ?? "").replace(/</g, "&lt;");
+
+    const table = (rows, columns) => {
+        if (!rows || rows.length === 0) return "<p><em>Nada aqui.</em></p>";
+        return `
+            <table style="width:100%; border-collapse:collapse; margin-bottom:24px;">
+                <thead><tr>${columns.map(c => `<th style="text-align:left; padding:8px; border-bottom:2px solid #DDD6C8; font-size:13px;">${c.label}</th>`).join("")}</tr></thead>
+                <tbody>
+                    ${rows.map(row => `<tr>${columns.map(c => `<td style="padding:8px; border-bottom:1px solid #EEE9DE; font-size:13px;">${esc(typeof c.value === "function" ? c.value(row) : row[c.value])}</td>`).join("")}</tr>`).join("")}
+                </tbody>
+            </table>
+        `;
+    };
+
+    return `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<title>Os meus dados — TCGMarketPortugal</title>
+<style>
+    body { font-family: -apple-system, Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #201D1A; background: #F5F1E8; }
+    h1 { color: #8B1E2D; }
+    h2 { margin-top: 40px; border-bottom: 2px solid #8B1E2D; padding-bottom: 6px; }
+    .box { background: #FFFFFF; border: 1px solid #DDD6C8; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+    <h1>Os meus dados — TCGMarketPortugal</h1>
+    <p>Exportado em ${new Date(data.exported_at).toLocaleString("pt-PT")}</p>
+
+    <h2>Perfil</h2>
+    <div class="box">
+        <p><strong>Nome:</strong> ${esc(data.profile?.name)}</p>
+        <p><strong>Email:</strong> ${esc(data.profile?.email)}</p>
+        <p><strong>País:</strong> ${esc(data.profile?.country)}</p>
+        <p><strong>Tipo de conta:</strong> ${esc(data.profile?.account_type)}</p>
+        <p><strong>Membro desde:</strong> ${data.profile?.created_at ? new Date(data.profile.created_at).toLocaleDateString("pt-PT") : "—"}</p>
+        <p><strong>Morada:</strong> ${esc(data.profile?.address_line)} ${esc(data.profile?.address_postal_code)} ${esc(data.profile?.address_city)}</p>
+    </div>
+
+    <h2>Os meus anúncios (${data.listings?.length ?? 0})</h2>
+    ${table(data.listings, [
+        { label: "Carta", value: "card_name" },
+        { label: "Preço", value: (r) => `${Number(r.price).toFixed(2)} €` },
+        { label: "Estado", value: "status" },
+        { label: "Criado em", value: (r) => new Date(r.created_at).toLocaleDateString("pt-PT") },
+    ])}
+
+    <h2>As minhas compras (${data.purchases?.length ?? 0})</h2>
+    ${table(data.purchases, [
+        { label: "Encomenda", value: "id" },
+        { label: "Total", value: (r) => `${Number(r.total_price).toFixed(2)} €` },
+        { label: "Estado", value: "status" },
+        { label: "Data", value: (r) => new Date(r.created_at).toLocaleDateString("pt-PT") },
+    ])}
+
+    <h2>As minhas vendas (${data.sales?.length ?? 0})</h2>
+    ${table(data.sales, [
+        { label: "Encomenda", value: "id" },
+        { label: "Total", value: (r) => `${Number(r.total_price).toFixed(2)} €` },
+        { label: "Estado", value: "status" },
+        { label: "Data", value: (r) => new Date(r.created_at).toLocaleDateString("pt-PT") },
+    ])}
+
+    <h2>As minhas avaliações (${data.reviews?.length ?? 0})</h2>
+    ${table(data.reviews, [
+        { label: "Nota", value: (r) => `${r.rating} ★` },
+        { label: "Comentário", value: "comment" },
+        { label: "Data", value: (r) => new Date(r.created_at).toLocaleDateString("pt-PT") },
+    ])}
+
+    <h2>A minha lista de desejos (${data.wishlist?.length ?? 0})</h2>
+    ${table(data.wishlist, [
+        { label: "Carta", value: "card_name" },
+        { label: "Adicionada em", value: (r) => new Date(r.created_at).toLocaleDateString("pt-PT") },
+    ])}
+
+</body>
+</html>`;
+}
 
 document.getElementById("deleteAccountBtn")?.addEventListener("click", async () => {
     const gdprMessage = document.getElementById("gdprMessage");
