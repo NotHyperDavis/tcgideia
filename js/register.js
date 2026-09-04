@@ -7,14 +7,21 @@ form.addEventListener("submit", async (e) => {
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+    const terms_accepted = document.getElementById("termsAccepted").checked;
 
     message.textContent = "";
+
+    if (!terms_accepted) {
+        message.textContent = "Tens de aceitar os Termos de Uso e a Política de Privacidade.";
+        message.className = "error";
+        return;
+    }
 
     try {
         const response = await fetch(`${API_BASE}/auth/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, password })
+            body: JSON.stringify({ name, email, password, terms_accepted })
         });
 
         const data = await response.json();
