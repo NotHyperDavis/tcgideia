@@ -102,6 +102,20 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
         const platformFee = Math.min(Number((basePrice * commissionRateFor(sellerAccountType)).toFixed(2)), COMMISSION_CAP);
         const sellerPayout = Number((totalPrice - platformFee).toFixed(2));
 
+        // Para a carteira: só é "pago" já se houver saldo suficiente. Se não houver,
+        // o compromisso é criado na mesma (tal como já acontecia com a transferência
+        // bancária) — fica como "pending", e o comprador paga mais tarde com o botão
+        // "Pagar agora", depois de carregar a carteira.
+        let walletHasFunds = false;
+        if (payment_method === "wallet") {
+            const buyerResult = await client.query("SELECT balance FROM users WHERE id = $1 FOR UPDATE", [req.user.id]);
+            walletHasFunds = Number(buyerResult.rows[0].balance) >= totalPrice;
+        }
+
+        const initialPaymentStatus = payment_method === "wallet"
+            ? (walletHasFunds ? "paid" : "pending")
+            : "pending";
+
         const orderResult = await client.query(
             `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost,
                                  shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country)
@@ -109,21 +123,13 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
              RETURNING *`,
             [
                 listing.id, req.user.id, listing.user_id, quantity, listing.price, totalPrice, payment_method,
-                payment_method === "wallet" ? "paid" : "pending",
+                initialPaymentStatus,
                 platformFee, sellerPayout, shippingCost,
                 shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry
             ]
         );
 
-        if (payment_method === "wallet") {
-            const buyerResult = await client.query("SELECT balance FROM users WHERE id = $1 FOR UPDATE", [req.user.id]);
-            const buyerBalance = Number(buyerResult.rows[0].balance);
-
-            if (totalPrice > buyerBalance) {
-                await client.query("ROLLBACK");
-                return res.status(400).json({ error: `Saldo insuficiente. Precisas de ${totalPrice.toFixed(2)} € e tens ${buyerBalance.toFixed(2)} €.` });
-            }
-
+        if (payment_method === "wallet" && walletHasFunds) {
             // Só se debita o comprador agora. O vendedor NÃO é creditado aqui —
             // só recebe quando o comprador confirmar a receção da carta.
             await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [totalPrice, req.user.id]);
@@ -138,8 +144,8 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
 
         await client.query("COMMIT");
 
-        if (payment_method === "wallet") {
-            await notify(listing.user_id, "order_update", "Vendeste uma carta! O pagamento já está confirmado, podes enviar.", "encomendas.html");
+        if (payment_method === "wallet" && walletHasFunds) {
+            await notify(listing.user_id, "order_update", "Venda comprometida! O pagamento já está confirmado, podes enviar.", "encomendas.html");
         }
 
         res.status(201).json(orderResult.rows[0]);
@@ -154,6 +160,68 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
 });
 
 // Encomendas que eu fiz (como comprador)
+// POST /orders/:id/pay-now — o comprador tenta pagar (pela carteira) uma encomenda
+// a que já se comprometeu, mas que ainda não tinha saldo suficiente para pagar.
+router.post("/:id/pay-now", requireAuth, requireVerifiedEmail, async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        const orderResult = await client.query("SELECT * FROM orders WHERE id = $1 FOR UPDATE", [req.params.id]);
+        const order = orderResult.rows[0];
+
+        if (!order) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({ error: "Encomenda não encontrada." });
+        }
+
+        if (order.buyer_id !== req.user.id) {
+            await client.query("ROLLBACK");
+            return res.status(403).json({ error: "Só o comprador pode pagar esta encomenda." });
+        }
+
+        if (order.payment_method !== "wallet") {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ error: "Esta encomenda não é paga pela carteira." });
+        }
+
+        if (order.payment_status === "paid") {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ error: "Esta encomenda já está paga." });
+        }
+
+        if (order.status === "cancelled") {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ error: "Esta encomenda já foi cancelada." });
+        }
+
+        const buyerResult = await client.query("SELECT balance FROM users WHERE id = $1 FOR UPDATE", [req.user.id]);
+        const balance = Number(buyerResult.rows[0].balance);
+
+        if (balance < Number(order.total_price)) {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ error: `Saldo insuficiente. Precisas de ${Number(order.total_price).toFixed(2)} € e tens ${balance.toFixed(2)} €.` });
+        }
+
+        await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [order.total_price, req.user.id]);
+        await client.query("UPDATE orders SET payment_status = 'paid', updated_at = NOW() WHERE id = $1", [order.id]);
+
+        await client.query("COMMIT");
+
+        await notify(order.seller_id, "order_update", "O comprador pagou uma venda comprometida — já podes enviar.", "encomendas.html");
+
+        res.json({ ok: true });
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+        res.status(500).json({ error: "Erro ao processar o pagamento." });
+    } finally {
+        client.release();
+    }
+});
+
 router.get("/mine", requireAuth, async (req, res) => {
     try {
         const result = await pool.query(

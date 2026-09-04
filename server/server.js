@@ -20,6 +20,7 @@ const uploadRoutes = require("./routes/upload");
 const stripeConnectRoutes = require("./routes/stripe-connect");
 const checkoutRoutes = require("./routes/checkout");
 const stripeWebhookRoutes = require("./routes/stripe-webhook");
+const disputesRoutes = require("./routes/disputes");
 
 const app = express();
 
@@ -64,6 +65,7 @@ app.use("/cart", cartRoutes);
 app.use("/upload", uploadRoutes);
 app.use("/stripe-connect", stripeConnectRoutes);
 app.use("/checkout", checkoutRoutes);
+app.use("/disputes", disputesRoutes);
 
 app.get("/", (req, res) => {
     res.redirect("/HTML/main.html");

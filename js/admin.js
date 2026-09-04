@@ -10,6 +10,80 @@ if (!token) {
 } else {
     loadOrders();
     loadWalletRequests();
+    loadDisputes();
+}
+
+const DISPUTE_REASON_LABELS = {
+    nao_chegou: "A carta não chegou",
+    diferente_do_anuncio: "A carta é diferente do anunciado",
+    vendedor_nao_responde: "O vendedor/comprador não responde",
+    outro: "Outro problema",
+};
+
+const DISPUTE_STATUS_LABELS = { open: "Aberta", in_review: "Em análise", resolved: "Resolvida" };
+
+async function loadDisputes() {
+    const disputesContainer = document.getElementById("disputes");
+    disputesContainer.innerHTML = "<p>A carregar...</p>";
+
+    try {
+        const response = await fetch(`${API_BASE}/disputes/admin`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+
+        const disputes = await response.json();
+
+        if (!response.ok) {
+            disputesContainer.innerHTML = `<p>${disputes.error || "Erro ao carregar reclamações."}</p>`;
+            return;
+        }
+
+        if (disputes.length === 0) {
+            disputesContainer.innerHTML = "<p>Sem reclamações.</p>";
+            return;
+        }
+
+        disputesContainer.innerHTML = disputes.map(d => `
+            <div class="admin-order-row">
+                <div>
+                    <h3>${DISPUTE_REASON_LABELS[d.reason] ?? d.reason} — ${d.card_name}</h3>
+                    <p>Aberta por: ${d.opened_by_name} (${d.opened_by_email})</p>
+                    <p>Comprador: ${d.buyer_name} · Vendedor: ${d.seller_name} · Valor: ${Number(d.total_price).toFixed(2)} €</p>
+                    ${d.description ? `<p><em>"${d.description}"</em></p>` : ""}
+                    <p>Estado: <strong>${DISPUTE_STATUS_LABELS[d.status]}</strong> · Aberta em ${new Date(d.created_at).toLocaleString("pt-PT")}</p>
+
+                    <select class="dispute-status-select" data-id="${d.id}">
+                        <option value="open" ${d.status === "open" ? "selected" : ""}>Aberta</option>
+                        <option value="in_review" ${d.status === "in_review" ? "selected" : ""}>Em análise</option>
+                        <option value="resolved" ${d.status === "resolved" ? "selected" : ""}>Resolvida</option>
+                    </select>
+                    <button class="save-dispute-btn" data-id="${d.id}">Guardar</button>
+                </div>
+            </div>
+        `).join("");
+
+        document.querySelectorAll(".save-dispute-btn").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const id = btn.dataset.id;
+                const status = document.querySelector(`.dispute-status-select[data-id="${id}"]`).value;
+
+                await fetch(`${API_BASE}/disputes/${id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ status }),
+                });
+
+                loadDisputes();
+            });
+        });
+
+    } catch (error) {
+        console.error(error);
+        disputesContainer.innerHTML = "<p>Erro ao ligar ao servidor.</p>";
+    }
 }
 
 async function loadWalletRequests() {

@@ -261,14 +261,13 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
 
         const buyerResult = await client.query("SELECT balance FROM users WHERE id = $1 FOR UPDATE", [req.user.id]);
         const buyerBalance = Number(buyerResult.rows[0].balance);
+        const walletHasFunds = buyerBalance >= grandTotal;
 
-        if (grandTotal > buyerBalance) {
-            await client.query("ROLLBACK");
-            return res.status(400).json({ error: `Saldo insuficiente. Precisas de ${grandTotal.toFixed(2)} € e tens ${buyerBalance.toFixed(2)} €.` });
+        // Se não houver saldo, o compromisso é criado na mesma — fica "por pagar",
+        // tal como a transferência bancária. Só debitamos se houver saldo já.
+        if (walletHasFunds) {
+            await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [grandTotal, req.user.id]);
         }
-
-        // Debita o comprador de uma vez
-        await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [grandTotal, req.user.id]);
 
         const createdOrders = [];
 
@@ -284,9 +283,11 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
             const orderResult = await client.query(
                 `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost,
                                      shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country)
-                 VALUES ($1, $2, $3, $4, $5, $6, 'wallet', 'paid', $7, $8, $9, $10, $11, $12, $13, $14)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'wallet', $7, $8, $9, $10, $11, $12, $13, $14, $15)
                  RETURNING *`,
-                [listing.id, req.user.id, order.seller_id, order.quantity, order.unit_price, order.total_price, order.platform_fee, order.seller_payout, order.shipping_cost,
+                [listing.id, req.user.id, order.seller_id, order.quantity, order.unit_price, order.total_price,
+                 walletHasFunds ? "paid" : "pending",
+                 order.platform_fee, order.seller_payout, order.shipping_cost,
                  shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry]
             );
 
@@ -301,7 +302,9 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
         await client.query("COMMIT");
 
         for (const order of createdOrders) {
-            await notify(order.seller_id, "order_update", "Vendeste uma carta! O pagamento já está confirmado, podes enviar.", "encomendas.html");
+            if (walletHasFunds) {
+                await notify(order.seller_id, "order_update", "Venda comprometida! O pagamento já está confirmado, podes enviar.", "encomendas.html");
+            }
         }
 
         res.status(201).json({ orders: createdOrders, total: grandTotal });

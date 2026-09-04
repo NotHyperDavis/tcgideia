@@ -129,12 +129,17 @@ async function loadBalancePreview(total) {
         document.getElementById("sumBalance").textContent = Number(data.balance).toFixed(2);
 
         const checkoutBtn = document.getElementById("checkoutBtn");
+        const balanceNote = document.getElementById("balanceNote");
+
         if (Number(data.balance) < total) {
-            checkoutBtn.disabled = true;
-            checkoutBtn.textContent = "Saldo insuficiente — carrega a carteira";
+            checkoutBtn.textContent = "Comprometer-me a comprar";
+            if (balanceNote) {
+                balanceNote.textContent = "Não tens saldo suficiente ainda — o compromisso fica registado na mesma, e podes pagar depois de carregares a carteira.";
+                balanceNote.style.display = "block";
+            }
         } else {
-            checkoutBtn.disabled = false;
             checkoutBtn.textContent = "Finalizar compra (pagar com a carteira)";
+            if (balanceNote) balanceNote.style.display = "none";
         }
     } catch (error) {
         console.error(error);
@@ -205,8 +210,12 @@ document.getElementById("checkoutBtn")?.addEventListener("click", async () => {
             return;
         }
 
-        cartMessage.textContent = `Compra concluída! Total pago: ${Number(data.total).toFixed(2)} €. A redirecionar...`;
-        setTimeout(() => { window.location.href = "encomendas.html"; }, 1500);
+        const allPaid = data.orders.every(o => o.payment_status === "paid");
+
+        cartMessage.textContent = allPaid
+            ? `Compra concluída! Total pago: ${Number(data.total).toFixed(2)} €. A redirecionar...`
+            : `Compromisso registado! Falta pagar ${Number(data.total).toFixed(2)} € — carrega a carteira e paga em "As Minhas Encomendas". A redirecionar...`;
+        setTimeout(() => { window.location.href = "encomendas.html"; }, 1800);
 
     } catch (error) {
         console.error(error);

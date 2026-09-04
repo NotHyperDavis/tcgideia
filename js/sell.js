@@ -99,7 +99,8 @@ async function searchCard() {
     results.innerHTML = "<p>A pesquisar...</p>";
 
     try {
-        const response = await fetch(`${API_BASE}/cards?q=${encodeURIComponent(search)}`);
+        const game = document.getElementById("gameSelect")?.value || "pokemon";
+        const response = await fetch(`${API_BASE}/cards?q=${encodeURIComponent(search)}&game=${game}`);
         const cards = await response.json();
 
         if (!cards || cards.length === 0) {
@@ -110,7 +111,7 @@ async function searchCard() {
         results.innerHTML = "";
 
         cards.forEach(card => {
-            const imageUrl = `${card.image}/low.webp`;
+            const imageUrl = card.image || "";
             const el = document.createElement("div");
             el.className = "card";
             el.innerHTML = `
@@ -219,6 +220,7 @@ listingForm.addEventListener("submit", async (e) => {
                 card_id: selectedCard.id,
                 card_name: selectedCard.name,
                 card_image: selectedCard.resolvedImage,
+                game: document.getElementById("gameSelect")?.value || "pokemon",
                 price,
                 condition,
                 quantity,

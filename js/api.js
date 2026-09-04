@@ -4,7 +4,7 @@ async function getFeaturedCards() {
 
         const response = await fetch(`${API_BASE}/cards?q=charizard`);
 
-        const cards = await response.json(); // a TCGdex devolve um array direto
+        const cards = await response.json(); // o backend já devolve a imagem final, pronta a usar
 
         displayCards(cards);
 
@@ -19,12 +19,13 @@ async function getFeaturedCards() {
 function displayCards(cards) {
 
     const container = document.getElementById("featuredCards");
+    if (!container) return;
 
     container.innerHTML = "";
 
     cards.forEach(card => {
 
-        const imageUrl = `${card.image}/low.webp`;
+        const imageUrl = card.image || "";
 
         container.innerHTML += `
             <div class="card">
@@ -65,23 +66,24 @@ async function searchCards(name) {
 
 getFeaturedCards();
 
+// A caixa de pesquisa antiga (#searchInput) já não existe em todas as páginas —
+// esta parte só corre se ela existir mesmo, para não rebentar noutras páginas.
 const input = document.getElementById("searchInput");
 
-let timeout;
+if (input) {
+    let timeout;
 
-input.addEventListener("input", () => {
+    input.addEventListener("input", () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            searchCards(input.value);
+        }, 400);
+    });
 
-    clearTimeout(timeout);
-
-    timeout = setTimeout(() => {
-        searchCards(input.value);
-    }, 400);
-
-});
-
-// Enter leva a sério ao marketplace, filtrado pelo que a pessoa escreveu.
-input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && input.value.trim().length >= 2) {
-        window.location.href = `marketplace.html?q=${encodeURIComponent(input.value.trim())}`;
-    }
-});
+    // Enter leva a sério ao marketplace, filtrado pelo que a pessoa escreveu.
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && input.value.trim().length >= 2) {
+            window.location.href = `marketplace.html?q=${encodeURIComponent(input.value.trim())}`;
+        }
+    });
+}

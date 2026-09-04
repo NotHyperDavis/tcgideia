@@ -89,7 +89,7 @@ async function checkOverduePayments() {
     try {
         const result = await pool.query(
             `SELECT * FROM orders
-             WHERE status = 'committed' AND payment_status = 'pending' AND payment_method = 'bank_transfer'
+             WHERE status = 'committed' AND payment_status = 'pending' AND payment_method IN ('bank_transfer', 'wallet')
                AND created_at < NOW() - INTERVAL '5 days'`
         );
         overdueOrders = result.rows;
