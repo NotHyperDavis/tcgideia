@@ -225,6 +225,73 @@ router.post("/:id/pay-now", requireAuth, requireVerifiedEmail, async (req, res) 
     }
 });
 
+// GET /orders/:id/invoice — recibo em PDF da encomenda (comprador ou vendedor)
+router.get("/:id/invoice", requireAuth, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT orders.*, listings.card_name,
+                    buyer.name AS buyer_name, buyer.email AS buyer_email,
+                    seller.name AS seller_name, seller.email AS seller_email
+             FROM orders
+             JOIN listings ON listings.id = orders.listing_id
+             JOIN users buyer ON buyer.id = orders.buyer_id
+             JOIN users seller ON seller.id = orders.seller_id
+             WHERE orders.id = $1`,
+            [req.params.id]
+        );
+
+        const order = result.rows[0];
+
+        if (!order) {
+            return res.status(404).json({ error: "Encomenda não encontrada." });
+        }
+
+        if (order.buyer_id !== req.user.id && order.seller_id !== req.user.id) {
+            return res.status(403).json({ error: "Não tens acesso a esta encomenda." });
+        }
+
+        const PDFDocument = require("pdfkit");
+        const doc = new PDFDocument({ margin: 50 });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename=recibo-encomenda-${order.id}.pdf`);
+
+        doc.pipe(res);
+
+        doc.fontSize(20).fillColor("#8B1E2D").text("TCGMarketPortugal", { align: "left" });
+        doc.fontSize(10).fillColor("#6F6961").text("Recibo de encomenda", { align: "left" });
+        doc.moveDown(1.5);
+
+        doc.fontSize(12).fillColor("#201D1A");
+        doc.text(`Encomenda #${order.id}`);
+        doc.text(`Data: ${new Date(order.created_at).toLocaleDateString("pt-PT")}`);
+        doc.moveDown();
+
+        doc.text(`Comprador: ${order.buyer_name} (${order.buyer_email})`);
+        doc.text(`Vendedor: ${order.seller_name} (${order.seller_email})`);
+        doc.moveDown();
+
+        doc.text(`Artigo: ${order.card_name} (x${order.quantity})`);
+        doc.text(`Preço unitário: ${Number(order.unit_price).toFixed(2)} €`);
+        doc.text(`Portes: ${Number(order.shipping_cost).toFixed(2)} €`);
+        doc.moveDown();
+
+        doc.fontSize(14).text(`Total pago: ${Number(order.total_price).toFixed(2)} €`, { underline: true });
+        doc.moveDown();
+
+        doc.fontSize(10).fillColor("#6F6961");
+        doc.text(`Comissão da plataforma: ${Number(order.platform_fee).toFixed(2)} €`);
+        doc.text(`Valor repassado ao vendedor: ${Number(order.seller_payout).toFixed(2)} €`);
+        doc.text(`Método de pagamento: ${order.payment_method}`);
+
+        doc.end();
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao gerar o recibo." });
+    }
+});
+
 router.get("/mine", requireAuth, async (req, res) => {
     try {
         const result = await pool.query(

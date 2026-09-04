@@ -124,6 +124,9 @@ function renderListing(listing, orders) {
 
         el.querySelector(`.chat-btn[data-order-id="${order.id}"]`)
             ?.addEventListener("click", (e) => openConversation(e.currentTarget));
+
+        el.querySelector(`.invoice-btn[data-order-id="${order.id}"]`)
+            ?.addEventListener("click", () => downloadInvoice(order.id));
     });
 
     listingsContainer.appendChild(el);
@@ -153,6 +156,7 @@ function renderOrder(order) {
                         : ` <span style="color:var(--text-dim);">(retido até o comprador confirmar receção)</span>`}
                 </p>
                 <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${ORDER_STATUS_LABELS[order.status]}</p>
+                ${order.payment_status === "paid" ? `<button class="invoice-btn" data-order-id="${order.id}">📄 Recibo</button>` : ""}
 
                 ${order.payment_status === "paid" && order.status === "committed" ? `<button class="mark-shipped-btn" data-order-id="${order.id}">Marcar como enviado</button>` : ""}
                 ${order.payment_status !== "paid" ? `<p><em>Aguarda a confirmação do pagamento pelo site antes de enviares.</em></p>` : ""}
@@ -203,6 +207,31 @@ async function openConversation(button) {
         alert("Erro ao ligar ao servidor.");
         button.disabled = false;
         button.textContent = "💬 Conversa";
+    }
+}
+
+async function downloadInvoice(orderId) {
+    try {
+        const response = await fetch(`${API_BASE}/orders/${orderId}/invoice`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+            alert("Erro ao gerar o recibo.");
+            return;
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `recibo-encomenda-${orderId}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao ligar ao servidor.");
     }
 }
 

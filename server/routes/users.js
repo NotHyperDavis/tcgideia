@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
 const isAdmin = require("../utils/isAdmin");
@@ -226,6 +227,81 @@ router.get("/:id", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Erro ao obter perfil." });
+    }
+});
+
+// GET /users/me/export — RGPD: exportar todos os dados pessoais em JSON
+router.get("/me/export", requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const [profile, listings, purchases, sales, reviews, wishlist] = await Promise.all([
+            pool.query(
+                `SELECT id, name, email, country, account_type, created_at,
+                        address_name, address_line, address_postal_code, address_city
+                 FROM users WHERE id = $1`,
+                [userId]
+            ),
+            pool.query(`SELECT * FROM listings WHERE user_id = $1`, [userId]),
+            pool.query(`SELECT * FROM orders WHERE buyer_id = $1`, [userId]),
+            pool.query(`SELECT * FROM orders WHERE seller_id = $1`, [userId]),
+            pool.query(`SELECT * FROM reviews WHERE reviewer_id = $1 OR reviewed_user_id = $1`, [userId]),
+            pool.query(`SELECT * FROM wishlist_items WHERE user_id = $1`, [userId]),
+        ]);
+
+        res.json({
+            exported_at: new Date().toISOString(),
+            profile: profile.rows[0],
+            listings: listings.rows,
+            purchases: purchases.rows,
+            sales: sales.rows,
+            reviews: reviews.rows,
+            wishlist: wishlist.rows,
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao exportar os dados." });
+    }
+});
+
+// DELETE /users/me — RGPD: apagar a conta.
+// Não apaga fisicamente a linha (isso quebraria o histórico de encomendas de
+// OUTRAS pessoas que compraram/venderam contigo) — em vez disso, anonimiza os
+// teus dados pessoais e desativa a conta, mantendo só o necessário para a
+// contabilidade e para o histórico de quem negociou contigo.
+router.delete("/me", requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const anonymizedEmail = `utilizador-removido-${userId}@removido.local`;
+        const randomPassword = require("crypto").randomBytes(32).toString("hex");
+        const password_hash = await bcrypt.hash(randomPassword, 10);
+
+        await pool.query(
+            `UPDATE users SET
+                name = 'Utilizador removido',
+                email = $1,
+                password_hash = $2,
+                address_name = NULL,
+                address_line = NULL,
+                address_postal_code = NULL,
+                address_city = NULL,
+                is_suspended = true
+             WHERE id = $3`,
+            [anonymizedEmail, password_hash, userId]
+        );
+
+        // Remove os anúncios ativos (deixam de estar à venda)
+        await pool.query(
+            `UPDATE listings SET status = 'removed', updated_at = NOW() WHERE user_id = $1 AND status = 'active'`,
+            [userId]
+        );
+
+        res.json({ ok: true });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao apagar a conta." });
     }
 });
 

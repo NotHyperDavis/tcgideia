@@ -282,3 +282,73 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
         message.textContent = "Erro ao ligar ao servidor.";
     }
 });
+
+document.getElementById("exportDataBtn")?.addEventListener("click", async () => {
+    const gdprMessage = document.getElementById("gdprMessage");
+    gdprMessage.textContent = "A preparar o ficheiro...";
+
+    try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/users/me/export`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+            gdprMessage.textContent = "Erro ao exportar os dados.";
+            return;
+        }
+
+        const data = await response.json();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "os-meus-dados-tcgmarketportugal.json";
+        a.click();
+        URL.revokeObjectURL(url);
+
+        gdprMessage.textContent = "Descarregado!";
+        setTimeout(() => { gdprMessage.textContent = ""; }, 3000);
+
+    } catch (error) {
+        console.error(error);
+        gdprMessage.textContent = "Erro ao ligar ao servidor.";
+    }
+});
+
+document.getElementById("deleteAccountBtn")?.addEventListener("click", async () => {
+    const gdprMessage = document.getElementById("gdprMessage");
+
+    const confirmed = confirm(
+        "Tens a certeza que queres apagar a tua conta? Isto não pode ser desfeito. " +
+        "Os teus dados pessoais serão removidos, e os teus anúncios ativos serão retirados."
+    );
+    if (!confirmed) return;
+
+    const doubleConfirmed = confirm("Última confirmação: apagar a conta definitivamente?");
+    if (!doubleConfirmed) return;
+
+    try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/users/me`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            gdprMessage.textContent = data.error || "Erro ao apagar a conta.";
+            return;
+        }
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        alert("A tua conta foi apagada. Vais ser redirecionado.");
+        window.location.href = "main.html";
+
+    } catch (error) {
+        console.error(error);
+        gdprMessage.textContent = "Erro ao ligar ao servidor.";
+    }
+});

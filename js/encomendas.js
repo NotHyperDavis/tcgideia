@@ -66,6 +66,7 @@ async function loadPurchases() {
                     <p>Total a transferir para o site: <strong>${Number(order.total_price).toFixed(2)} €</strong>
                         (cartas ${Number(order.unit_price * order.quantity).toFixed(2)} € + portes ${Number(order.shipping_cost).toFixed(2)} €)</p>
                     <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]}</p>
+                    ${order.payment_status === "paid" ? `<button class="invoice-btn" data-order-id="${order.id}">📄 Recibo</button>` : ""}
                     ${order.payment_method === "wallet" && order.payment_status === "pending" && order.status === "committed" ? `<button class="pay-now-btn">💳 Pagar agora</button>` : ""}
                     ${order.status === "committed" ? `<button class="cancel-btn">Cancelar</button>` : ""}
                     ${order.status === "shipped" ? `<button class="confirm-received-btn">Confirma Receção</button>` : ""}
@@ -77,6 +78,7 @@ async function loadPurchases() {
             el.querySelector(".cancel-btn")?.addEventListener("click", () => cancelOrder(order.id));
             el.querySelector(".confirm-received-btn")?.addEventListener("click", () => confirmReceived(order.id));
             el.querySelector(".pay-now-btn")?.addEventListener("click", () => payNow(order.id));
+            el.querySelector(".invoice-btn")?.addEventListener("click", () => downloadInvoice(order.id));
             el.querySelector(".confirm-review-btn")?.addEventListener("click", () => openReviewForm(order));
             el.querySelector(".chat-btn").addEventListener("click", (e) => openConversation(e.currentTarget));
 
@@ -171,6 +173,31 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+async function downloadInvoice(orderId) {
+    try {
+        const response = await fetch(`${API_BASE}/orders/${orderId}/invoice`, {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+            alert("Erro ao gerar o recibo.");
+            return;
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `recibo-encomenda-${orderId}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao ligar ao servidor.");
+    }
+}
+
 async function payNow(orderId) {
     try {
         const response = await fetch(`${API_BASE}/orders/${orderId}/pay-now`, {

@@ -68,6 +68,13 @@ function applyFiltersAndRender() {
         listings = listings.filter(l => l.is_foil);
     }
 
+    const sortValue = document.getElementById("sortSelect")?.value;
+    if (sortValue === "price_asc") {
+        listings = [...listings].sort((a, b) => Number(a.price) - Number(b.price));
+    } else if (sortValue === "price_desc") {
+        listings = [...listings].sort((a, b) => Number(b.price) - Number(a.price));
+    }
+
     renderListings(listings);
 }
 
@@ -124,6 +131,7 @@ if (emptyState) {
 }
 
 document.getElementById("searchInput").addEventListener("input", applyFiltersAndRender);
+document.getElementById("sortSelect")?.addEventListener("change", applyFiltersAndRender);
 document.querySelectorAll(".condition-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
 document.querySelectorAll(".game-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
 document.querySelectorAll(".language-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
