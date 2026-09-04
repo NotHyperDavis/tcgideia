@@ -127,6 +127,10 @@ function buildNotificationBell(token, insideNav) {
     bell.appendChild(dropdown);
 
     bell.addEventListener("click", async (e) => {
+        // Se o clique foi num link de notificação (dentro do dropdown), deixa-o
+        // navegar normalmente — só o clique no próprio sino deve abrir/fechar o menu.
+        if (e.target.closest("a")) return;
+
         e.preventDefault();
         const isOpen = dropdown.style.display === "block";
         dropdown.style.display = isOpen ? "none" : "block";

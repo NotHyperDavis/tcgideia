@@ -114,9 +114,9 @@ router.get("/:id/messages", requireAuth, async (req, res) => {
 
 // POST /conversations/:id/messages
 router.post("/:id/messages", requireAuth, requireVerifiedEmail, async (req, res) => {
-    const { message } = req.body;
+    const { message, image_url } = req.body;
 
-    if (!message || !message.trim()) {
+    if (!message?.trim() && !image_url) {
         return res.status(400).json({ error: "A mensagem não pode estar vazia." });
     }
 
@@ -127,10 +127,10 @@ router.post("/:id/messages", requireAuth, requireVerifiedEmail, async (req, res)
 
     try {
         const result = await pool.query(
-            `INSERT INTO conversation_messages (conversation_id, sender_id, message)
-             VALUES ($1, $2, $3)
+            `INSERT INTO conversation_messages (conversation_id, sender_id, message, image_url)
+             VALUES ($1, $2, $3, $4)
              RETURNING *`,
-            [req.params.id, req.user.id, message.trim()]
+            [req.params.id, req.user.id, message?.trim() || null, image_url || null]
         );
 
         const recipientId = conversation.user_a_id === req.user.id ? conversation.user_b_id : conversation.user_a_id;

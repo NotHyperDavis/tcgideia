@@ -76,6 +76,27 @@ router.patch("/me", requireAuth, async (req, res) => {
         return res.status(400).json({ error: "País inválido." });
     }
 
+    if (address_postal_code) {
+        let effectiveCountry = country;
+
+        if (!effectiveCountry) {
+            const current = await pool.query("SELECT country FROM users WHERE id = $1", [req.user.id]);
+            effectiveCountry = current.rows[0]?.country || "PT";
+        }
+
+        const isValidPostalCode = effectiveCountry === "PT"
+            ? /^\d{4}-\d{3}$/.test(address_postal_code)
+            : /^\d{5}$/.test(address_postal_code);
+
+        if (!isValidPostalCode) {
+            return res.status(400).json({
+                error: effectiveCountry === "PT"
+                    ? "Código postal português inválido — tem de ter o formato 0000-000."
+                    : "Código postal espanhol inválido — tem de ter 5 dígitos.",
+            });
+        }
+    }
+
     try {
         const result = await pool.query(
             `UPDATE users

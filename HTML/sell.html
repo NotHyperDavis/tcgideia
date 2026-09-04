@@ -16,27 +16,23 @@
 <body>
 
 <header class="navbar">
+    <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
 
-    <a href="main.html" class="logo">
-        TCGMarketPortugal
-    </a>
 
-    <nav>
-
-        <a href="marketplace.html">
-            Marketplace
-        </a>
-
-        <a href="sell.html">
-            Vender
-        </a>
-
-        <a href="login.html">
-            Entrar
-        </a>
-
+    <nav class="user-nav">
+        <div class="dropdown">
+            <a href="#" class="nav-link">As Minhas Coisas ▼</a>
+            <div class="dropdown-content">
+                <a href="mensagens.html">As Minhas Mensagens</a>
+                <a href="encomendas.html">Compras e Vendas</a>
+                <a href="my-listings.html">Os Meus Anúncios</a>
+                <a href="wishlist.html">❤️ Lista de Desejos</a>
+            </div>
+        </div>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="sell.html">Vender</a>
+        <a href="login.html">Entrar</a>
     </nav>
-
 </header>
 
 
@@ -80,7 +76,6 @@
 
             <label for="condition">Condição</label>
             <select id="condition" required>
-                <option value="mint">Mint</option>
                 <option value="near_mint">Near Mint</option>
                 <option value="excellent">Excelente</option>
                 <option value="good">Boa</option>
@@ -106,7 +101,15 @@
 
             <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
                 <input type="checkbox" id="isFoil" style="width:auto;">
-                Foil / Holo
+                Foil
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
+                <input type="checkbox" id="isFoil" style="width:auto;">
+                Holo
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
+                <input type="checkbox" id="isFoil" style="width:auto;">
+                Reverse Holo
             </label>
 
             <label for="description">Descrição (opcional)</label>

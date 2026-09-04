@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db");
 const stripe = require("../utils/stripe");
 const { notify } = require("../utils/notifications");
+const findOrCreateConversation = require("../utils/findOrCreateConversation");
 
 const router = express.Router();
 
@@ -78,13 +79,15 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             const listingResult = await client.query("SELECT * FROM listings WHERE id = $1 FOR UPDATE", [listing_id]);
             const listing = listingResult.rows[0];
 
+            const conversationId = await findOrCreateConversation(client, Number(buyer_id), Number(seller_id), Number(listing_id));
+
             const orderResult = await client.query(
                 `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost, stripe_session_id, stripe_payment_intent_id,
-                                     shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country)
-                 VALUES ($1, $2, $3, $4, $5, $6, 'stripe', 'paid', $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                                     shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country, conversation_id)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'stripe', 'paid', $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                  RETURNING *`,
                 [listing_id, buyer_id, seller_id, quantity, unit_price, total_price, platform_fee, seller_payout, shipping_cost, session.id, session.payment_intent,
-                 shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country]
+                 shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country, conversationId]
             );
 
             const remaining = listing.quantity - Number(quantity);
@@ -96,7 +99,7 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
 
             await client.query("COMMIT");
 
-            await notify(seller_id, "order_update", "Vendeste uma carta (pagamento por cartão)! Já podes enviar.", "encomendas.html");
+            await notify(seller_id, "order_update", "Vendeste uma carta (pagamento por cartão)! Tira já uma foto da carta e manda-a ao comprador pela conversa, antes de ires aos CTT.", "encomendas.html");
             await notify(buyer_id, "order_update", "O teu pagamento foi confirmado.", "encomendas.html");
 
         } catch (error) {

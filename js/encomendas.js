@@ -72,8 +72,7 @@ async function loadPurchases() {
                     ${order.status === "committed" ? `<button class="cancel-btn">Cancelar</button>` : ""}
                     ${order.status === "shipped" ? `<button class="confirm-received-btn">Confirma Receção</button>` : ""}
                     ${order.status === "completed" ? `<button class="confirm-review-btn">Avaliar Vendedor</button>` : ""}
-                    <button class="chat-btn">Conversa</button>
-                    <div class="chat-box" style="display:none;"></div>
+                    <button class="chat-btn" data-order-id="${order.id}" data-conversation-id="${order.conversation_id ?? ''}" data-other-user-id="${order.seller_id ?? order.buyer_id}" data-listing-id="${order.listing_id}">💬 Conversa</button>
                 </div>
             `;
 
@@ -81,7 +80,7 @@ async function loadPurchases() {
             el.querySelector(".confirm-received-btn")?.addEventListener("click", () => confirmReceived(order.id));
             el.querySelector(".pay-now-btn")?.addEventListener("click", () => payNow(order.id));
             el.querySelector(".confirm-review-btn")?.addEventListener("click", () => openReviewForm(order));
-            el.querySelector(".chat-btn").addEventListener("click", () => toggleChat(el, order.id));
+            el.querySelector(".chat-btn").addEventListener("click", (e) => openConversation(e.currentTarget));
 
             purchasesEl.appendChild(el);
         });
@@ -145,13 +144,12 @@ async function loadSales() {
                         ${order.payment_status !== "paid" ? `<p><em>Aguarda a confirmação do pagamento pelo site antes de enviares.</em></p>` : ""}
                     </div>
 
-                    <button class="chat-btn">Conversa</button>
-                    <div class="chat-box" style="display:none;"></div>
+                    <button class="chat-btn" data-order-id="${order.id}" data-conversation-id="${order.conversation_id ?? ''}" data-other-user-id="${order.buyer_id}" data-listing-id="${order.listing_id}">💬 Conversa</button>
                 </div>
             `;
 
             el.querySelector(".mark-shipped-btn")?.addEventListener("click", () => updateOrder(order.id, { status: "shipped" }, loadSales));
-            el.querySelector(".chat-btn").addEventListener("click", () => toggleChat(el, order.id));
+            el.querySelector(".chat-btn").addEventListener("click", (e) => openConversation(e.currentTarget));
 
             salesEl.appendChild(el);
         });
@@ -193,109 +191,49 @@ function cancelOrder(id) {
     updateOrder(id, { status: "cancelled" }, loadPurchases);
 }
 
-// ---- Chat por encomenda ----
+// ---- Conversa (unificada com mensagens.html) ----
 
-async function toggleChat(el, orderId) {
-    const box = el.querySelector(".chat-box");
+async function openConversation(button) {
+    const conversationId = button.dataset.conversationId;
 
-    if (box.style.display === "none") {
-        box.style.display = "block";
-        await loadMessages(box, orderId);
-    } else {
-        box.style.display = "none";
+    if (conversationId) {
+        window.location.href = `mensagens.html?conversation=${conversationId}`;
+        return;
     }
-}
 
-async function loadMessages(box, orderId) {
-    box.innerHTML = "<p>A carregar conversa...</p>";
+    // Encomendas mais antigas ainda não têm conversa ligada — cria-se agora.
+    const otherUserId = button.dataset.otherUserId;
+    const listingId = button.dataset.listingId;
+
+    button.disabled = true;
+    button.textContent = "A abrir...";
 
     try {
-        const response = await fetch(`${API_BASE}/orders/${orderId}/messages`, {
-            headers: { "Authorization": `Bearer ${token}` },
+        const response = await fetch(`${API_BASE}/conversations`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ other_user_id: otherUserId, listing_id: listingId }),
         });
-        const messages = await response.json();
+
+        const data = await response.json();
 
         if (!response.ok) {
-            box.innerHTML = `<p>${messages.error || "Erro ao carregar conversa."}</p>`;
+            alert(data.error || "Erro ao abrir a conversa.");
+            button.disabled = false;
+            button.textContent = "💬 Conversa";
             return;
         }
 
-        box.innerHTML = `
-            <div class="chat-messages">
-                ${messages.length === 0
-                    ? "<p><em>Ainda não há mensagens.</em></p>"
-                    : messages.map(m => `
-                        <p><strong>${m.sender_name}:</strong> ${m.message ? escapeHtml(m.message) : ""}</p>
-                        ${m.image_url ? `<img src="${m.image_url}" class="chat-image" onclick="window.open('${m.image_url}')">` : ""}
-                    `).join("")}
-            </div>
-            <form class="chat-form">
-                <input type="text" class="chat-input" placeholder="Escreve uma mensagem...">
-                <label class="chat-attach-btn" title="Anexar foto">
-                    📷
-                    <input type="file" class="chat-file-input" accept="image/*" style="display:none;">
-                </label>
-                <button type="submit">Enviar</button>
-            </form>
-            <p class="chat-file-name"></p>
-        `;
-
-        const fileInput = box.querySelector(".chat-file-input");
-        fileInput.addEventListener("change", () => {
-            box.querySelector(".chat-file-name").textContent = fileInput.files[0] ? `📎 ${fileInput.files[0].name}` : "";
-        });
-
-        box.querySelector(".chat-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const input = box.querySelector(".chat-input");
-            const message = input.value.trim();
-            const file = fileInput.files[0];
-
-            if (!message && !file) return;
-
-            let image_url = null;
-
-            try {
-                if (file) {
-                    image_url = await uploadImage(file);
-                }
-
-                const response = await fetch(`${API_BASE}/orders/${orderId}/messages`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ message, image_url }),
-                });
-
-                if (response.ok) {
-                    input.value = "";
-                    fileInput.value = "";
-                    await loadMessages(box, orderId);
-                } else {
-                    const data = await response.json();
-                    if (data.code === "EMAIL_NOT_VERIFIED") {
-                        if (confirm("Confirma o teu email antes de continuares. Queres que reenviemos o link de confirmação agora?")) {
-                            await fetch(`${API_BASE}/auth/resend-verification`, {
-                                method: "POST",
-                                headers: { "Authorization": `Bearer ${token}` },
-                            });
-                            alert("Email reenviado! Verifica a tua caixa de correio.");
-                        }
-                    } else {
-                        alert(data.error || "Erro ao enviar a mensagem.");
-                    }
-                }
-            } catch (error) {
-                console.error(error);
-                alert(error.message || "Erro ao enviar a mensagem.");
-            }
-        });
+        window.location.href = `mensagens.html?conversation=${data.id}`;
 
     } catch (error) {
         console.error(error);
-        box.innerHTML = "<p>Erro ao ligar ao servidor.</p>";
+        alert("Erro ao ligar ao servidor.");
+        button.disabled = false;
+        button.textContent = "💬 Conversa";
     }
 }
 

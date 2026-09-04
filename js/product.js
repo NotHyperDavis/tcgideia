@@ -1354,7 +1354,7 @@ async function addToCart(listing) {
         return;
     }
 
-    const quantity = document.getElementById("cartQuantity").value;
+    const quantity = document.getElementById("quantity").value;
     const cartMessage = document.getElementById("cartMessage");
     cartMessage.textContent = "A adicionar...";
 

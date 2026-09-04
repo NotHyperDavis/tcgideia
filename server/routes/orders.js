@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
 const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
+const findOrCreateConversation = require("../utils/findOrCreateConversation");
 const { notify } = require("../utils/notifications");
 const stripe = require("../utils/stripe");
 const isAdmin = require("../utils/isAdmin");
@@ -116,16 +117,18 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
             ? (walletHasFunds ? "paid" : "pending")
             : "pending";
 
+        const conversationId = await findOrCreateConversation(client, req.user.id, listing.user_id, listing.id);
+
         const orderResult = await client.query(
             `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost,
-                                 shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                                 shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country, conversation_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
              RETURNING *`,
             [
                 listing.id, req.user.id, listing.user_id, quantity, listing.price, totalPrice, payment_method,
                 initialPaymentStatus,
                 platformFee, sellerPayout, shippingCost,
-                shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry
+                shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry, conversationId
             ]
         );
 
@@ -145,7 +148,7 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
         await client.query("COMMIT");
 
         if (payment_method === "wallet" && walletHasFunds) {
-            await notify(listing.user_id, "order_update", "Venda comprometida! O pagamento já está confirmado, podes enviar.", "encomendas.html");
+            await notify(listing.user_id, "order_update", "Venda comprometida! O pagamento já está confirmado. Tira já uma foto da carta e manda-a ao comprador pela conversa, antes de ires aos CTT.", "encomendas.html");
         }
 
         res.status(201).json(orderResult.rows[0]);
@@ -209,7 +212,7 @@ router.post("/:id/pay-now", requireAuth, requireVerifiedEmail, async (req, res) 
 
         await client.query("COMMIT");
 
-        await notify(order.seller_id, "order_update", "O comprador pagou uma venda comprometida — já podes enviar.", "encomendas.html");
+        await notify(order.seller_id, "order_update", "O comprador pagou uma venda comprometida. Tira já uma foto da carta e manda-a pela conversa, antes de ires aos CTT.", "encomendas.html");
 
         res.json({ ok: true });
 
@@ -337,15 +340,6 @@ router.patch("/:id", requireAuth, async (req, res) => {
                 await client.query("ROLLBACK");
                 return res.status(400).json({ error: "Ainda não podes enviar: o pagamento não está confirmado." });
             }
-
-            const photoCheck = await client.query(
-                `SELECT id FROM order_messages WHERE order_id = $1 AND sender_id = $2 AND image_url IS NOT NULL LIMIT 1`,
-                [order.id, req.user.id]
-            );
-            if (photoCheck.rows.length === 0) {
-                await client.query("ROLLBACK");
-                return res.status(400).json({ error: "Antes de enviares, manda uma foto da carta ao comprador pela conversa da encomenda." });
-            }
         }
 
         if (status === "completed" && !isBuyer && !admin) {
@@ -439,7 +433,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
         const updated = result.rows[0];
 
         if (payment_status === "paid") {
-            await notify(order.seller_id, "order_update", "O pagamento da tua venda foi confirmado — já podes enviar.", "encomendas.html");
+            await notify(order.seller_id, "order_update", "O pagamento da tua venda foi confirmado. Tira já uma foto da carta e manda-a ao comprador pela conversa, antes de ires aos CTT.", "encomendas.html");
             await notify(order.buyer_id, "order_update", "O teu pagamento foi confirmado.", "encomendas.html");
         }
         if (status === "shipped") {

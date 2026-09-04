@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
 const requireVerifiedEmail = require("../middleware/requireVerifiedEmail");
+const findOrCreateConversation = require("../utils/findOrCreateConversation");
 const { notify } = require("../utils/notifications");
 
 const router = express.Router();
@@ -280,15 +281,17 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
                 [remainingQty, remainingQty === 0 ? "sold" : "active", listing.id]
             );
 
+            const conversationId = await findOrCreateConversation(client, req.user.id, order.seller_id, listing.id);
+
             const orderResult = await client.query(
                 `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost,
-                                     shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country)
-                 VALUES ($1, $2, $3, $4, $5, $6, 'wallet', $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                                     shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country, conversation_id)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'wallet', $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
                  RETURNING *`,
                 [listing.id, req.user.id, order.seller_id, order.quantity, order.unit_price, order.total_price,
                  walletHasFunds ? "paid" : "pending",
                  order.platform_fee, order.seller_payout, order.shipping_cost,
-                 shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry]
+                 shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry, conversationId]
             );
 
             // O vendedor só é creditado quando o comprador confirmar a receção
@@ -303,7 +306,7 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
 
         for (const order of createdOrders) {
             if (walletHasFunds) {
-                await notify(order.seller_id, "order_update", "Venda comprometida! O pagamento já está confirmado, podes enviar.", "encomendas.html");
+                await notify(order.seller_id, "order_update", "Venda comprometida! O pagamento já está confirmado. Tira já uma foto da carta e manda-a ao comprador pela conversa, antes de ires aos CTT.", "encomendas.html");
             }
         }
 

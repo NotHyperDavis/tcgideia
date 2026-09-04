@@ -228,6 +228,21 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
     const address_line = document.getElementById("addressLine").value;
     const address_postal_code = document.getElementById("addressPostalCode").value;
     const address_city = document.getElementById("addressCity").value;
+
+    if (address_postal_code) {
+        const isValidPostalCode = country === "PT"
+            ? /^\d{4}-\d{3}$/.test(address_postal_code)
+            : /^\d{5}$/.test(address_postal_code);
+
+        if (!isValidPostalCode) {
+            message.textContent = country === "PT"
+                ? "Código postal português inválido — tem de ter o formato 0000-000."
+                : "Código postal espanhol inválido — tem de ter 5 dígitos.";
+            message.className = "error";
+            return;
+        }
+    }
+
     message.textContent = "A guardar...";
 
     try {

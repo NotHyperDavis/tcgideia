@@ -46,6 +46,37 @@ router.get("/mine", requireAuth, async (req, res) => {
 // Prioriza vendas reais e concluídas dos últimos 60 dias. Se não houver vendas
 // suficientes (site ainda novo, ou carta pouco vendida), usa os anúncios ativos
 // dessa carta como referência alternativa.
+// GET /listings/deals — anúncios ativos claramente abaixo do preço de vendas reais
+// recentes (pelo menos 3 vendas concluídas nos últimos 60 dias, e pelo menos 15%
+// mais barato que essa média). Usado para "Melhores Ofertas" na homepage.
+router.get("/deals", async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT listings.*, users.name AS seller_name, sales.avg_price AS trend_price
+            FROM listings
+            JOIN users ON users.id = listings.user_id
+            JOIN LATERAL (
+                SELECT AVG(orders.unit_price) AS avg_price, COUNT(*) AS count
+                FROM orders
+                JOIN listings l2 ON l2.id = orders.listing_id
+                WHERE l2.card_id = listings.card_id
+                  AND orders.status = 'completed'
+                  AND orders.created_at > NOW() - INTERVAL '60 days'
+            ) sales ON true
+            WHERE listings.status = 'active'
+              AND sales.count >= 3
+              AND listings.price <= sales.avg_price * 0.85
+            ORDER BY (listings.price / sales.avg_price) ASC
+            LIMIT 8
+        `);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao obter as melhores ofertas." });
+    }
+});
+
 router.get("/trend/:card_id", async (req, res) => {
     try {
         const salesResult = await pool.query(

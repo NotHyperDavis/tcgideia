@@ -1,65 +1,105 @@
+// Cartas icónicas e valiosas do mundo dos TCG (fixas, não calculadas a partir dos
+// teus anúncios) — usadas como recurso quando ainda não há "Melhores Ofertas"
+// suficientes (normal numa fase inicial, sem histórico de vendas ainda).
+const ICONIC_CARDS = [
+    { game: "pokemon", search: "Charizard" },
+    { game: "magic", search: "Black Lotus" },
+    { game: "yugioh", search: "Blue-Eyes White Dragon" },
+    { game: "onepiece", search: "Roronoa Zoro" },
+];
+
 async function getFeaturedCards() {
 
+    const container = document.getElementById("featuredCards");
+    const heading = document.getElementById("featuredHeading");
+    if (!container) return;
+
     try {
+        const response = await fetch(`${API_BASE}/listings/deals`);
+        const deals = await response.json();
 
-        const response = await fetch(`${API_BASE}/cards?q=charizard`);
-
-        const cards = await response.json(); // o backend já devolve a imagem final, pronta a usar
-
-        displayCards(cards);
+        if (Array.isArray(deals) && deals.length > 0) {
+            if (heading) heading.textContent = "🔥 Melhores Ofertas";
+            displayDeals(deals);
+            return;
+        }
 
     } catch (error) {
-
         console.error(error);
-
     }
+
+    // Sem ofertas suficientes ainda (normal numa fase inicial) — mostra cartas icónicas.
+    if (heading) heading.textContent = "✨ Cartas Icónicas";
+    await displayIconicCards();
 
 }
 
-function displayCards(cards) {
+function displayDeals(listings) {
 
     const container = document.getElementById("featuredCards");
-    if (!container) return;
-
     container.innerHTML = "";
 
-    cards.forEach(card => {
+    listings.forEach(listing => {
+        const discount = Math.round((1 - listing.price / listing.trend_price) * 100);
 
-        const imageUrl = card.image || "";
-
-        container.innerHTML += `
-            <div class="card">
-                <img src="${imageUrl}">
-                <h3>${card.name}</h3>
-            </div>
+        const el = document.createElement("div");
+        el.className = "card";
+        el.style.cursor = "pointer";
+        el.innerHTML = `
+            <img src="${listing.card_image ?? ""}">
+            <h3>${listing.card_name}</h3>
+            <p>${listing.seller_name}</p>
+            <strong>${Number(listing.price).toFixed(2)} €</strong>
+            <span style="color:#4ADE80; font-size:12px; display:block;">-${discount}% vs. preço médio</span>
         `;
+
+        el.addEventListener("click", () => {
+            window.location.href = `product.html?id=${listing.id}`;
+        });
+
+        container.appendChild(el);
     });
 
 }
 
-async function searchCards(name) {
+async function displayIconicCards() {
 
-    if (name.length < 2) {
-        getFeaturedCards();
-        return;
-    }
+    const container = document.getElementById("featuredCards");
 
     try {
+        const results = await Promise.all(
+            ICONIC_CARDS.map(async ({ game, search }) => {
+                try {
+                    const response = await fetch(`${API_BASE}/cards?q=${encodeURIComponent(search)}&game=${game}`);
+                    const cards = await response.json();
+                    return Array.isArray(cards) && cards.length > 0 ? cards[0] : null;
+                } catch {
+                    return null;
+                }
+            })
+        );
 
-        const response = await fetch(`${API_BASE}/cards?q=${encodeURIComponent(name)}`);
+        const found = results.filter(Boolean);
 
-        if (!response.ok) {
-            throw new Error(`Erro ${response.status}`);
+        if (found.length === 0) {
+            container.innerHTML = "<p>Não foi possível carregar as cartas em destaque.</p>";
+            return;
         }
 
-        const cards = await response.json();
+        container.innerHTML = "";
 
-        displayCards(cards);
+        found.forEach(card => {
+            const el = document.createElement("div");
+            el.className = "card";
+            el.innerHTML = `
+                <img src="${card.image ?? ""}">
+                <h3>${card.name}</h3>
+            `;
+            container.appendChild(el);
+        });
 
     } catch (error) {
-
         console.error(error);
-
     }
 
 }
@@ -76,7 +116,9 @@ if (input) {
     input.addEventListener("input", () => {
         clearTimeout(timeout);
         timeout = setTimeout(() => {
-            searchCards(input.value);
+            if (input.value.trim().length < 2) {
+                getFeaturedCards();
+            }
         }, 400);
     });
 

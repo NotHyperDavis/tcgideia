@@ -75,10 +75,28 @@ function renderListings(listings) {
 
     container.innerHTML = "";
 
-    if (listings.length === 0) {
-        container.innerHTML = "<p>Nenhuma carta encontrada.</p>";
-        return;
+const resultsCount = document.getElementById("resultsCount");
+const emptyState = document.getElementById("emptyState");
+
+if (resultsCount) {
+    resultsCount.textContent =
+        listings.length === 1
+            ? "1 carta encontrada"
+            : `${listings.length} cartas encontradas`;
+}
+
+if (listings.length === 0) {
+
+    if (emptyState) {
+        emptyState.style.display = "block";
     }
+
+    return;
+}
+
+if (emptyState) {
+    emptyState.style.display = "none";
+}
 
     listings.forEach(listing => {
 
