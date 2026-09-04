@@ -68,6 +68,11 @@ function applyFiltersAndRender() {
         listings = listings.filter(l => l.is_foil);
     }
 
+    const setSearch = document.getElementById("setFilter")?.value.trim().toLowerCase();
+    if (setSearch) {
+        listings = listings.filter(l => (l.set_name || "").toLowerCase().includes(setSearch));
+    }
+
     const sortValue = document.getElementById("sortSelect")?.value;
     if (sortValue === "price_asc") {
         listings = [...listings].sort((a, b) => Number(a.price) - Number(b.price));
@@ -132,6 +137,7 @@ if (emptyState) {
 
 document.getElementById("searchInput").addEventListener("input", applyFiltersAndRender);
 document.getElementById("sortSelect")?.addEventListener("change", applyFiltersAndRender);
+document.getElementById("setFilter")?.addEventListener("input", applyFiltersAndRender);
 document.querySelectorAll(".condition-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
 document.querySelectorAll(".game-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
 document.querySelectorAll(".language-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));

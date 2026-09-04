@@ -151,6 +151,7 @@ function selectCard(card, imageUrl) {
     selectedCardPreview.innerHTML = `
         <img src="${imageUrl}">
         <p><strong>${card.name}</strong></p>
+        ${card.set_name ? `<p style="font-size:12px; color:var(--text-dim);">Expansão: ${card.set_name}</p>` : ""}
         <p id="trendPriceInfo" style="font-size:13px; color:var(--text-dim);">A verificar preço de referência...</p>
     `;
 
@@ -221,6 +222,7 @@ listingForm.addEventListener("submit", async (e) => {
                 card_name: selectedCard.name,
                 card_image: selectedCard.resolvedImage,
                 game: document.getElementById("gameSelect")?.value || "pokemon",
+                set_name: selectedCard.set_name || null,
                 price,
                 condition,
                 quantity,

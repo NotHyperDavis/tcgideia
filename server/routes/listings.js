@@ -157,7 +157,7 @@ const VALID_LANGUAGES = ["PT", "EN", "ES", "FR", "DE", "IT", "JP", "KO", "ZH"];
 const VALID_GAMES = ["pokemon", "yugioh", "magic", "onepiece"];
 
 router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
-    const { card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, is_foil, game } = req.body;
+    const { card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, is_foil, game, set_name } = req.body;
 
     if (!card_id || !card_name || !price || !condition) {
         return res.status(400).json({ error: "Faltam campos obrigatórios (carta, preço, condição)." });
@@ -181,10 +181,10 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
 
     try {
         const result = await pool.query(
-            `INSERT INTO listings (user_id, card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, is_foil, game)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            `INSERT INTO listings (user_id, card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, is_foil, game, set_name)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
              RETURNING *`,
-            [req.user.id, card_id, card_name, card_image || null, price, condition, quantity || 1, description || null, real_photo_url || null, language || "EN", !!is_foil, game || "pokemon"]
+            [req.user.id, card_id, card_name, card_image || null, price, condition, quantity || 1, description || null, real_photo_url || null, language || "EN", !!is_foil, game || "pokemon", set_name || null]
         );
 
         res.status(201).json(result.rows[0]);

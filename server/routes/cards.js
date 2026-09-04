@@ -21,6 +21,7 @@ async function searchPokemon(q) {
         id: card.id,
         name: card.name,
         image: card.image ? `${card.image}/low.webp` : null,
+        set_name: card.set?.name ?? null,
     }));
 }
 
@@ -36,6 +37,7 @@ async function searchYugioh(q) {
             id: String(card.id),
             name: card.name,
             image: card.card_images?.[0]?.image_url ?? null,
+            set_name: card.card_sets?.[0]?.set_name ?? null,
         }));
     } catch (error) {
         // A YGOPRODeck devolve 400 quando não há resultados nenhuns — tratamos como lista vazia.
@@ -61,6 +63,7 @@ async function searchMagic(q) {
             id: card.id,
             name: card.name,
             image: card.image_uris?.normal ?? card.card_faces?.[0]?.image_uris?.normal ?? null,
+            set_name: card.set_name ?? null,
         }));
     } catch (error) {
         // A Scryfall devolve 404 quando não há resultados nenhuns — tratamos como lista vazia.
@@ -86,6 +89,7 @@ async function searchOnePiece(q) {
                 id: String(card._id),
                 name: card.name,
                 image: card.images?.[0]?.large ?? card.images?.[0]?.medium ?? null,
+                set_name: card.set?.name ?? null,
             }));
     } catch (error) {
         if (error.response?.status === 404) return [];
