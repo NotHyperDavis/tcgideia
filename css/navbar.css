@@ -41,7 +41,7 @@
 }
 
 .logo::before {
-    content: "▱";
+    content: "";
 
     display: inline-flex;
     align-items: center;
@@ -52,10 +52,10 @@
 
     margin-right: 10px;
 
-    color: var(--accent);
-
-    font-size: 28px;
-    line-height: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect x='7' y='2.5' width='13' height='17' rx='2' transform='rotate(8 13.5 11)' fill='%23F5F1E8' stroke='%238B1E2D' stroke-width='1.4'/%3E%3Crect x='4' y='4' width='13' height='17' rx='2' fill='%23FFFFFF' stroke='%238B1E2D' stroke-width='1.6'/%3E%3Ccircle cx='10.5' cy='9.5' r='2.1' fill='%238B1E2D'/%3E%3Cpath d='M6.5 18.5c0-2.5 2-4 4-4s4 1.5 4 4' stroke='%238B1E2D' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 /* NAV */
@@ -136,8 +136,17 @@ nav a:hover {
     border-radius: 14px;
 
     box-shadow: var(--shadow-lg);
+}
 
-    overflow: hidden;
+/* Ponte invisível sobre o espaço vazio entre o botão e o menu — sem isto, o rato
+   "sai" da área de hover a meio do caminho e o menu fecha-se antes de lá chegar. */
+.dropdown-content::before {
+    content: "";
+    position: absolute;
+    top: -14px;
+    left: 0;
+    right: 0;
+    height: 14px;
 }
 
 .dropdown:hover .dropdown-content {
@@ -272,6 +281,206 @@ nav a:hover {
     color: var(--text);
 
     cursor: pointer;
+}
+
+/* =========================================================
+   Sino de notificações, carrinho/carteira, e utilizador —
+   injetados dinamicamente pelo auth-nav.js em todas as páginas
+   ========================================================= */
+
+.nav-utility-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.nav-pill:hover {
+    border-color: var(--accent);
+    background: var(--panel);
+}
+
+.nav-pill-icon {
+    font-size: 14px;
+}
+
+.nav-bell {
+    position: relative;
+    cursor: pointer;
+    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    transition: background .15s ease;
+}
+
+.nav-bell:hover {
+    background: var(--bg-soft);
+}
+
+.nav-bell-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.nav-dropdown-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 14px);
+    right: -10px;
+    width: 320px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 8px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+    z-index: 200;
+}
+
+.nav-dropdown-panel.is-open {
+    display: block;
+}
+
+.nav-dropdown-panel--fixed {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+}
+
+.nav-dropdown-panel p {
+    padding: 12px;
+    color: var(--text-dim);
+    font-size: 13px;
+}
+
+.nav-dropdown-loading,
+.nav-dropdown-empty {
+    padding: 20px 14px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+}
+
+.nav-dropdown-empty strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.nav-bell-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.nav-dropdown-item {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 9px;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    text-decoration: none;
+    transition: background .15s ease;
+}
+
+.nav-dropdown-item:hover {
+    background: var(--bg-soft);
+}
+
+.nav-dropdown-item small {
+    color: var(--text-dimmer);
+    font-size: 11px;
+}
+
+.nav-dropdown-item span {
+    display: block;
+}
+
+.nav-dropdown-item.is-unread {
+    background: rgba(139, 30, 45, 0.06);
+    font-weight: 600;
+}
+
+.nav-dropdown-item.is-unread:hover {
+    background: rgba(139, 30, 45, 0.10);
+}
+
+.nav-user-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.nav-user-name {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.nav-logout {
+    color: var(--text-dim);
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.nav-logout:hover {
+    color: var(--accent);
+}
+
+/* Recurso para páginas sem <nav> — bolhas fixas no canto */
+#topBarExtras {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 300;
 }
 
 @media (max-width: 900px) {

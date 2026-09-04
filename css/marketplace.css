@@ -14,8 +14,8 @@
 }
 
 .filters {
-    background: linear-gradient(160deg, #1A2233, #212B42);
-    border: 1px solid #2C3854;
+    background: linear-gradient(160deg, #FFFFFF, #F8F5EF);
+    border: 1px solid #DDD6C8;
     padding: 25px;
     border-radius: 14px;
     height: fit-content;
@@ -30,7 +30,7 @@
 .filters h3 {
     margin: 25px 0 10px;
     font-size: 14px;
-    color: #9CA8BD;
+    color: #9A9287;
     text-transform: uppercase;
     letter-spacing: 0.4px;
 }
@@ -40,7 +40,7 @@
     margin: 10px 0;
     cursor: pointer;
     font-size: 14px;
-    color: #E4E9F2;
+    color: #201D1A;
 }
 
 .marketplace-search {
@@ -48,21 +48,21 @@
     max-width: 420px;
     padding: 12px 16px;
     margin-bottom: 24px;
-    border: 1px solid #2C3854;
+    border: 1px solid #DDD6C8;
     border-radius: 999px;
-    background: #10182B;
+    background: #F5F1E8;
     color: white;
     font-size: 14px;
 }
 
 .marketplace-search::placeholder {
-    color: #6B7A94;
+    color: #6F6961;
 }
 
 .marketplace-search:focus {
     outline: none;
-    border-color: #2563EB;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+    border-color: #8B1E2D;
+    box-shadow: 0 0 0 3px rgba(139, 30, 45, 0.25);
 }
 
 .filter-disabled {
@@ -74,7 +74,7 @@
     display: block;
     font-size: 11px;
     margin-left: 22px;
-    color: #6B7A94;
+    color: #6F6961;
 }
 
 .price-range {
@@ -87,23 +87,23 @@
 .price-range input {
     width: 70px;
     padding: 8px 10px;
-    border: 1px solid #2C3854;
+    border: 1px solid #DDD6C8;
     border-radius: 8px;
-    background: #0F1729;
+    background: #F8F5EF;
     color: white;
     font-size: 13px;
 }
 
 .price-range span {
-    color: #6B7A94;
+    color: #6F6961;
 }
 
 .clear-filters-btn {
     margin-top: 24px;
     width: 100%;
     background: transparent;
-    border: 1px solid #2C3854;
-    color: #9CA8BD;
+    border: 1px solid #DDD6C8;
+    color: #9A9287;
     padding: 10px;
     border-radius: 8px;
     font-size: 13px;
@@ -112,8 +112,8 @@
 }
 
 .clear-filters-btn:hover {
-    border-color: #EF4444;
-    color: #EF4444;
+    border-color: #A33A3A;
+    color: #A33A3A;
 }
 
 .results-header {
@@ -128,8 +128,8 @@
 }
 
 .results-header select {
-    background: #1A2233;
-    border: 1px solid #2C3854;
+    background: #FFFFFF;
+    border: 1px solid #DDD6C8;
     color: white;
     padding: 10px 14px;
     border-radius: 8px;
@@ -150,8 +150,8 @@
     grid-template-columns: 56px 2fr 1.6fr 110px 60px 100px 44px;
     align-items: center;
     gap: 16px;
-    background: linear-gradient(160deg, #1A2233, #212B42);
-    border: 1px solid #2C3854;
+    background: linear-gradient(160deg, #FFFFFF, #F8F5EF);
+    border: 1px solid #DDD6C8;
     border-radius: 12px;
     padding: 12px 18px;
     cursor: pointer;
@@ -159,7 +159,7 @@
 }
 
 .listing-row-market:hover {
-    border-color: #2563EB;
+    border-color: #8B1E2D;
     transform: translateY(-2px);
 }
 
@@ -176,7 +176,7 @@
 }
 
 .listing-row-name a:hover {
-    color: #7DA2FF;
+    color: #A92C3D;
 }
 
 .listing-row-seller {
@@ -186,32 +186,32 @@
 }
 
 .listing-row-seller a {
-    color: #B8C7E0;
+    color: #6F6961;
     text-decoration: none;
     font-size: 13px;
 }
 
 .listing-row-seller a:hover {
-    color: #7DA2FF;
+    color: #A92C3D;
 }
 
 .seller-stars {
     font-size: 12px;
-    color: #FBBF24;
+    color: #B88A3B;
 }
 
 .seller-stars--new {
-    color: #6B7A94;
+    color: #6F6961;
 }
 
 .seller-review-count {
-    color: #6B7A94;
+    color: #6F6961;
 }
 
 .listing-row-condition,
 .listing-row-qty {
     font-size: 13px;
-    color: #9CA8BD;
+    color: #9A9287;
     text-align: center;
 }
 
@@ -225,7 +225,7 @@
 }
 
 .listing-row-cart-btn {
-    background: linear-gradient(135deg, #2563EB, #7C3AED);
+    background: linear-gradient(135deg, #8B1E2D, #A92C3D);
     border: none;
     color: white;
     width: 36px;
@@ -238,7 +238,7 @@
 
 .listing-row-cart-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 6px 16px rgba(139, 30, 45, 0.4);
 }
 
 @media (max-width: 900px) {
@@ -253,12 +253,12 @@
 
 .seller-link {
     display: block;
-    color: #9CA8BD;
+    color: #9A9287;
     text-decoration: none;
     margin: 10px 0 15px;
     font-size: 14px;
 }
 
 .seller-link:hover {
-    color: #7DA2FF;
+    color: #A92C3D;
 }

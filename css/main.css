@@ -13,8 +13,7 @@ main {
 .home-hero {
     position: relative;
 
-    display: grid;
-    grid-template-columns: 0.95fr 1.05fr;
+    display: flex;
     align-items: center;
 
     width: min(1400px, calc(100% - 48px));
@@ -30,11 +29,15 @@ main {
     background:
         linear-gradient(
             100deg,
-            #fffdf8 0%,
-            #f8f3e9 44%,
-            rgba(248, 243, 233, .85) 50%,
-            rgba(38, 28, 22, .25) 100%
-        );
+            rgba(20, 14, 10, .82) 0%,
+            rgba(20, 14, 10, .55) 38%,
+            rgba(20, 14, 10, .08) 62%,
+            transparent 78%
+        ),
+        url("../assets/images/hero-banner.png");
+
+    background-size: cover;
+    background-position: center;
 
     border: 1px solid var(--border);
 
@@ -54,13 +57,8 @@ main {
     background:
         radial-gradient(
             circle at 15% 20%,
-            rgba(139, 30, 45, .06),
+            rgba(139, 30, 45, .10),
             transparent 25%
-        ),
-        radial-gradient(
-            circle at 80% 50%,
-            rgba(184, 138, 59, .10),
-            transparent 30%
         );
 
     pointer-events: none;
@@ -82,7 +80,7 @@ main {
 
     margin-bottom: 20px;
 
-    color: var(--accent);
+    color: var(--gold-light);
 
     font-size: 10px;
     font-weight: 800;
@@ -103,7 +101,7 @@ main {
 .home-hero h1 {
     margin: 0;
 
-    color: var(--text);
+    color: #FFFFFF;
 
     font-family: 'Poppins', sans-serif;
 
@@ -117,7 +115,7 @@ main {
 
 .home-hero h1 em {
     font-style: normal;
-    color: var(--accent);
+    color: var(--gold-light);
 }
 
 .hero-copy > p {
@@ -125,7 +123,7 @@ main {
 
     margin: 24px 0 28px;
 
-    color: var(--text-dim);
+    color: rgba(255, 255, 255, .82);
 
     font-size: 15px;
     line-height: 1.75;
@@ -183,15 +181,15 @@ main {
 }
 
 .hero-button-secondary {
-    color: var(--accent);
+    color: #FFFFFF;
 
     background: transparent;
 
-    border: 1px solid var(--accent);
+    border: 1px solid rgba(255, 255, 255, .55);
 }
 
 .hero-button-secondary:hover {
-    background: rgba(139, 30, 45, .05);
+    background: rgba(255, 255, 255, .10);
 }
 
 .hero-meta {
@@ -201,7 +199,7 @@ main {
 
     margin-top: 20px;
 
-    color: var(--text-dimmer);
+    color: rgba(255, 255, 255, .65);
 
     font-size: 10px;
     font-weight: 650;

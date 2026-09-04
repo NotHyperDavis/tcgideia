@@ -3,19 +3,19 @@
    ========================================================= */
 
 :root {
-    --product-bg: #080d19;
-    --product-card: #101827;
-    --product-card-2: #141d2d;
-    --product-border: rgba(148, 163, 184, 0.16);
+    --product-bg: #F5F1E8;
+    --product-card: #FFFFFF;
+    --product-card-2: #F8F5EF;
+    --product-border: #DDD6C8;
 
-    --product-text: #f8fafc;
-    --product-muted: #94a3b8;
+    --product-text: #201D1A;
+    --product-muted: #6F6961;
 
-    --product-blue: #3b82f6;
-    --product-purple: #7c3aed;
+    --product-blue: #8B1E2D;
+    --product-purple: #A92C3D;
 
-    --product-green: #22c55e;
-    --product-gold: #fbbf24;
+    --product-green: #46705A;
+    --product-gold: #B88A3B;
 
     --product-radius: 16px;
 }
@@ -29,12 +29,12 @@ body {
     background:
         radial-gradient(
             circle at 80% 10%,
-            rgba(124, 58, 237, 0.10),
+            rgba(184, 138, 59, 0.10),
             transparent 35%
         ),
         radial-gradient(
             circle at 10% 30%,
-            rgba(37, 99, 235, 0.08),
+            rgba(139, 30, 45, 0.08),
             transparent 35%
         ),
         var(--product-bg);
@@ -69,7 +69,7 @@ body {
 }
 
 .product-breadcrumb a {
-    color: #cbd5e1;
+    color: var(--product-muted);
     text-decoration: none;
 }
 
@@ -78,7 +78,7 @@ body {
 }
 
 .product-breadcrumb .separator {
-    color: #475569;
+    color: var(--product-muted);
 }
 
 
@@ -112,15 +112,15 @@ body {
     grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
     gap: 34px;
 
-    background: rgba(15, 23, 42, 0.65);
+    background: rgba(32, 29, 26, 0.5);
     border: 1px solid var(--product-border);
     border-radius: var(--product-radius);
 
     padding: 28px;
 
     box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.28),
-        inset 0 1px 0 rgba(255,255,255,0.03);
+        0 25px 70px rgba(45, 35, 25, 0.10),
+        inset 0 1px 0 rgba(32, 29, 26, 0.03);
 }
 
 
@@ -144,7 +144,7 @@ body {
     background:
         radial-gradient(
             circle,
-            rgba(59, 130, 246, 0.10),
+            rgba(139, 30, 45, 0.10),
             transparent 65%
         );
 
@@ -164,8 +164,8 @@ body {
     border-radius: 12px;
 
     box-shadow:
-        0 30px 60px rgba(0, 0, 0, 0.55),
-        0 0 35px rgba(59, 130, 246, 0.08);
+        0 30px 60px rgba(45, 35, 25, 0.20),
+        0 0 35px rgba(139, 30, 45, 0.08);
 
     transition: transform 0.25s ease;
 }
@@ -196,7 +196,7 @@ body {
 
     border: 1px solid var(--product-border);
 
-    background: #0b1220;
+    background: var(--product-bg);
 
     cursor: pointer;
 
@@ -207,12 +207,12 @@ body {
 
 .product-thumbnail:hover {
     transform: translateY(-2px);
-    border-color: rgba(124, 58, 237, 0.7);
+    border-color: rgba(184, 138, 59, 0.7);
 }
 
 .product-thumbnail.active {
     border-color: var(--product-blue);
-    box-shadow: 0 0 0 2px rgba(59,130,246,0.16);
+    box-shadow: 0 0 0 2px rgba(139, 30, 45, 0.16);
 }
 
 
@@ -247,11 +247,11 @@ body {
 
     margin-bottom: 13px;
 
-    border: 1px solid rgba(124, 58, 237, 0.45);
+    border: 1px solid rgba(184, 138, 59, 0.45);
     border-radius: 8px;
 
-    color: #c4b5fd;
-    background: rgba(124, 58, 237, 0.08);
+    color: var(--product-gold);
+    background: rgba(184, 138, 59, 0.08);
 
     font-size: 12px;
     font-weight: 700;
@@ -293,8 +293,8 @@ body {
 
     border: 1px solid var(--product-border);
 
-    color: #cbd5e1;
-    background: rgba(255,255,255,0.025);
+    color: var(--product-muted);
+    background: rgba(32, 29, 26, 0.025);
 }
 
 
@@ -326,10 +326,10 @@ body {
 
     border-radius: 7px;
 
-    border: 1px solid rgba(34,197,94,0.45);
+    border: 1px solid rgba(70, 112, 90, 0.35);
 
-    color: #86efac;
-    background: rgba(34,197,94,0.08);
+    color: var(--product-green);
+    background: rgba(70, 112, 90, 0.08);
 
     font-size: 13px;
     font-weight: 700;
@@ -343,7 +343,7 @@ body {
 
     margin-top: 18px;
 
-    color: #dbeafe;
+    color: rgba(139, 30, 45, 0.08);
     font-size: 14px;
 }
 
@@ -355,7 +355,7 @@ body {
 
     background: var(--product-green);
 
-    box-shadow: 0 0 10px rgba(34,197,94,0.45);
+    box-shadow: 0 0 10px rgba(70, 112, 90, 0.35);
 }
 
 
@@ -399,8 +399,8 @@ body {
 
     background: linear-gradient(
         135deg,
-        #4338ca,
-        #7c3aed
+        var(--product-blue),
+        var(--product-purple)
     );
 
     color: white;
@@ -439,11 +439,11 @@ body {
 
     border-radius: 9px;
 
-    border: 1px solid rgba(99,102,241,0.55);
+    border: 1px solid rgba(139, 30, 45, 0.55);
 
-    background: rgba(59,130,246,0.04);
+    background: rgba(139, 30, 45, 0.04);
 
-    color: #dbeafe;
+    color: rgba(139, 30, 45, 0.08);
 
     font-weight: 600;
 
@@ -457,8 +457,8 @@ body {
 
 .seller-actions a:hover,
 .seller-actions button:hover {
-    background: rgba(59,130,246,0.12);
-    border-color: rgba(99,102,241,0.85);
+    background: rgba(139, 30, 45, 0.12);
+    border-color: rgba(139, 30, 45, 0.85);
 }
 
 
@@ -469,7 +469,7 @@ body {
 .product-description {
     margin-top: 24px;
 
-    color: #cbd5e1;
+    color: var(--product-muted);
 
     font-size: 14px;
     line-height: 1.7;
@@ -489,16 +489,16 @@ body {
     background:
         linear-gradient(
             180deg,
-            rgba(24, 34, 51, 0.95),
-            rgba(13, 20, 33, 0.98)
+            rgba(255, 255, 255, 0.95),
+            rgba(255, 255, 255, 0.98)
         );
 
     border: 1px solid var(--product-border);
     border-radius: var(--product-radius);
 
     box-shadow:
-        0 25px 70px rgba(0,0,0,0.35),
-        inset 0 1px 0 rgba(255,255,255,0.03);
+        0 25px 70px rgba(45, 35, 25, 0.14),
+        inset 0 1px 0 rgba(32, 29, 26, 0.03);
 }
 
 
@@ -519,7 +519,7 @@ body {
 
 
 .purchase-title-icon {
-    color: #93c5fd;
+    color: var(--product-purple);
 }
 
 
@@ -532,7 +532,7 @@ body {
 
     margin-bottom: 9px;
 
-    color: #cbd5e1;
+    color: var(--product-muted);
 
     font-size: 13px;
     font-weight: 600;
@@ -552,7 +552,7 @@ body {
     border: 1px solid var(--product-border);
     border-radius: 9px;
 
-    background: #111b2c;
+    background: var(--product-card);
 
     color: white;
 
@@ -564,8 +564,8 @@ body {
 }
 
 .quantity-control button:hover {
-    border-color: rgba(99,102,241,0.7);
-    background: #172238;
+    border-color: rgba(139, 30, 45, 0.7);
+    background: var(--product-card);
 }
 
 
@@ -578,7 +578,7 @@ body {
     border: 1px solid var(--product-border);
     border-radius: 9px;
 
-    background: #0b1322;
+    background: var(--product-bg);
 
     color: white;
 
@@ -620,7 +620,7 @@ body {
 
     margin: 10px 0;
 
-    color: #cbd5e1;
+    color: var(--product-muted);
     font-size: 14px;
 }
 
@@ -641,7 +641,7 @@ body {
 
 
 .price-total strong {
-    color: #a78bfa;
+    color: var(--product-gold);
 
     font-size: 25px;
 }
@@ -663,8 +663,8 @@ body {
 
     background: linear-gradient(
         135deg,
-        #2563eb,
-        #7c3aed
+        var(--product-blue),
+        var(--product-purple)
     );
 
     color: white;
@@ -675,7 +675,7 @@ body {
     cursor: pointer;
 
     box-shadow:
-        0 12px 30px rgba(59,130,246,0.20);
+        0 12px 30px rgba(139, 30, 45, 0.20);
 
     transition:
         transform 0.2s,
@@ -686,7 +686,7 @@ body {
     transform: translateY(-2px);
 
     box-shadow:
-        0 18px 35px rgba(59,130,246,0.30);
+        0 18px 35px rgba(139, 30, 45, 0.30);
 }
 
 
@@ -697,12 +697,12 @@ body {
 
     padding: 13px 18px;
 
-    border: 1px solid rgba(99,102,241,0.65);
+    border: 1px solid rgba(139, 30, 45, 0.65);
     border-radius: 10px;
 
     background: transparent;
 
-    color: #e2e8f0;
+    color: var(--product-border);
 
     font-size: 14px;
     font-weight: 700;
@@ -713,7 +713,7 @@ body {
 }
 
 .btn-secondary:hover {
-    background: rgba(99,102,241,0.08);
+    background: rgba(139, 30, 45, 0.08);
 }
 
 
@@ -734,7 +734,7 @@ body {
     border: 1px solid var(--product-border);
     border-radius: 11px;
 
-    background: rgba(255,255,255,0.018);
+    background: rgba(32, 29, 26, 0.018);
 }
 
 
@@ -780,7 +780,7 @@ body {
     border: 1px solid var(--product-border);
     border-radius: 8px;
 
-    background: #0a1220;
+    background: var(--product-bg);
 
     color: white;
 
@@ -793,10 +793,10 @@ body {
 
 
 .form-group input:focus {
-    border-color: rgba(59,130,246,0.75);
+    border-color: rgba(139, 30, 45, 0.75);
 
     box-shadow:
-        0 0 0 3px rgba(59,130,246,0.08);
+        0 0 0 3px rgba(139, 30, 45, 0.08);
 }
 
 
@@ -828,9 +828,9 @@ body {
     border: 1px solid var(--product-border);
     border-radius: 9px;
 
-    background: rgba(255,255,255,0.015);
+    background: rgba(32, 29, 26, 0.015);
 
-    color: #dbeafe;
+    color: rgba(139, 30, 45, 0.08);
 
     cursor: pointer;
 
@@ -839,12 +839,12 @@ body {
 
 
 .payment-option:hover {
-    border-color: rgba(99,102,241,0.5);
+    border-color: rgba(139, 30, 45, 0.5);
 }
 
 
 .payment-option input {
-    accent-color: #6366f1;
+    accent-color: var(--product-blue);
 }
 
 
@@ -861,7 +861,7 @@ body {
 
     border-top: 1px solid var(--product-border);
 
-    background: rgba(59,130,246,0.035);
+    background: rgba(139, 30, 45, 0.035);
 }
 
 
@@ -896,7 +896,7 @@ body {
 #buyMessage {
     margin-top: 12px;
 
-    color: #94a3b8;
+    color: var(--product-muted);
 
     font-size: 12px;
     line-height: 1.5;
@@ -905,7 +905,7 @@ body {
 
 #cartMessage a,
 #buyMessage a {
-    color: #93c5fd;
+    color: var(--product-purple);
 }
 
 
@@ -916,7 +916,7 @@ body {
 .product-details {
     margin-top: 28px;
 
-    background: rgba(15, 23, 42, 0.65);
+    background: rgba(32, 29, 26, 0.5);
 
     border: 1px solid var(--product-border);
     border-radius: var(--product-radius);
@@ -974,7 +974,7 @@ body {
 
 
 .detail-value {
-    color: #e2e8f0;
+    color: var(--product-border);
 }
 
 
@@ -988,7 +988,7 @@ body {
 
     margin-top: 28px;
 
-    background: rgba(15,23,42,0.65);
+    background: rgba(32, 29, 26, 0.5);
 
     border: 1px solid var(--product-border);
     border-radius: var(--product-radius);
@@ -1044,7 +1044,7 @@ body {
 
     padding: 25px;
 
-    background: rgba(15,23,42,0.65);
+    background: rgba(32, 29, 26, 0.5);
 
     border: 1px solid var(--product-border);
     border-radius: var(--product-radius);
@@ -1059,7 +1059,7 @@ body {
 
 
 .description-section p {
-    color: #cbd5e1;
+    color: var(--product-muted);
 
     font-size: 14px;
     line-height: 1.7;
@@ -1075,7 +1075,7 @@ body {
 
     text-align: center;
 
-    background: rgba(15,23,42,0.65);
+    background: rgba(32, 29, 26, 0.5);
 
     border: 1px solid var(--product-border);
     border-radius: var(--product-radius);
