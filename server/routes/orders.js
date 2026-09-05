@@ -371,6 +371,18 @@ router.get("/admin/payouts", requireAuth, async (req, res) => {
 router.patch("/:id", requireAuth, async (req, res) => {
     const { payment_status, status, payout_status } = req.body;
 
+    if (status && !["shipped", "completed", "cancelled"].includes(status)) {
+        return res.status(400).json({ error: "Estado inválido — não é possível pedir essa transição." });
+    }
+
+    if (payment_status && !["paid", "cancelled"].includes(payment_status)) {
+        return res.status(400).json({ error: "Estado de pagamento inválido." });
+    }
+
+    if (payout_status && !["paid_out"].includes(payout_status)) {
+        return res.status(400).json({ error: "Estado de repasse inválido." });
+    }
+
     const client = await pool.connect();
 
     try {

@@ -311,6 +311,12 @@ async function loadProduct() {
                                             Vendedor TCGMarketPortugal
                                         </div>
 
+                                        <div class="seller-rating" style="font-size:13px; margin-top:4px;">
+                                            ${listing.seller_review_count > 0
+                                                ? `<span style="color:var(--gold, #B88A3B);">★ ${Number(listing.seller_rating).toFixed(1)}</span> <span style="color:var(--text-dim, #6F6961);">(${listing.seller_review_count} avaliações)</span>`
+                                                : `<span style="color:var(--text-dim, #6F6961);">Ainda sem avaliações</span>`}
+                                        </div>
+
                                     </div>
 
                                 </div>

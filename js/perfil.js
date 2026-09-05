@@ -147,7 +147,18 @@ async function loadProfile() {
         if (activeListings) activeListings.textContent = listings.length;
         if (sales) sales.textContent = user.stats?.sales ?? 0;
         if (purchases) purchases.textContent = user.stats?.purchases ?? 0;
-        if (rating) rating.textContent = user.stats?.rating ?? "—";
+        if (rating) {
+            const hasRating = user.stats?.rating !== null && user.stats?.rating !== undefined;
+            rating.textContent = hasRating ? `★ ${user.stats.rating}` : "—";
+        }
+
+        const ratingLabel = document.getElementById("ratingLabel");
+        if (ratingLabel) {
+            const count = user.stats?.review_count ?? 0;
+            ratingLabel.textContent = count > 0
+                ? `Avaliação (${count})`
+                : "Sem avaliações";
+        }
 
         if (listingCountText) {
             listingCountText.textContent = listings.length === 1

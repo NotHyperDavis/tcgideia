@@ -124,7 +124,10 @@ if (emptyState) {
         card.innerHTML = `
             <img src="${listing.card_image ?? ""}">
             <h3>${listing.card_name}</h3>
-            <p><a href="perfil.html?id=${listing.user_id}" class="seller-link">${listing.seller_name}</a></p>
+            <p>
+                <a href="perfil.html?id=${listing.user_id}" class="seller-link">${listing.seller_name}</a>
+                ${listing.seller_review_count > 0 ? `<span style="font-size:12px; color:var(--gold, #B88A3B);">★ ${Number(listing.seller_rating).toFixed(1)} (${listing.seller_review_count})</span>` : `<span style="font-size:12px; color:var(--text-dim);">Sem avaliações</span>`}
+            </p>
             <span>${GAME_LABELS[listing.game] ?? listing.game} · ${CONDITION_LABELS[listing.condition] ?? listing.condition} · ${LANGUAGE_LABELS[listing.language] ?? listing.language}${VARIANT_LABELS[listing.variant] ?? ""}</span>
             <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
                 <strong>${Number(listing.price).toFixed(2)} €</strong>

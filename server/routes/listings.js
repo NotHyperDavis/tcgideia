@@ -11,9 +11,14 @@ const VALID_CONDITIONS = ["mint", "near_mint", "excellent", "good", "played", "p
 router.get("/", async (req, res) => {
     try {
         const result = await pool.query(
-            `SELECT listings.*, users.name AS seller_name
+            `SELECT listings.*, users.name AS seller_name,
+                    seller_rating.average AS seller_rating, seller_rating.count AS seller_review_count
              FROM listings
              JOIN users ON users.id = listings.user_id
+             LEFT JOIN LATERAL (
+                 SELECT ROUND(AVG(rating)::numeric, 2) AS average, COUNT(*) AS count
+                 FROM reviews WHERE reviewed_user_id = listings.user_id
+             ) seller_rating ON true
              WHERE listings.status = 'active'
              ORDER BY listings.created_at DESC`
         );
@@ -134,9 +139,14 @@ router.get("/trend/:card_id", async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const result = await pool.query(
-            `SELECT listings.*, users.name AS seller_name, users.email AS seller_email
+            `SELECT listings.*, users.name AS seller_name, users.email AS seller_email,
+                    seller_rating.average AS seller_rating, seller_rating.count AS seller_review_count
              FROM listings
              JOIN users ON users.id = listings.user_id
+             LEFT JOIN LATERAL (
+                 SELECT ROUND(AVG(rating)::numeric, 2) AS average, COUNT(*) AS count
+                 FROM reviews WHERE reviewed_user_id = listings.user_id
+             ) seller_rating ON true
              WHERE listings.id = $1`,
             [req.params.id]
         );
