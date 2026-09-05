@@ -57,6 +57,13 @@ async function loadDisputes() {
                         <option value="in_review" ${d.status === "in_review" ? "selected" : ""}>Em análise</option>
                         <option value="resolved" ${d.status === "resolved" ? "selected" : ""}>Resolvida</option>
                     </select>
+
+                    <label style="display:block; margin-top:8px; font-size:13px;">
+                        <input type="checkbox" class="dispute-refund-check" data-id="${d.id}" style="width:auto;">
+                        Emitir reembolso ao comprador
+                    </label>
+                    <input type="number" class="dispute-refund-amount" data-id="${d.id}" step="0.01" min="0.01" max="${Number(d.total_price).toFixed(2)}" placeholder="Valor (deixa vazio para reembolso total: ${Number(d.total_price).toFixed(2)} €)" style="margin-top:4px; width:100%;">
+
                     <button class="save-dispute-btn" data-id="${d.id}">Guardar</button>
                 </div>
             </div>
@@ -66,15 +73,37 @@ async function loadDisputes() {
             btn.addEventListener("click", async () => {
                 const id = btn.dataset.id;
                 const status = document.querySelector(`.dispute-status-select[data-id="${id}"]`).value;
+                const issue_refund = document.querySelector(`.dispute-refund-check[data-id="${id}"]`).checked;
+                const refund_amount = document.querySelector(`.dispute-refund-amount[data-id="${id}"]`).value;
 
-                await fetch(`${API_BASE}/disputes/${id}`, {
+                if (issue_refund) {
+                    const confirmed = confirm(
+                        refund_amount
+                            ? `Confirmas o reembolso de ${Number(refund_amount).toFixed(2)} € ao comprador?`
+                            : "Confirmas o reembolso TOTAL ao comprador? A encomenda vai ser cancelada."
+                    );
+                    if (!confirmed) return;
+                }
+
+                const response = await fetch(`${API_BASE}/disputes/${id}`, {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ status }),
+                    body: JSON.stringify({
+                        status,
+                        issue_refund,
+                        refund_amount: refund_amount || null,
+                    }),
                 });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.error || "Erro ao guardar.");
+                    return;
+                }
 
                 loadDisputes();
             });

@@ -403,6 +403,10 @@ router.patch("/:id", requireAuth, async (req, res) => {
                 await client.query("ROLLBACK");
                 return res.status(403).json({ error: "Só o vendedor pode marcar como enviado." });
             }
+            if (order.status !== "committed") {
+                await client.query("ROLLBACK");
+                return res.status(400).json({ error: "Esta encomenda já não está no estado certo para ser marcada como enviada." });
+            }
             if (order.payment_status !== "paid") {
                 await client.query("ROLLBACK");
                 return res.status(400).json({ error: "Ainda não podes enviar: o pagamento não está confirmado." });
@@ -412,6 +416,11 @@ router.patch("/:id", requireAuth, async (req, res) => {
         if (status === "completed" && !isBuyer && !admin) {
             await client.query("ROLLBACK");
             return res.status(403).json({ error: "Só o comprador pode confirmar a receção." });
+        }
+
+        if (status === "completed" && order.status !== "shipped") {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ error: "Só podes confirmar a receção depois de o vendedor marcar a encomenda como enviada." });
         }
 
         if (status === "cancelled" && order.status !== "committed") {

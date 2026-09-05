@@ -53,6 +53,7 @@ app.use(generalLimiter);
 app.use("/cards", cardsRoutes);
 app.use("/auth/login", authLimiter);
 app.use("/auth/register", authLimiter);
+app.use("/auth/forgot-password", authLimiter);
 app.use("/auth", authRoutes);
 app.use("/listings", listingsRoutes);
 app.use("/orders", ordersRoutes);
