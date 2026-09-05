@@ -21,6 +21,7 @@ const stripeConnectRoutes = require("./routes/stripe-connect");
 const checkoutRoutes = require("./routes/checkout");
 const stripeWebhookRoutes = require("./routes/stripe-webhook");
 const disputesRoutes = require("./routes/disputes");
+const wishlistRoutes = require("./routes/wishlist");
 
 const app = express();
 
@@ -66,6 +67,7 @@ app.use("/upload", uploadRoutes);
 app.use("/stripe-connect", stripeConnectRoutes);
 app.use("/checkout", checkoutRoutes);
 app.use("/disputes", disputesRoutes);
+app.use("/wishlist", wishlistRoutes);
 
 app.get("/", (req, res) => {
     res.redirect("/HTML/main.html");
