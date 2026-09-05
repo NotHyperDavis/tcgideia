@@ -20,10 +20,6 @@ const LANGUAGE_LABELS = {
     DE: "Alemão", IT: "Italiano", JP: "Japonês", KO: "Coreano", ZH: "Chinês",
 };
 
-function estimateWeight(quantity) {
-    return 15 + quantity * 2;
-}
-
 function calcShipping(totalWeightGrams, country = "PT") {
     if (country === "ES") {
         if (totalWeightGrams <= 100) return 2.10;
@@ -1154,7 +1150,7 @@ function updatePriceBreakdown(listing) {
 
 
     const totalWeight =
-        estimateWeight(quantity);
+        10 + (listing.weight_grams || 5) * quantity;
 
 
     const shippingCost =

@@ -15,11 +15,6 @@ function commissionRateFor(accountType) {
     return accountType === "store" ? COMMISSION_RATE_STORE : COMMISSION_RATE_INDIVIDUAL;
 }
 
-// Tem de ser exatamente igual à função em orders.js e no product.js/carrinho.js do frontend
-function estimateWeight(quantity) {
-    return 15 + quantity * 2;
-}
-
 function calcShipping(totalWeightGrams, country = "PT") {
     if (country === "ES") {
         if (totalWeightGrams <= 100) return 2.10;
@@ -105,8 +100,8 @@ router.get("/", requireAuth, async (req, res) => {
 
         for (const sellerId in bySeller) {
             const sellerItems = bySeller[sellerId];
-            const weight = sellerItems.reduce((sum, i) => sum + i.quantity, 0);
-            shippingTotal += calcShipping(estimateWeight(weight), buyerCountry);
+            const weight = 10 + sellerItems.reduce((sum, i) => sum + (i.weight_grams || 5) * i.quantity, 0);
+            shippingTotal += calcShipping(weight, buyerCountry);
 
             sellerItems.forEach(item => {
                 const itemBase = item.price * item.quantity;
@@ -229,8 +224,8 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
 
         for (const sellerId in bySeller) {
             const sellerItems = bySeller[sellerId];
-            const totalQuantity = sellerItems.reduce((sum, i) => sum + i.cart_quantity, 0);
-            const shippingCost = calcShipping(estimateWeight(totalQuantity), buyerCountry);
+            const totalWeight = 10 + sellerItems.reduce((sum, i) => sum + (i.weight_grams || 5) * i.cart_quantity, 0);
+            const shippingCost = calcShipping(totalWeight, buyerCountry);
 
             sellerItems.forEach((item, index) => {
                 const basePrice = Number((item.price * item.cart_quantity).toFixed(2));

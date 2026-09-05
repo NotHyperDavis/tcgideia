@@ -95,9 +95,10 @@ function renderListing(listing, orders) {
             <label>Estado</label>
             <select class="edit-status">
                 ${Object.entries(STATUS_LABELS).map(([value, label]) =>
-                    `<option value="${value}" ${value === listing.status ? "selected" : ""}>${label}</option>`
+                    `<option value="${value}" ${value === listing.status ? "selected" : ""} ${value === "sold" ? "disabled" : ""}>${label}</option>`
                 ).join("")}
             </select>
+            ${listing.status !== "sold" ? `<p style="font-size:12px; color:var(--text-dim);">"Vendido" só é atribuído automaticamente numa venda a sério.</p>` : ""}
         </div>
 
         <div class="listing-actions">

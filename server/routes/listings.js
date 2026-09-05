@@ -139,7 +139,7 @@ router.get("/trend/:card_id", async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const result = await pool.query(
-            `SELECT listings.*, users.name AS seller_name, users.email AS seller_email,
+            `SELECT listings.*, users.name AS seller_name,
                     seller_rating.average AS seller_rating, seller_rating.count AS seller_review_count
              FROM listings
              JOIN users ON users.id = listings.user_id
@@ -212,6 +212,10 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
 // PATCH /listings/:id — edita um anúncio (só o dono pode editar)
 router.patch("/:id", requireAuth, async (req, res) => {
     const { price, condition, quantity, description, status, language, variant } = req.body;
+
+    if (status && !["active", "removed"].includes(status)) {
+        return res.status(400).json({ error: "Não podes definir esse estado diretamente — \"vendido\" só é atribuído automaticamente quando a quantidade chega a zero." });
+    }
 
     try {
         const existing = await pool.query("SELECT * FROM listings WHERE id = $1", [req.params.id]);

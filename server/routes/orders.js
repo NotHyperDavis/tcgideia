@@ -19,10 +19,6 @@ function commissionRateFor(accountType) {
     return accountType === "store" ? COMMISSION_RATE_STORE : COMMISSION_RATE_INDIVIDUAL;
 }
 
-function estimateWeight(quantity) {
-    return 15 + quantity * 2;
-}
-
 // Correio Azul da CTT (tarifário 2026) — serviço recomendado para bens ao estrangeiro.
 function calcShipping(totalWeightGrams, country = "PT") {
     if (country === "ES") {
@@ -93,7 +89,7 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
         const sellerAccountType = sellerAccountResult.rows[0]?.account_type || "individual";
 
         const basePrice = Number((listing.price * quantity).toFixed(2));
-        const totalWeight = estimateWeight(quantity);
+        const totalWeight = 10 + (listing.weight_grams || 5) * quantity; // 10g de embalagem + peso real de cada carta
         const shippingCost = calcShipping(totalWeight, buyerCountry);
 
         // O comprador paga só o preço da carta + portes reais.

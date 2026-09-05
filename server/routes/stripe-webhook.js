@@ -20,6 +20,43 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
         return res.status(400).send(`Webhook Error: ${error.message}`);
     }
 
+    if (event.type === "charge.dispute.created") {
+        const charge = event.data.object;
+
+        try {
+            const orderResult = await pool.query(
+                "SELECT * FROM orders WHERE stripe_payment_intent_id = $1",
+                [charge.payment_intent]
+            );
+            const order = orderResult.rows[0];
+
+            if (order) {
+                // Regista automaticamente como reclamação, para apareceres logo
+                // no painel de admin — uma contestação bancária é sempre algo
+                // sério que precisa de atenção humana, nunca é resolvida sozinha.
+                await pool.query(
+                    `INSERT INTO disputes (order_id, opened_by, reason, description, status, admin_notes)
+                     VALUES ($1, $2, 'outro', $3, 'open', $4)`,
+                    [
+                        order.id,
+                        order.buyer_id,
+                        "Contestação bancária (chargeback) aberta automaticamente pela Stripe.",
+                        `Valor contestado: ${(charge.amount / 100).toFixed(2)} ${charge.currency.toUpperCase()}. Motivo dado pelo banco: ${charge.reason || "não especificado"}.`,
+                    ]
+                );
+
+                await notify(order.seller_id, "order_update", "Atenção: uma venda tua foi contestada junto do banco do comprador. A nossa equipa vai analisar.", "encomendas.html");
+            }
+
+            console.error(`⚠️ Chargeback recebido para payment_intent ${charge.payment_intent} — encomenda ${order?.id ?? "não encontrada"}.`);
+
+        } catch (error) {
+            console.error("Erro ao processar charge.dispute.created:", error);
+        }
+
+        return res.json({ received: true });
+    }
+
     if (event.type === "checkout.session.completed") {
         const session = event.data.object;
 
@@ -78,6 +115,22 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
 
             const listingResult = await client.query("SELECT * FROM listings WHERE id = $1 FOR UPDATE", [listing_id]);
             const listing = listingResult.rows[0];
+
+            if (!listing || Number(quantity) > listing.quantity) {
+                // Já não há stock suficiente — o comprador já pagou via Stripe,
+                // por isso reembolsamos automaticamente em vez de o deixar sem
+                // carta e sem dinheiro.
+                await stripe.refunds.create({ payment_intent: session.payment_intent });
+                await client.query("COMMIT");
+
+                await notify(
+                    Number(buyer_id), "order_update",
+                    "Infelizmente essa carta esgotou mesmo antes do teu pagamento ser processado — já te reembolsámos automaticamente.",
+                    "marketplace.html"
+                );
+
+                return res.json({ received: true });
+            }
 
             const conversationId = await findOrCreateConversation(client, Number(buyer_id), Number(seller_id), Number(listing_id));
 
