@@ -42,6 +42,10 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
         return res.status(400).json({ error: "Indica a carta, a quantidade e o método de pagamento." });
     }
 
+    if (!Number.isInteger(Number(quantity)) || Number(quantity) <= 0) {
+        return res.status(400).json({ error: "A quantidade tem de ser um número inteiro positivo." });
+    }
+
     // A morada é obrigatória — sem ela o vendedor não sabe para onde enviar.
     if (!shipping || !shipping.name || !shipping.address_line || !shipping.postal_code || !shipping.city) {
         return res.status(400).json({ error: "Preenche a morada de envio completa (nome, morada, código postal e localidade)." });
@@ -441,6 +445,22 @@ router.patch("/:id", requireAuth, async (req, res) => {
             if (hoursSinceCommitted > 24) {
                 await client.query("ROLLBACK");
                 return res.status(400).json({ error: "Já não é possível cancelar — passaram mais de 24 horas desde o compromisso de compra." });
+            }
+
+            // Repõe a quantidade no anúncio — a venda não se vai concretizar.
+            await client.query(
+                `UPDATE listings SET quantity = quantity + $1, status = 'active', updated_at = NOW() WHERE id = $2`,
+                [order.quantity, order.listing_id]
+            );
+
+            // Se já tinha sido pago, reembolsa também.
+            if (order.payment_status === "paid") {
+                if (order.payment_method === "wallet") {
+                    await client.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [order.total_price, order.buyer_id]);
+                } else if (order.payment_method === "stripe" && order.stripe_payment_intent_id) {
+                    await stripe.refunds.create({ payment_intent: order.stripe_payment_intent_id });
+                }
+                // transferência bancária: sem reembolso automático — o admin trata à mão
             }
         }
 

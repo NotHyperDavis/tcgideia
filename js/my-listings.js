@@ -74,7 +74,7 @@ function renderListing(listing, orders) {
         <img src="${listing.card_image ?? ""}">
 
         <div class="listing-info">
-            <h3>${listing.card_name}</h3>
+            <h3>${escapeHtml(listing.card_name)}</h3>
             <p>Estado: <strong>${STATUS_LABELS[listing.status] ?? listing.status}</strong></p>
         </div>
 

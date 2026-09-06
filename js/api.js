@@ -47,8 +47,8 @@ function displayDeals(listings) {
         el.style.cursor = "pointer";
         el.innerHTML = `
             <img src="${listing.card_image ?? ""}">
-            <h3>${listing.card_name}</h3>
-            <p>${listing.seller_name}</p>
+            <h3>${escapeHtml(listing.card_name)}</h3>
+            <p>${escapeHtml(listing.seller_name)}</p>
             <strong>${Number(listing.price).toFixed(2)} €</strong>
             <span style="color:#4ADE80; font-size:12px; display:block;">-${discount}% vs. preço médio</span>
         `;
@@ -128,4 +128,9 @@ if (input) {
             window.location.href = `marketplace.html?q=${encodeURIComponent(input.value.trim())}`;
         }
     });
+}
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
 }

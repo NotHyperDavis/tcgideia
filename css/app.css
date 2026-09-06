@@ -789,7 +789,7 @@
 
     text-decoration: none;
 
-    color: white;
+    color: var(--text);
 
     transition:
         transform .2s,
@@ -868,7 +868,9 @@
 
     margin-top: 12px;
 
-    color: white;
+    color: var(--accent);
+
+    font-weight: 700;
 
     font-size: 20px;
 }

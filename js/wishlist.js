@@ -32,7 +32,7 @@ async function loadWishlist() {
             <div class="order-row">
                 <img src="${item.card_image ?? ""}">
                 <div>
-                    <h3>${item.card_name}</h3>
+                    <h3>${escapeHtml(item.card_name)}</h3>
                     ${item.best_listing_id
                         ? `<p>Melhor preço disponível: <strong>${Number(item.best_price).toFixed(2)} €</strong> — ${item.best_seller_name}
                              <a href="product.html?id=${item.best_listing_id}">Ver anúncio</a></p>`
@@ -63,4 +63,9 @@ async function removeFromWishlist(id) {
         console.error(error);
         alert("Erro ao remover.");
     }
+}
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
 }

@@ -150,10 +150,10 @@ function renderListings(listings) {
 
         card.innerHTML = `
             <div class="profile-card-image-wrapper">
-                <img src="${listing.card_image ?? ""}" alt="${listing.card_name}" class="profile-card-image">
+                <img src="${listing.card_image ?? ""}" alt="${escapeHtml(listing.card_name)}" class="profile-card-image">
             </div>
             <div class="profile-card-info">
-                <h3>${listing.card_name}</h3>
+                <h3>${escapeHtml(listing.card_name)}</h3>
                 <span class="profile-card-condition">${condition}</span>
                 <strong class="profile-card-price">${Number(listing.price).toFixed(2)} €</strong>
             </div>
@@ -201,13 +201,13 @@ async function loadReviews(profileUserId) {
         reviewsList.innerHTML = data.reviews.map(review => {
             const isAuthor = review.reviewer_id === Number(profileUserId);
             const label = isAuthor 
-                ? `Avalieste <strong>${review.reviewed_user_name || "um utilizador"}</strong>` 
-                : `Avaliação de <strong>${review.reviewer_name || "um utilizador"}</strong>`;
+                ? `Avalieste <strong>${escapeHtml(review.reviewed_user_name || "um utilizador")}</strong>` 
+                : `Avaliação de <strong>${escapeHtml(review.reviewer_name || "um utilizador")}</strong>`;
 
             return `
                 <div class="review-item" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
                     <p style="margin: 0 0 5px 0;">${label} — <span style="color: #f39c12;">${renderStars(review.rating)}</span> (${review.rating}/5)</p>
-                    ${review.comment ? `<p style="margin: 5px 0; color: #ccc;">"${review.comment}"</p>` : ""}
+                    ${review.comment ? `<p style="margin: 5px 0; color: #ccc;">"${escapeHtml(review.comment)}"</p>` : ""}
                     <small style="color: #888;">${new Date(review.created_at).toLocaleDateString("pt-PT")}</small>
                 </div>
             `;
@@ -435,3 +435,8 @@ document.getElementById("deleteAccountBtn")?.addEventListener("click", async () 
         gdprMessage.textContent = "Erro ao ligar ao servidor.";
     }
 });
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
+}

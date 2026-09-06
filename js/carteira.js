@@ -63,6 +63,20 @@ function statusLabel(status) {
     return labels[status] || status;
 }
 
+document.getElementById("instantDepositAmount").addEventListener("input", (e) => {
+    const preview = document.getElementById("instantDepositFeePreview");
+    const amount = Number(e.target.value);
+
+    if (!amount || amount <= 0) {
+        preview.textContent = "";
+        return;
+    }
+
+    const fee = Number((amount * 0.05 + 0.35).toFixed(2));
+    const total = Number((amount + fee).toFixed(2));
+    preview.textContent = `Vais pagar ${total.toFixed(2)} € (${fee.toFixed(2)} € de taxa) para receberes ${amount.toFixed(2)} € na carteira.`;
+});
+
 document.getElementById("instantDepositForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const amount = document.getElementById("instantDepositAmount").value;

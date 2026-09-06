@@ -2,15 +2,32 @@
    TCGMarketPortugal — Mensagens
    ========================================================= */
 
+/* A página de mensagens estica até encher o ecrã, sem precisar de calcular
+   pixels — isto é o que faltava nas tentativas anteriores. Aplica-se só
+   nesta página (:has(.messages-page)), não afeta o resto do site. */
+body:has(.messages-page) {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
 .messages-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
     width: min(1400px, calc(100% - 40px));
-    margin: 34px auto 70px;
+    margin: 0 auto;
+    padding: 24px 0;
 }
 
 .messages-shell {
     display: grid;
     grid-template-columns: 360px minmax(0, 1fr);
-    min-height: 690px;
+    grid-template-rows: minmax(0, 1fr);
+    flex: 1;
+    min-height: 500px;
     overflow: hidden;
     border: 1px solid rgba(32, 29, 26, 0.06);
     border-radius: 24px;
@@ -26,8 +43,8 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    background: rgba(32, 29, 26, 0.5);
-    border-right: 1px solid rgba(32, 29, 26, 0.055);
+    background: var(--panel-2, #F8F5EF);
+    border-right: 1px solid var(--border, #DDD6C8);
 }
 
 .messages-sidebar-top {
@@ -35,12 +52,13 @@
     align-items: flex-end;
     justify-content: space-between;
     padding: 28px 24px 20px;
+    background: var(--accent, #8B1E2D);
 }
 
 .eyebrow {
     display: block;
     margin-bottom: 5px;
-    color: #6F6961;
+    color: rgba(255, 255, 255, .75);
     font-size: 10px;
     font-weight: 800;
     letter-spacing: .14em;
@@ -49,7 +67,7 @@
 
 .messages-sidebar-top h1 {
     margin: 0;
-    color: #201D1A;
+    color: #FFFFFF;
     font-size: 28px;
     letter-spacing: -.03em;
 }
@@ -60,10 +78,10 @@
     min-width: 28px;
     height: 28px;
     padding: 0 8px;
-    border: 1px solid rgba(32, 29, 26, .07);
+    border: 1px solid rgba(255, 255, 255, .35);
     border-radius: 999px;
-    color: #6F6961;
-    background: rgba(32, 29, 26, .04);
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, .15);
     font-size: 12px;
     font-weight: 800;
 }
@@ -72,31 +90,33 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 0 18px 18px;
-    padding: 11px 13px;
-    border: 1px solid rgba(32, 29, 26, .055);
-    border-radius: 13px;
-    background: rgba(32, 29, 26, .035);
-}
-
-.conversation-search span {
-    color: #6F6961;
-    font-size: 22px;
-    line-height: 1;
+    margin: 0;
+    padding: 16px 24px;
+    border: 0;
+    border-radius: 0;
+    background: var(--accent, #8B1E2D);
 }
 
 .conversation-search input {
     width: 100%;
-    border: 0;
+    border: 1px solid rgba(255, 255, 255, .18);
     outline: 0;
-    color: #201D1A;
-    background: transparent;
+    padding: 9px 12px;
+    border-radius: 10px;
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, .12);
     font: inherit;
     font-size: 13px;
 }
 
+.conversation-search span {
+    color: rgba(255, 255, 255, .75);
+    font-size: 22px;
+    line-height: 1;
+}
+
 .conversation-search input::placeholder {
-    color: #6F6961;
+    color: rgba(255, 255, 255, .65);
 }
 
 .conversation-heading {
@@ -241,8 +261,9 @@
 .conversation-view {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 0;
     min-width: 0;
-    min-height: 690px;
     background:
         radial-gradient(circle at 50% 0%, rgba(32, 29, 26, .02), transparent 34%),
         #FFFFFF;
@@ -306,8 +327,10 @@
 
 .chat-messages {
     display: flex;
-    flex: 1;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    max-height: none;
     gap: 8px;
     overflow-y: auto;
     padding: 28px clamp(18px, 5vw, 70px);
@@ -315,6 +338,7 @@
 
 .chat-date {
     align-self: center;
+    flex-shrink: 0;
     margin: 2px 0 14px;
     padding: 5px 10px;
     border: 1px solid rgba(32, 29, 26, .045);
@@ -326,6 +350,7 @@
 
 .message-row {
     display: flex;
+    flex-shrink: 0;
     width: 100%;
     margin: 2px 0;
 }
@@ -426,9 +451,11 @@
     line-height: 1.6;
 }
 
+
 /* Composer */
 
 .chat-composer-wrap {
+    flex-shrink: 0;
     padding: 14px 24px 20px;
     border-top: 1px solid rgba(32, 29, 26, .045);
     background: rgba(255, 255, 255, .95);

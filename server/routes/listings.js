@@ -174,6 +174,10 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
         return res.status(400).json({ error: "Faltam campos obrigatórios (carta, preço, condição)." });
     }
 
+    if (quantity !== undefined && (!Number.isInteger(Number(quantity)) || Number(quantity) < 0)) {
+        return res.status(400).json({ error: "A quantidade tem de ser um número inteiro (0 ou mais)." });
+    }
+
     if (!VALID_CONDITIONS.includes(condition)) {
         return res.status(400).json({ error: "Condição inválida." });
     }
@@ -215,6 +219,10 @@ router.patch("/:id", requireAuth, async (req, res) => {
 
     if (status && !["active", "removed"].includes(status)) {
         return res.status(400).json({ error: "Não podes definir esse estado diretamente — \"vendido\" só é atribuído automaticamente quando a quantidade chega a zero." });
+    }
+
+    if (quantity !== undefined && (!Number.isInteger(Number(quantity)) || Number(quantity) < 0)) {
+        return res.status(400).json({ error: "A quantidade tem de ser um número inteiro (0 ou mais)." });
     }
 
     try {

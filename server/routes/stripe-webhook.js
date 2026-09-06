@@ -9,6 +9,8 @@ const router = express.Router();
 // IMPORTANTE: esta rota tem de receber o corpo em "raw" (não JSON), para a Stripe
 // conseguir confirmar a assinatura. Isso é tratado no server.js, antes do express.json().
 router.post("/", express.raw({ type: "application/json" }), async (req, res) => {
+    console.log("🔔 PEDIDO RECEBIDO no /stripe/webhook — se vires isto, o pedido chegou ao servidor.");
+
     const signature = req.headers["stripe-signature"];
 
     let event;
@@ -16,9 +18,11 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
     try {
         event = stripe.webhooks.constructEvent(req.body, signature, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (error) {
-        console.error("Assinatura do webhook inválida:", error.message);
+        console.error("❌ Assinatura do webhook inválida:", error.message);
         return res.status(400).send(`Webhook Error: ${error.message}`);
     }
+
+    console.log(`✅ Assinatura válida. Tipo de evento: ${event.type}`);
 
     if (event.type === "charge.dispute.created") {
         const charge = event.data.object;
@@ -31,9 +35,16 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             const order = orderResult.rows[0];
 
             if (order) {
-                // Regista automaticamente como reclamação, para apareceres logo
-                // no painel de admin — uma contestação bancária é sempre algo
-                // sério que precisa de atenção humana, nunca é resolvida sozinha.
+                const existingDispute = await pool.query(
+                    `SELECT id FROM disputes WHERE order_id = $1 AND description LIKE 'Contestação bancária%'`,
+                    [order.id]
+                );
+
+                if (existingDispute.rows.length > 0) {
+                    console.log(`Chargeback para a encomenda ${order.id} já tinha sido registado — a ignorar reenvio.`);
+                    return res.json({ received: true });
+                }
+
                 await pool.query(
                     `INSERT INTO disputes (order_id, opened_by, reason, description, status, admin_notes)
                      VALUES ($1, $2, 'outro', $3, 'open', $4)`,
@@ -60,8 +71,11 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
     if (event.type === "checkout.session.completed") {
         const session = event.data.object;
 
-        // Depósito na carteira (Cartão/MB WAY) — não é uma compra de carta.
+        console.log("📦 checkout.session.completed — metadata:", session.metadata);
+
         if (session.metadata.type === "wallet_deposit") {
+            console.log("💰 É um depósito de carteira — a processar...");
+
             const { user_id, amount } = session.metadata;
 
             const client = await pool.connect();
@@ -71,6 +85,7 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
 
                 const existing = await client.query("SELECT id FROM deposits WHERE stripe_session_id = $1", [session.id]);
                 if (existing.rows.length > 0) {
+                    console.log("⚠️ Este depósito já tinha sido processado antes (idempotência) — a ignorar.");
                     await client.query("ROLLBACK");
                     return res.json({ received: true });
                 }
@@ -85,11 +100,13 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
 
                 await client.query("COMMIT");
 
+                console.log(`✅ Depósito de ${amount}€ creditado ao utilizador ${user_id} com sucesso.`);
+
                 await notify(user_id, "order_update", `O teu depósito de ${Number(amount).toFixed(2)} € foi confirmado.`, "carteira.html");
 
             } catch (error) {
                 await client.query("ROLLBACK");
-                console.error("Erro ao processar depósito Stripe:", error);
+                console.error("❌ Erro ao processar depósito Stripe:", error);
             } finally {
                 client.release();
             }
@@ -105,8 +122,6 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
         try {
             await client.query("BEGIN");
 
-            // Idempotência: se este session_id já criou uma encomenda, não faz nada outra vez
-            // (a Stripe pode reenviar o mesmo evento mais que uma vez).
             const existing = await client.query("SELECT id FROM orders WHERE stripe_session_id = $1", [session.id]);
             if (existing.rows.length > 0) {
                 await client.query("ROLLBACK");
@@ -117,9 +132,6 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             const listing = listingResult.rows[0];
 
             if (!listing || Number(quantity) > listing.quantity) {
-                // Já não há stock suficiente — o comprador já pagou via Stripe,
-                // por isso reembolsamos automaticamente em vez de o deixar sem
-                // carta e sem dinheiro.
                 await stripe.refunds.create({ payment_intent: session.payment_intent });
                 await client.query("COMMIT");
 

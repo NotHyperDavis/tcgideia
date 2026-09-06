@@ -37,6 +37,10 @@ router.post("/", requireAuth, async (req, res) => {
         return res.status(400).json({ error: "Indica o anúncio." });
     }
 
+    if (quantity !== undefined && (!Number.isInteger(Number(quantity)) || Number(quantity) <= 0)) {
+        return res.status(400).json({ error: "A quantidade tem de ser um número inteiro positivo." });
+    }
+
     try {
         const listingResult = await pool.query("SELECT * FROM listings WHERE id = $1", [listing_id]);
         const listing = listingResult.rows[0];
@@ -130,7 +134,7 @@ router.get("/", requireAuth, async (req, res) => {
 router.patch("/:listingId", requireAuth, async (req, res) => {
     const { quantity } = req.body;
 
-    if (!quantity || quantity < 1) {
+    if (!quantity || !Number.isInteger(Number(quantity)) || quantity < 1) {
         return res.status(400).json({ error: "Quantidade inválida." });
     }
 

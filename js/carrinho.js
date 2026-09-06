@@ -92,8 +92,8 @@ async function loadCart() {
             el.innerHTML = `
                 <img src="${item.card_image ?? ""}">
                 <div>
-                    <h3>${item.card_name}</h3>
-                    <p>Vendedor: ${item.seller_name} · ${CONDITION_LABELS[item.condition] ?? item.condition}</p>
+                    <h3>${escapeHtml(item.card_name)}</h3>
+                    <p>Vendedor: ${escapeHtml(item.seller_name)} · ${CONDITION_LABELS[item.condition] ?? item.condition}</p>
                     <p>${Number(item.price).toFixed(2)} € / unidade</p>
                     <label>Quantidade</label>
                     <input type="number" class="qty-input" min="1" max="${item.available_quantity}" value="${item.quantity}" style="max-width:80px;">
@@ -229,3 +229,8 @@ document.addEventListener("click", (e) => {
         e.preventDefault();
     }
 });
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
+}

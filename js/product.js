@@ -130,7 +130,7 @@ async function loadProduct() {
             Number(listing.price).toFixed(2);
 
         const sellerName =
-            listing.seller_name || "Vendedor";
+            escapeHtml(listing.seller_name || "Vendedor");
 
         const sellerInitial =
             sellerName.charAt(0).toUpperCase();
@@ -149,7 +149,7 @@ async function loadProduct() {
 
                 <span class="separator">›</span>
 
-                <span>${listing.card_name}</span>
+                <span>${escapeHtml(listing.card_name)}</span>
 
             </div>
 
@@ -175,7 +175,7 @@ async function loadProduct() {
                                     id="mainProductImage"
                                     class="product-main-image"
                                     src="${cardImage}"
-                                    alt="${listing.card_name}"
+                                    alt="${escapeHtml(listing.card_name)}"
                                 >
 
                             </div>
@@ -187,7 +187,7 @@ async function loadProduct() {
                                     class="product-thumbnail active"
                                     src="${cardImage}"
                                     data-image="${cardImage}"
-                                    alt="${listing.card_name}"
+                                    alt="${escapeHtml(listing.card_name)}"
                                 >
 
                                 ${
@@ -237,7 +237,7 @@ async function loadProduct() {
 
 
                             <h1>
-                                ${listing.card_name}
+                                ${escapeHtml(listing.card_name)}
                             </h1>
 
 
@@ -366,7 +366,7 @@ async function loadProduct() {
                                 ?
                                 `
                                 <div class="product-description">
-                                    ${listing.description}
+                                    ${escapeHtml(listing.description)}
                                 </div>
                                 `
                                 :
@@ -567,8 +567,8 @@ async function loadProduct() {
                                 ">
                                     ${
                                         listing.description
-                                        ||
-                                        "O vendedor não adicionou uma descrição."
+                                        ? escapeHtml(listing.description)
+                                        : "O vendedor não adicionou uma descrição."
                                     }
                                 </p>
 
@@ -1455,3 +1455,8 @@ async function addToWishlist(listing) {
 }
 
 loadProduct();
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
+}

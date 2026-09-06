@@ -190,6 +190,16 @@ router.patch("/:id", requireAuth, async (req, res) => {
                     `UPDATE orders SET status = 'cancelled', payout_status = 'pending', updated_at = NOW() WHERE id = $1`,
                     [order.id]
                 );
+
+                // Só repõe o stock se a encomenda ainda não tinha sido enviada —
+                // se já foi enviada, o vendedor já não tem fisicamente a carta
+                // para voltar a vender (ex: reclamação de "não chegou").
+                if (order.status === "committed") {
+                    await client.query(
+                        `UPDATE listings SET quantity = quantity + $1, status = 'active', updated_at = NOW() WHERE id = $2`,
+                        [order.quantity, order.listing_id]
+                    );
+                }
             } else {
                 await client.query(
                     `UPDATE orders SET seller_payout = GREATEST(seller_payout - $1, 0), updated_at = NOW() WHERE id = $2`,

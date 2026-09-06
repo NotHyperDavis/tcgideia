@@ -47,12 +47,13 @@
 
         <div class="panel">
             <p>Carrega um ficheiro CSV com uma carta por linha. As colunas têm de ser exatamente estas, por esta ordem:</p>
-            <p><code>nome,preco,condicao,quantidade,idioma,foil,descricao</code></p>
+            <p><code>jogo,nome,preco,condicao,quantidade,idioma,variante,descricao</code></p>
             <ul style="font-size:13px; color:var(--text-dim); line-height:1.8;">
+                <li><strong>jogo</strong> — pokemon, yugioh, magic ou onepiece</li>
                 <li><strong>nome</strong> — o nome da carta (ex: Charizard)</li>
                 <li><strong>condicao</strong> — mint, near_mint, excellent, good, played ou poor</li>
                 <li><strong>idioma</strong> — PT, EN, ES, FR, DE, IT, JP, KO ou ZH</li>
-                <li><strong>foil</strong> — sim ou não</li>
+                <li><strong>variante</strong> — normal, foil, holo ou reverse_holo</li>
                 <li><strong>descricao</strong> — opcional, pode ficar vazio</li>
             </ul>
 
@@ -70,6 +71,7 @@
                     <tr>
                         <th></th>
                         <th>Imagem</th>
+                        <th>Jogo</th>
                         <th>Pediste</th>
                         <th>Encontrado</th>
                         <th>Preço</th>

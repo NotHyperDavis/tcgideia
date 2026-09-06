@@ -47,7 +47,14 @@ router.post("/deposit/checkout", requireAuth, async (req, res) => {
     }
 
     try {
-        const amountCents = Math.round(Number(amount) * 100);
+        // Taxa de depósito instantâneo (cartão/MB WAY/Bizum) — cobre o custo real
+        // de processamento da Stripe. Por transferência bancária continua grátis.
+        const INSTANT_DEPOSIT_FEE_PERCENT = 0.05;
+        const INSTANT_DEPOSIT_FEE_FIXED = 0.35;
+
+        const fee = Number((Number(amount) * INSTANT_DEPOSIT_FEE_PERCENT + INSTANT_DEPOSIT_FEE_FIXED).toFixed(2));
+        const totalToCharge = Number((Number(amount) + fee).toFixed(2));
+        const amountCents = Math.round(totalToCharge * 100);
 
         const session = await stripe.checkout.sessions.create({
             mode: "payment",
@@ -55,7 +62,10 @@ router.post("/deposit/checkout", requireAuth, async (req, res) => {
             line_items: [{
                 price_data: {
                     currency: "eur",
-                    product_data: { name: "Depósito na carteira TCGMarketPortugal" },
+                    product_data: {
+                        name: "Depósito na carteira TCGMarketPortugal",
+                        description: `${Number(amount).toFixed(2)} € para a carteira + ${fee.toFixed(2)} € taxa de depósito instantâneo`,
+                    },
                     unit_amount: amountCents,
                 },
                 quantity: 1,
@@ -63,13 +73,13 @@ router.post("/deposit/checkout", requireAuth, async (req, res) => {
             metadata: {
                 type: "wallet_deposit",
                 user_id: String(req.user.id),
-                amount: String(amount),
+                amount: String(amount), // só este valor é creditado — a taxa fica retida
             },
             success_url: `${FRONTEND_URL}/HTML/carteira.html?deposit=success`,
             cancel_url: `${FRONTEND_URL}/HTML/carteira.html?deposit=cancelled`,
         });
 
-        res.json({ url: session.url });
+        res.json({ url: session.url, fee, total: totalToCharge });
 
     } catch (error) {
         console.error(error);

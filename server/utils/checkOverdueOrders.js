@@ -51,6 +51,12 @@ async function checkOverdueShipments() {
             }
             // transferência bancária: sem reembolso automático — o admin trata à mão
 
+            // Repõe a quantidade no anúncio — o vendedor não enviou a tempo.
+            await client.query(
+                `UPDATE listings SET quantity = quantity + $1, status = 'active', updated_at = NOW() WHERE id = $2`,
+                [order.quantity, order.listing_id]
+            );
+
             await client.query(`UPDATE orders SET status = 'cancelled', updated_at = NOW() WHERE id = $1`, [order.id]);
 
             const { strikes, suspended } = await addStrike(client, order.seller_id, "late_shipment_strikes");

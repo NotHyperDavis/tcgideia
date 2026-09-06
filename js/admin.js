@@ -46,10 +46,10 @@ async function loadDisputes() {
         disputesContainer.innerHTML = disputes.map(d => `
             <div class="admin-order-row">
                 <div>
-                    <h3>${DISPUTE_REASON_LABELS[d.reason] ?? d.reason} — ${d.card_name}</h3>
-                    <p>Aberta por: ${d.opened_by_name} (${d.opened_by_email})</p>
-                    <p>Comprador: ${d.buyer_name} · Vendedor: ${d.seller_name} · Valor: ${Number(d.total_price).toFixed(2)} €</p>
-                    ${d.description ? `<p><em>"${d.description}"</em></p>` : ""}
+                    <h3>${DISPUTE_REASON_LABELS[d.reason] ?? d.reason} — ${escapeHtml(d.card_name)}</h3>
+                    <p>Aberta por: ${escapeHtml(d.opened_by_name)} (${escapeHtml(d.opened_by_email)})</p>
+                    <p>Comprador: ${escapeHtml(d.buyer_name)} · Vendedor: ${escapeHtml(d.seller_name)} · Valor: ${Number(d.total_price).toFixed(2)} €</p>
+                    ${d.description ? `<p><em>"${escapeHtml(d.description)}"</em></p>` : ""}
                     <p>Estado: <strong>${DISPUTE_STATUS_LABELS[d.status]}</strong> · Aberta em ${new Date(d.created_at).toLocaleString("pt-PT")}</p>
 
                     <select class="dispute-status-select" data-id="${d.id}">
@@ -229,9 +229,9 @@ async function loadOrders() {
             const el = document.createElement("div");
             el.className = "admin-order-row";
             el.innerHTML = `
-                <h3>#${order.id} — ${order.card_name} (x${order.quantity})</h3>
-                <p>Comprador: ${order.buyer_name} (${order.buyer_email})</p>
-                <p>Vendedor: ${order.seller_name} (${order.seller_email})</p>
+                <h3>#${order.id} — ${escapeHtml(order.card_name)} (x${order.quantity})</h3>
+                <p>Comprador: ${escapeHtml(order.buyer_name)} (${escapeHtml(order.buyer_email)})</p>
+                <p>Vendedor: ${escapeHtml(order.seller_name)} (${escapeHtml(order.seller_email)})</p>
                 <p>Total: ${Number(order.total_price).toFixed(2)} € · Comissão: ${Number(order.platform_fee).toFixed(2)} € · A repassar: ${Number(order.seller_payout).toFixed(2)} €</p>
                 <p>Método: ${order.payment_method === "wallet" ? "Carteira" : order.payment_method === "stripe" ? "Cartão (Stripe)" : "Transferência bancária"}</p>
                 <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]} · Repasse: ${PAYOUT_LABELS[order.payout_status]}</p>
@@ -315,3 +315,8 @@ document.getElementById("updateAccountTypeBtn").addEventListener("click", async 
         messageEl.textContent = "Erro ao ligar ao servidor.";
     }
 });
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
+}

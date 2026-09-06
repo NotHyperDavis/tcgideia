@@ -265,10 +265,10 @@ function renderListings(listings) {
 
         card.innerHTML = `
             <div class="profile-card-image-wrapper">
-                <img src="${listing.card_image ?? ""}" alt="${listing.card_name}" class="profile-card-image">
+                <img src="${listing.card_image ?? ""}" alt="${escapeHtml(listing.card_name)}" class="profile-card-image">
             </div>
             <div class="profile-card-info">
-                <h3>${listing.card_name}</h3>
+                <h3>${escapeHtml(listing.card_name)}</h3>
                 <span class="profile-card-condition">${condition}</span>
                 <strong class="profile-card-price">${Number(listing.price).toFixed(2)} €</strong>
             </div>
@@ -297,10 +297,10 @@ function renderSalesHistory(sales) {
 
         card.innerHTML = `
             <div class="profile-card-image-wrapper">
-                <img src="${sale.card_image ?? ""}" alt="${sale.card_name}" class="profile-card-image">
+                <img src="${sale.card_image ?? ""}" alt="${escapeHtml(sale.card_name)}" class="profile-card-image">
             </div>
             <div class="profile-card-info">
-                <h3>${sale.card_name}</h3>
+                <h3>${escapeHtml(sale.card_name)}</h3>
                 <span class="profile-card-condition">Vendida em ${date}</span>
             </div>
         `;
@@ -393,8 +393,8 @@ async function loadReviews(profileUserId) {
 
         reviewsList.innerHTML = data.reviews.map(review => `
             <div class="review-item">
-                <p><strong>${review.reviewer_name}</strong> — ${renderStars(review.rating)}</p>
-                ${review.comment ? `<p>${review.comment}</p>` : ""}
+                <p><strong>${escapeHtml(review.reviewer_name)}</strong> — ${renderStars(review.rating)}</p>
+                ${review.comment ? `<p>${escapeHtml(review.comment)}</p>` : ""}
                 <small>${new Date(review.created_at).toLocaleDateString("pt-PT")}</small>
             </div>
         `).join("");
@@ -406,3 +406,8 @@ async function loadReviews(profileUserId) {
 }
 
 loadProfile();
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text ?? "";
+    return div.innerHTML;
+}

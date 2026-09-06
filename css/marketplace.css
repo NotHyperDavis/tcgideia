@@ -253,7 +253,7 @@
 
 .seller-link {
     display: block;
-    color: #9A9287;
+    color: var(--text, #201D1A);
     text-decoration: none;
     margin: 10px 0 15px;
     font-size: 14px;
@@ -261,4 +261,30 @@
 
 .seller-link:hover {
     color: #A92C3D;
+}
+
+/* Etiquetas do cartão do marketplace (condição/idioma/variante e reputação) —
+   fundo bordô do site, texto branco. */
+.card .card-badge {
+    display: inline-block;
+    background: var(--accent, #8B1E2D);
+    color: #FFFFFF;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.card .rating-badge {
+    display: inline-block;
+    background: var(--accent, #8B1E2D);
+    color: #FFFFFF;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+}
+
+.card .rating-badge--empty {
+    background: var(--text-dim, #6F6961);
 }
