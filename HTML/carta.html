@@ -110,9 +110,45 @@
                 </p>
             </div>
 
-            <div class="offers-sort">
-                <span>Ordenado por</span>
-                <strong>Preço mais baixo</strong>
+            <button type="button" id="offersFiltersToggle" class="offers-filters-toggle">
+                🔍 Filtros <span id="offersFiltersCount"></span> ▾
+            </button>
+
+        </div>
+
+        <div class="offers-filters" id="offersFilters" style="display:none;">
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Condição</span>
+                <label><input type="checkbox" class="offer-condition-filter" value="mint"> Mint</label>
+                <label><input type="checkbox" class="offer-condition-filter" value="near_mint"> Near Mint</label>
+                <label><input type="checkbox" class="offer-condition-filter" value="excellent"> Excelente</label>
+                <label><input type="checkbox" class="offer-condition-filter" value="good"> Boa</label>
+                <label><input type="checkbox" class="offer-condition-filter" value="played"> Usada</label>
+                <label><input type="checkbox" class="offer-condition-filter" value="poor"> Danificada</label>
+            </div>
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Idioma</span>
+                <label><input type="checkbox" class="offer-language-filter" value="PT"> Português</label>
+                <label><input type="checkbox" class="offer-language-filter" value="EN"> Inglês</label>
+                <label><input type="checkbox" class="offer-language-filter" value="ES"> Espanhol</label>
+                <label><input type="checkbox" class="offer-language-filter" value="JP"> Japonês</label>
+            </div>
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Variante</span>
+                <label><input type="checkbox" class="offer-variant-filter" value="foil"> Foil</label>
+                <label><input type="checkbox" class="offer-variant-filter" value="holo"> Holo</label>
+                <label><input type="checkbox" class="offer-variant-filter" value="reverse_holo"> Reverse Holo</label>
+            </div>
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Ordenar</span>
+                <select id="offersSortSelect">
+                    <option value="price_asc">Preço: menor → maior</option>
+                    <option value="price_desc">Preço: maior → menor</option>
+                </select>
             </div>
 
         </div>

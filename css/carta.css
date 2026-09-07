@@ -781,3 +781,80 @@
             42px;
     }
 }
+/* Botão para abrir/fechar os filtros */
+.offers-filters-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border: 1px solid var(--border, #DDD6C8);
+    border-radius: 10px;
+    background: var(--panel, #FFFFFF);
+    color: var(--text, #201D1A);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.offers-filters-toggle:hover {
+    border-color: var(--accent, #8B1E2D);
+}
+
+#offersFiltersCount {
+    color: var(--accent, #8B1E2D);
+    font-weight: 700;
+}
+
+/* Painel de filtros — compacto, escondido por defeito */
+.offers-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    background: var(--panel-2, #F8F5EF);
+    border: 1px solid var(--border, #DDD6C8);
+    border-radius: 12px;
+}
+
+.offers-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.offers-filter-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim, #6F6961);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-right: 2px;
+    min-width: 70px;
+}
+
+.offers-filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--text, #201D1A);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.offers-filter-group input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+
+#offersSortSelect {
+    padding: 6px 10px;
+    border: 1px solid var(--border, #DDD6C8);
+    border-radius: 8px;
+    background: var(--panel, #FFFFFF);
+    color: var(--text, #201D1A);
+    font-size: 13px;
+}

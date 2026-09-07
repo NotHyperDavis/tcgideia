@@ -27,6 +27,8 @@ const game = params.get("game");
 const offersList = document.getElementById("offersList");
 const emptyOffers = document.getElementById("emptyOffers");
 
+let allOffers = []; // guarda tudo o que veio do servidor, para filtrar sem voltar a pedir
+
 async function loadOffers() {
     if (!cardId || !game) {
         offersList.innerHTML = "<p>Carta não indicada.</p>";
@@ -42,18 +44,58 @@ async function loadOffers() {
             return;
         }
 
-        const offers = allListings
-            .filter(l => l.card_id === cardId && l.game === game)
-            .sort((a, b) => Number(a.price) - Number(b.price));
+        allOffers = allListings.filter(l => l.card_id === cardId && l.game === game);
 
-        renderHeader(offers);
-        renderOffers(offers);
+        renderHeader(allOffers);
+        applyOfferFilters();
 
     } catch (error) {
         console.error(error);
         offersList.innerHTML = "<p>Erro ao ligar ao servidor.</p>";
     }
 }
+
+function applyOfferFilters() {
+    let offers = [...allOffers];
+
+    const checkedConditions = Array.from(document.querySelectorAll(".offer-condition-filter:checked")).map(c => c.value);
+    if (checkedConditions.length > 0) {
+        offers = offers.filter(o => checkedConditions.includes(o.condition));
+    }
+
+    const checkedLanguages = Array.from(document.querySelectorAll(".offer-language-filter:checked")).map(c => c.value);
+    if (checkedLanguages.length > 0) {
+        offers = offers.filter(o => checkedLanguages.includes(o.language));
+    }
+
+    const checkedVariants = Array.from(document.querySelectorAll(".offer-variant-filter:checked")).map(c => c.value);
+    if (checkedVariants.length > 0) {
+        offers = offers.filter(o => checkedVariants.includes(o.variant));
+    }
+
+    const sortValue = document.getElementById("offersSortSelect")?.value;
+    offers.sort((a, b) =>
+        sortValue === "price_desc"
+            ? Number(b.price) - Number(a.price)
+            : Number(a.price) - Number(b.price)
+    );
+
+    const totalActive = checkedConditions.length + checkedLanguages.length + checkedVariants.length;
+    const countEl = document.getElementById("offersFiltersCount");
+    if (countEl) countEl.textContent = totalActive > 0 ? `(${totalActive})` : "";
+
+    renderOffers(offers);
+}
+
+document.querySelectorAll(".offer-condition-filter, .offer-language-filter, .offer-variant-filter")
+    .forEach(cb => cb.addEventListener("change", applyOfferFilters));
+
+document.getElementById("offersSortSelect")?.addEventListener("change", applyOfferFilters);
+
+document.getElementById("offersFiltersToggle")?.addEventListener("click", () => {
+    const panel = document.getElementById("offersFilters");
+    panel.style.display = panel.style.display === "none" ? "flex" : "none";
+});
 
 function renderHeader(offers) {
     const first = offers[0];

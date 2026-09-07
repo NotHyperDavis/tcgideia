@@ -683,9 +683,13 @@ main {
     background:
         linear-gradient(
             180deg,
-            #8B1E2D,
-            #421019
-        );
+            rgba(20, 14, 10, .05) 40%,
+            rgba(20, 14, 10, .88) 100%
+        ),
+        url("../assets/images/category-pokemon.jpg");
+
+    background-size: cover;
+    background-position: center;
 
     text-decoration: none;
 
@@ -706,40 +710,43 @@ main {
     background:
         linear-gradient(
             180deg,
-            #9A6A36,
-            #4A301A
-        );
+            rgba(20, 14, 10, .05) 40%,
+            rgba(20, 14, 10, .88) 100%
+        ),
+        url("../assets/images/category-onepiece.jpg");
+
+    background-size: cover;
+    background-position: center;
 }
 
 .category-card:nth-child(3) {
     background:
         linear-gradient(
             180deg,
-            #6B5365,
-            #2C202A
-        );
+            rgba(20, 14, 10, .05) 40%,
+            rgba(20, 14, 10, .88) 100%
+        ),
+        url("../assets/images/category-yugioh.jpg");
+
+    background-size: cover;
+    background-position: center;
 }
 
 .category-card:nth-child(4) {
     background:
         linear-gradient(
             180deg,
-            #596044,
-            #25291E
-        );
+            rgba(20, 14, 10, .05) 40%,
+            rgba(20, 14, 10, .88) 100%
+        ),
+        url("../assets/images/category-magic.jpg");
+
+    background-size: cover;
+    background-position: center;
 }
 
 .category-bg {
-    position: absolute;
-
-    top: 8px;
-    right: 10px;
-
-    color: rgba(255,255,255,.18);
-
-    font-size: 105px;
-
-    transform: rotate(10deg);
+    display: none; /* o emoji de placeholder já não é preciso, agora há uma foto a sério */
 }
 
 .category-card > div:last-child {
