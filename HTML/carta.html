@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
+    <link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
+    <title>Carta - TCGMarketPortugal</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/marketplace.css">
+
+</head>
+<body>
+
+    <header class="navbar">
+    <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
+
+    <nav class="user-nav">
+        <div class="dropdown">
+            <a href="#" class="nav-link">As Minhas Coisas ▼</a>
+            <div class="dropdown-content">
+                <a href="mensagens.html">As Minhas Mensagens</a>
+                <a href="encomendas.html">As Minhas Compras</a>
+                <a href="my-listings.html">Os Meus Anúncios</a>
+                <a href="wishlist.html">❤️ Lista de Desejos</a>
+            </div>
+        </div>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="sell.html">Vender</a>
+        <a href="login.html">Entrar</a>
+    </nav>
+</header>
+
+    <main class="page" style="max-width:1000px;">
+
+        <p><a href="marketplace.html">← Voltar ao Marketplace</a></p>
+
+        <div id="cardHeader" style="display:flex; align-items:center; gap:20px; margin:20px 0 30px;">
+            <img id="cardHeaderImage" src="" style="width:100px; border-radius:10px;">
+            <div>
+                <h1 id="cardHeaderName" style="margin:0;">A carregar...</h1>
+                <p id="cardHeaderCount" style="color:var(--text-dim); margin:6px 0 0;"></p>
+            </div>
+        </div>
+
+        <div class="listing-results" id="offersList"></div>
+
+        <div id="emptyOffers" style="display:none; text-align:center; padding:60px 20px; color:var(--text-dim);">
+            <p>Já não há anúncios ativos para esta carta.</p>
+        </div>
+
+    </main>
+
+<footer class="site-footer">
+    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="sobre.html">Sobre Nós</a> <span class="footer-divider">·</span> <a href="contactos.html">Contactos</a> <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a> <span class="footer-divider">·</span> <a href="envios.html">Envios</a> <span class="footer-divider">·</span> <a href="resolucao-de-conflitos.html">Resolução de Conflitos</a></p>
+</footer>
+
+<script src="../js/config.js"></script>
+<script src="../js/carta.js"></script>
+<script src="../js/auth-nav.js"></script>
+
+</body>
+</html>

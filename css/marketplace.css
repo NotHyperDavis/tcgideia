@@ -169,7 +169,7 @@
 }
 
 .listing-row-name a {
-    color: white;
+    color: var(--text, #201D1A);
     text-decoration: none;
     font-weight: 600;
     font-size: 14px;
@@ -221,7 +221,7 @@
     text-align: right;
     background: none;
     padding: 0;
-    color: white;
+    color: var(--accent, #8B1E2D);
 }
 
 .listing-row-cart-btn {

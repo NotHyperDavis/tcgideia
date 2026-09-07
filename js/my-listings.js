@@ -20,6 +20,7 @@ const STATUS_LABELS = {
 
 const PAYMENT_STATUS_LABELS = { pending: "Pendente", paid: "Pago", cancelled: "Cancelado" };
 const ORDER_STATUS_LABELS = { committed: "Comprometido", shipped: "Enviado", completed: "Concluído", cancelled: "Cancelado" };
+const SHIPPING_SERVICE_LABELS = { normal: "Correio Normal", azul: "Correio Azul", registado: "Correio Registado" };
 
 if (!token) {
     loginWarning.style.display = "block";
@@ -92,6 +93,13 @@ function renderListing(listing, orders) {
             <label>Quantidade</label>
             <input type="number" min="1" class="edit-quantity" value="${listing.quantity}">
 
+            <label>Serviço de envio</label>
+            <select class="edit-shipping-service">
+                <option value="normal" ${listing.shipping_service === "normal" ? "selected" : ""}>Correio Normal</option>
+                <option value="azul" ${(!listing.shipping_service || listing.shipping_service === "azul") ? "selected" : ""}>Correio Azul</option>
+                <option value="registado" ${listing.shipping_service === "registado" ? "selected" : ""}>Correio Registado</option>
+            </select>
+
             <label>Estado</label>
             <select class="edit-status">
                 ${Object.entries(STATUS_LABELS).map(([value, label]) =>
@@ -156,7 +164,7 @@ function renderOrder(order) {
                         ? ` <span style="color:var(--success, #4ADE80);">✓ já repassado</span>`
                         : ` <span style="color:var(--text-dim);">(retido até o comprador confirmar receção)</span>`}
                 </p>
-                <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${ORDER_STATUS_LABELS[order.status]}</p>
+                <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${ORDER_STATUS_LABELS[order.status]} · Envio: ${SHIPPING_SERVICE_LABELS[order.shipping_service] ?? "Correio Azul"}</p>
                 ${order.payment_status === "paid" ? `<button class="invoice-btn" data-order-id="${order.id}">📄 Recibo</button>` : ""}
 
                 ${order.payment_status === "paid" && order.status === "committed" ? `<button class="mark-shipped-btn" data-order-id="${order.id}">Marcar como enviado</button>` : ""}
@@ -277,6 +285,7 @@ async function saveListing(el, id) {
         condition: el.querySelector(".edit-condition").value,
         quantity: el.querySelector(".edit-quantity").value,
         status: el.querySelector(".edit-status").value,
+        shipping_service: el.querySelector(".edit-shipping-service").value,
     };
 
     try {

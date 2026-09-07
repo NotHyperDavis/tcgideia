@@ -530,6 +530,15 @@ async function loadProduct() {
 
 
                                 <span class="detail-label">
+                                    Envio
+                                </span>
+
+                                <span class="detail-value">
+                                    ${{ normal: "Correio Normal", azul: "Correio Azul", registado: "Correio Registado" }[listing.shipping_service] ?? "Correio Azul"}
+                                </span>
+
+
+                                <span class="detail-label">
                                     Quantidade
                                 </span>
 

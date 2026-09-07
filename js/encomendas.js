@@ -71,9 +71,35 @@ async function loadPurchases() {
                     ${order.status === "committed" ? `<button class="cancel-btn">Cancelar</button>` : ""}
                     ${order.status === "shipped" ? `<button class="confirm-received-btn">Confirma Receção</button>` : ""}
                     ${order.status === "completed" ? `<button class="confirm-review-btn">Avaliar Vendedor</button>` : ""}
+                    ${order.status !== "cancelled" ? `<button class="dispute-btn" data-order-id="${order.id}">⚠️ Abrir Reclamação</button>` : ""}
                     <button class="chat-btn" data-order-id="${order.id}" data-conversation-id="${order.conversation_id ?? ''}" data-other-user-id="${order.seller_id ?? order.buyer_id}" data-listing-id="${order.listing_id}">💬 Conversa</button>
                 </div>
+                <div class="dispute-form" id="disputeForm-${order.id}" style="display:none; margin-top:12px; padding:14px; border:1px solid var(--border, #DDD6C8); border-radius:10px; background:var(--panel-2, #F8F5EF);">
+                    <label>Motivo</label>
+                    <select class="dispute-reason">
+                        <option value="nao_chegou">A carta não chegou</option>
+                        <option value="diferente_do_anuncio">A carta é diferente do anunciado</option>
+                        <option value="vendedor_nao_responde">O vendedor não responde</option>
+                        <option value="outro">Outro motivo</option>
+                    </select>
+                    <label>Descrição</label>
+                    <textarea class="dispute-description" rows="3" placeholder="Explica o que se passou..."></textarea>
+                    <button class="dispute-submit-btn" data-order-id="${order.id}">Enviar reclamação</button>
+                    <button class="dispute-cancel-btn" data-order-id="${order.id}" type="button">Cancelar</button>
+                    <p class="dispute-message" style="font-size:13px; margin-top:6px;"></p>
+                </div>
             `;
+
+            el.querySelector(".dispute-btn")?.addEventListener("click", () => {
+                const form = document.getElementById(`disputeForm-${order.id}`);
+                form.style.display = form.style.display === "none" ? "block" : "none";
+            });
+
+            el.querySelector(".dispute-cancel-btn")?.addEventListener("click", () => {
+                document.getElementById(`disputeForm-${order.id}`).style.display = "none";
+            });
+
+            el.querySelector(".dispute-submit-btn")?.addEventListener("click", () => submitDispute(order.id, el));
 
             el.querySelector(".cancel-btn")?.addEventListener("click", () => cancelOrder(order.id));
             el.querySelector(".confirm-received-btn")?.addEventListener("click", () => confirmReceived(order.id));
@@ -173,6 +199,51 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+async function submitDispute(orderId, el) {
+    const form = el.querySelector(".dispute-form");
+    const reason = form.querySelector(".dispute-reason").value;
+    const description = form.querySelector(".dispute-description").value.trim();
+    const messageEl = form.querySelector(".dispute-message");
+    const submitBtn = form.querySelector(".dispute-submit-btn");
+
+    if (!description) {
+        messageEl.textContent = "Descreve o que se passou, por favor.";
+        return;
+    }
+
+    submitBtn.disabled = true;
+    messageEl.textContent = "A enviar...";
+
+    try {
+        const response = await fetch(`${API_BASE}/disputes`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ order_id: orderId, reason, description }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            messageEl.textContent = data.error || "Erro ao enviar a reclamação.";
+            submitBtn.disabled = false;
+            return;
+        }
+
+        messageEl.textContent = "Reclamação enviada! A nossa equipa vai analisar.";
+        form.querySelector(".dispute-description").disabled = true;
+        form.querySelector(".dispute-reason").disabled = true;
+        submitBtn.style.display = "none";
+
+    } catch (error) {
+        console.error(error);
+        messageEl.textContent = "Erro ao ligar ao servidor.";
+        submitBtn.disabled = false;
+    }
+}
+
 async function downloadInvoice(orderId) {
     try {
         const response = await fetch(`${API_BASE}/orders/${orderId}/invoice`, {

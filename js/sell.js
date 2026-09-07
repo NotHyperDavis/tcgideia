@@ -230,6 +230,7 @@ listingForm.addEventListener("submit", async (e) => {
                 real_photo_url,
                 language: document.getElementById("language").value,
                 variant: document.getElementById("variantSelect").value,
+                shipping_service: document.getElementById("shippingServiceSelect").value,
             }),
         });
 

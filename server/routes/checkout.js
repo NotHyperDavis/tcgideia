@@ -15,24 +15,31 @@ function commissionRateFor(accountType) {
 }
 const COMMISSION_CAP = Number(process.env.COMMISSION_CAP) || 100; // nunca mais que isto por carta
 
-// Tem de ser exatamente igual à função em orders.js e no product.js do frontend
-function estimateWeight(quantity) {
-    return 15 + quantity * 2;
-}
+// Tarifário CTT 2026, categoria "Pacote postal" (bens e documentos).
+const CTT_RATES = {
+    normal: {
+        PT: [[20, 1.58], [50, 1.58], [100, 1.58], [500, 2.34], [2000, 5.55]],
+        ES: [[20, 2.65], [50, 2.65], [100, 2.65], [250, 4.25], [500, 7.05], [1000, 10.85], [2000, 18.47]],
+    },
+    azul: {
+        PT: [[20, 2.10], [50, 2.10], [100, 2.10], [500, 3.90], [2000, 7.80]],
+        ES: [[20, 5.80], [50, 5.80], [100, 5.80], [250, 7.55], [500, 9.80], [1000, 13.20], [2000, 21.20]],
+    },
+    registado: {
+        PT: [[20, 4.60], [50, 4.60], [100, 4.60], [500, 5.40], [2000, 8.93]],
+        ES: [[20, 7.30], [50, 7.30], [100, 7.30], [250, 8.60], [500, 11.10], [1000, 15.55], [2000, 23.35]],
+    },
+};
 
-// Correio Azul da CTT (tarifário 2026) — serviço recomendado para bens ao estrangeiro.
-function calcShipping(totalWeightGrams, country = "PT") {
-    if (country === "ES") {
-        if (totalWeightGrams <= 100) return 2.10;
-        if (totalWeightGrams <= 500) return 3.90;
-        return 7.80;
+function calcShipping(totalWeightGrams, country = "PT", service = "azul") {
+    const table = CTT_RATES[service] || CTT_RATES.azul;
+    const bands = table[country === "ES" ? "ES" : "PT"];
+
+    for (const [maxWeight, price] of bands) {
+        if (totalWeightGrams <= maxWeight) return price;
     }
 
-    if (totalWeightGrams <= 20) return 1.15;
-    if (totalWeightGrams <= 50) return 1.50;
-    if (totalWeightGrams <= 100) return 1.80;
-    if (totalWeightGrams <= 500) return 3.00;
-    return 5.55;
+    return bands[bands.length - 1][1];
 }
 
 // POST /checkout/session — cria a sessão de pagamento por cartão (Stripe Checkout)
@@ -84,8 +91,8 @@ router.post("/session", requireAuth, requireVerifiedEmail, async (req, res) => {
         const buyerCountry = buyerResult.rows[0]?.country || "PT";
 
         const basePrice = Number((listing.price * quantity).toFixed(2));
-        const totalWeight = estimateWeight(quantity);
-        const shippingCost = calcShipping(totalWeight, buyerCountry);
+        const totalWeight = 10 + (listing.weight_grams || 5) * quantity;
+        const shippingCost = calcShipping(totalWeight, buyerCountry, listing.shipping_service);
 
         // O comprador paga só o preço da carta + portes reais.
         const totalPrice = Number((basePrice + shippingCost).toFixed(2));
@@ -122,6 +129,7 @@ router.post("/session", requireAuth, requireVerifiedEmail, async (req, res) => {
                 shipping_postal_code: shipping.postal_code,
                 shipping_city: shipping.city,
                 shipping_country: buyerCountry,
+                shipping_service: listing.shipping_service || "azul",
                 platform_fee: String(platformFee),
                 total_price: String(totalPrice),
                 seller_payout: String(sellerPayout),

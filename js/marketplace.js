@@ -95,14 +95,9 @@ function renderListings(listings) {
 const resultsCount = document.getElementById("resultsCount");
 const emptyState = document.getElementById("emptyState");
 
-if (resultsCount) {
-    resultsCount.textContent =
-        listings.length === 1
-            ? "1 carta encontrada"
-            : `${listings.length} cartas encontradas`;
-}
-
 if (listings.length === 0) {
+
+    if (resultsCount) resultsCount.textContent = "0 cartas encontradas";
 
     if (emptyState) {
         emptyState.style.display = "block";
@@ -115,34 +110,70 @@ if (emptyState) {
     emptyState.style.display = "none";
 }
 
+    // Agrupa os anúncios por carta (mesmo jogo + mesma carta) — mostra-se um
+    // resultado por carta, com o preço mais baixo e o número de vendedores,
+    // tal como a Cardmarket. Clicar leva à lista de todos os vendedores dessa carta.
+    const groups = {};
+
     listings.forEach(listing => {
+        const key = `${listing.game}::${listing.card_id}`;
+
+        if (!groups[key]) {
+            groups[key] = {
+                game: listing.game,
+                card_id: listing.card_id,
+                card_name: listing.card_name,
+                card_image: listing.card_image,
+                listings: [],
+            };
+        }
+
+        groups[key].listings.push(listing);
+    });
+
+    const groupedCards = Object.values(groups);
+
+    if (resultsCount) {
+        resultsCount.textContent =
+            groupedCards.length === 1
+                ? "1 carta encontrada"
+                : `${groupedCards.length} cartas encontradas`;
+    }
+
+    groupedCards.forEach(group => {
+
+        const lowestPrice = Math.min(...group.listings.map(l => Number(l.price)));
+        const sellerCount = new Set(group.listings.map(l => l.user_id)).size;
 
         const card = document.createElement("div");
-        card.className = "card";
+        card.className = "listing-row-market";
         card.style.cursor = "pointer";
 
         card.innerHTML = `
-            <img src="${listing.card_image ?? ""}">
-            <h3>${escapeHtml(listing.card_name)}</h3>
-            <p>
-                <a href="perfil.html?id=${listing.user_id}" class="seller-link">${escapeHtml(listing.seller_name)}</a>
-                ${listing.seller_review_count > 0 ? `<span style="font-size:12px; color:var(--gold, #B88A3B);">★ ${Number(listing.seller_rating).toFixed(1)} (${listing.seller_review_count})</span>` : `<span style="font-size:12px; color:var(--text-dim);">Sem avaliações</span>`}
-            </p>
-            <span>${GAME_LABELS[listing.game] ?? listing.game} · ${CONDITION_LABELS[listing.condition] ?? listing.condition} · ${LANGUAGE_LABELS[listing.language] ?? listing.language}${VARIANT_LABELS[listing.variant] ?? ""}</span>
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                <strong>${Number(listing.price).toFixed(2)} €</strong>
-                <button class="quick-buy-btn" data-listing-id="${listing.id}" title="Adicionar ao carrinho rapidamente" style="background:var(--accent); color:#fff; border:none; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:16px; line-height:1;">🛒</button>
+            <img src="${group.card_image ?? ""}" class="listing-row-img">
+
+            <div class="listing-row-name">
+                <a href="carta.html?game=${group.game}&card_id=${encodeURIComponent(group.card_id)}">${escapeHtml(group.card_name)}</a>
             </div>
+
+            <div class="listing-row-seller">
+                <span>${sellerCount === 1 ? "1 vendedor" : `${sellerCount} vendedores`}</span>
+            </div>
+
+            <div class="listing-row-condition">${GAME_LABELS[group.game] ?? group.game}</div>
+
+            <div class="listing-row-qty"></div>
+
+            <div class="listing-row-price">
+                <span style="display:block; font-size:11px; font-weight:400; color:var(--text-dim, #6F6961);">a partir de</span>
+                ${lowestPrice.toFixed(2)} €
+            </div>
+
+            <span></span>
         `;
 
-        card.addEventListener("click", (e) => {
-            if (e.target.closest(".seller-link") || e.target.closest(".quick-buy-btn")) return;
-            window.location.href = `product.html?id=${listing.id}`;
-        });
-
-        card.querySelector(".quick-buy-btn").addEventListener("click", (e) => {
-            e.stopPropagation();
-            quickAddToCart(listing.id, e.currentTarget);
+        card.addEventListener("click", () => {
+            window.location.href = `carta.html?game=${group.game}&card_id=${encodeURIComponent(group.card_id)}`;
         });
 
         container.appendChild(card);

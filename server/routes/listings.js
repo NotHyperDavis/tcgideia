@@ -166,9 +166,10 @@ router.get("/:id", async (req, res) => {
 const VALID_LANGUAGES = ["PT", "EN", "ES", "FR", "DE", "IT", "JP", "KO", "ZH"];
 const VALID_GAMES = ["pokemon", "yugioh", "magic", "onepiece"];
 const VALID_VARIANTS = ["normal", "foil", "holo", "reverse_holo"];
+const VALID_SHIPPING_SERVICES = ["normal", "azul", "registado"];
 
 router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
-    const { card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, variant, game, set_name } = req.body;
+    const { card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, variant, game, set_name, shipping_service } = req.body;
 
     if (!card_id || !card_name || !price || !condition) {
         return res.status(400).json({ error: "Faltam campos obrigatórios (carta, preço, condição)." });
@@ -194,16 +195,20 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
         return res.status(400).json({ error: "Variante inválida." });
     }
 
+    if (shipping_service && !VALID_SHIPPING_SERVICES.includes(shipping_service)) {
+        return res.status(400).json({ error: "Serviço de envio inválido." });
+    }
+
     if (Number(price) <= 0) {
         return res.status(400).json({ error: "O preço tem de ser maior que zero." });
     }
 
     try {
         const result = await pool.query(
-            `INSERT INTO listings (user_id, card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, is_foil, variant, game, set_name)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            `INSERT INTO listings (user_id, card_id, card_name, card_image, price, condition, quantity, description, real_photo_url, language, is_foil, variant, game, set_name, shipping_service)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
              RETURNING *`,
-            [req.user.id, card_id, card_name, card_image || null, price, condition, quantity || 1, description || null, real_photo_url || null, language || "EN", (variant || "normal") !== "normal", variant || "normal", game || "pokemon", set_name || null]
+            [req.user.id, card_id, card_name, card_image || null, price, condition, quantity || 1, description || null, real_photo_url || null, language || "EN", (variant || "normal") !== "normal", variant || "normal", game || "pokemon", set_name || null, shipping_service || "azul"]
         );
 
         res.status(201).json(result.rows[0]);
@@ -215,10 +220,14 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
 
 // PATCH /listings/:id — edita um anúncio (só o dono pode editar)
 router.patch("/:id", requireAuth, async (req, res) => {
-    const { price, condition, quantity, description, status, language, variant } = req.body;
+    const { price, condition, quantity, description, status, language, variant, shipping_service } = req.body;
 
     if (status && !["active", "removed"].includes(status)) {
         return res.status(400).json({ error: "Não podes definir esse estado diretamente — \"vendido\" só é atribuído automaticamente quando a quantidade chega a zero." });
+    }
+
+    if (shipping_service && !VALID_SHIPPING_SERVICES.includes(shipping_service)) {
+        return res.status(400).json({ error: "Serviço de envio inválido." });
     }
 
     if (quantity !== undefined && (!Number.isInteger(Number(quantity)) || Number(quantity) < 0)) {
@@ -246,10 +255,11 @@ router.patch("/:id", requireAuth, async (req, res) => {
                 language = COALESCE($6, language),
                 variant = COALESCE($7, variant),
                 is_foil = COALESCE($7, variant) != 'normal',
+                shipping_service = COALESCE($8, shipping_service),
                 updated_at = NOW()
-             WHERE id = $8
+             WHERE id = $9
              RETURNING *`,
-            [price, condition, quantity, description, status, language, variant, req.params.id]
+            [price, condition, quantity, description, status, language, variant, shipping_service, req.params.id]
         );
 
         res.json(result.rows[0]);

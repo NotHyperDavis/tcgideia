@@ -15,18 +15,40 @@ function commissionRateFor(accountType) {
     return accountType === "store" ? COMMISSION_RATE_STORE : COMMISSION_RATE_INDIVIDUAL;
 }
 
-function calcShipping(totalWeightGrams, country = "PT") {
-    if (country === "ES") {
-        if (totalWeightGrams <= 100) return 2.10;
-        if (totalWeightGrams <= 500) return 3.90;
-        return 7.80;
+// Tarifário CTT 2026, categoria "Pacote postal" (bens e documentos).
+const CTT_RATES = {
+    normal: {
+        PT: [[20, 1.58], [50, 1.58], [100, 1.58], [500, 2.34], [2000, 5.55]],
+        ES: [[20, 2.65], [50, 2.65], [100, 2.65], [250, 4.25], [500, 7.05], [1000, 10.85], [2000, 18.47]],
+    },
+    azul: {
+        PT: [[20, 2.10], [50, 2.10], [100, 2.10], [500, 3.90], [2000, 7.80]],
+        ES: [[20, 5.80], [50, 5.80], [100, 5.80], [250, 7.55], [500, 9.80], [1000, 13.20], [2000, 21.20]],
+    },
+    registado: {
+        PT: [[20, 4.60], [50, 4.60], [100, 4.60], [500, 5.40], [2000, 8.93]],
+        ES: [[20, 7.30], [50, 7.30], [100, 7.30], [250, 8.60], [500, 11.10], [1000, 15.55], [2000, 23.35]],
+    },
+};
+
+// Prioridade de proteção — usado quando um comprador leva vários anúncios do
+// mesmo vendedor com serviços de envio diferentes: usa-se sempre o mais seguro.
+const SHIPPING_SERVICE_PRIORITY = ["registado", "azul", "normal"];
+
+function pickShippingService(items) {
+    const services = items.map(i => i.shipping_service || "azul");
+    return SHIPPING_SERVICE_PRIORITY.find(s => services.includes(s)) || "azul";
+}
+
+function calcShipping(totalWeightGrams, country = "PT", service = "azul") {
+    const table = CTT_RATES[service] || CTT_RATES.azul;
+    const bands = table[country === "ES" ? "ES" : "PT"];
+
+    for (const [maxWeight, price] of bands) {
+        if (totalWeightGrams <= maxWeight) return price;
     }
 
-    if (totalWeightGrams <= 20) return 1.15;
-    if (totalWeightGrams <= 50) return 1.50;
-    if (totalWeightGrams <= 100) return 1.80;
-    if (totalWeightGrams <= 500) return 3.00;
-    return 5.55;
+    return bands[bands.length - 1][1];
 }
 
 // POST /cart — adicionar (ou aumentar) um anúncio no carrinho
@@ -105,7 +127,7 @@ router.get("/", requireAuth, async (req, res) => {
         for (const sellerId in bySeller) {
             const sellerItems = bySeller[sellerId];
             const weight = 10 + sellerItems.reduce((sum, i) => sum + (i.weight_grams || 5) * i.quantity, 0);
-            shippingTotal += calcShipping(weight, buyerCountry);
+            shippingTotal += calcShipping(weight, buyerCountry, pickShippingService(sellerItems));
 
             sellerItems.forEach(item => {
                 const itemBase = item.price * item.quantity;
@@ -229,7 +251,7 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
         for (const sellerId in bySeller) {
             const sellerItems = bySeller[sellerId];
             const totalWeight = 10 + sellerItems.reduce((sum, i) => sum + (i.weight_grams || 5) * i.cart_quantity, 0);
-            const shippingCost = calcShipping(totalWeight, buyerCountry);
+            const shippingCost = calcShipping(totalWeight, buyerCountry, pickShippingService(sellerItems));
 
             sellerItems.forEach((item, index) => {
                 const basePrice = Number((item.price * item.cart_quantity).toFixed(2));
@@ -253,6 +275,7 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
                     platform_fee: platformFee,
                     seller_payout: sellerPayout,
                     shipping_cost: itemShipping,
+                    shipping_service: item.shipping_service || "azul",
                 });
             });
         }
@@ -283,13 +306,13 @@ router.post("/checkout", requireAuth, requireVerifiedEmail, async (req, res) => 
             const conversationId = await findOrCreateConversation(client, req.user.id, order.seller_id, listing.id);
 
             const orderResult = await client.query(
-                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost,
+                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost, shipping_service,
                                      shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country, conversation_id)
-                 VALUES ($1, $2, $3, $4, $5, $6, 'wallet', $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'wallet', $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                  RETURNING *`,
                 [listing.id, req.user.id, order.seller_id, order.quantity, order.unit_price, order.total_price,
                  walletHasFunds ? "paid" : "pending",
-                 order.platform_fee, order.seller_payout, order.shipping_cost,
+                 order.platform_fee, order.seller_payout, order.shipping_cost, order.shipping_service,
                  shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry, conversationId]
             );
 

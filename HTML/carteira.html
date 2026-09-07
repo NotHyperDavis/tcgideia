@@ -6,19 +6,17 @@
     <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
     <link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
     <link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
-    <title>Carteira - TCG Ideia</title>
-
+    <title>Carteira - TCGMarketPortugal</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/app.css">
+    <link rel="stylesheet" href="../css/carteira.css">
 </head>
 <body>
 
-
 <header class="navbar">
     <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
-
 
     <nav class="user-nav">
         <div class="dropdown">
@@ -36,74 +34,168 @@
     </nav>
 </header>
 
-<div class="page">
-
-    
-    <h1>A Minha Carteira</h1>
-
-    <div id="loginWarning" style="display:none;">
+<main class="wallet-page">
+    <div id="loginWarning" class="wallet-login-warning" style="display:none;">
         <p>Precisas de <a href="login.html">iniciar sessão</a> para veres a tua carteira.</p>
     </div>
 
     <div id="walletFlow">
 
-        <div class="panel">
-            <p style="font-size:14px; color:var(--text-dim); margin-bottom:6px;">Saldo disponível</p>
-            <p style="font-size:42px; font-weight:800;" id="balance">—</p>
-        </div>
-
-        <div style="display:flex; gap:20px; flex-wrap:wrap;">
-
-            <div class="panel" style="flex:1; min-width:280px;">
-                <h2 style="margin-top:0;">Depositar</h2>
-
-                <h3 style="font-size:14px; color:var(--text-dim); margin-bottom:6px;">⚡ Instantâneo — Cartão ou MB WAY</h3>
-                <p style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">Taxa de depósito instantâneo: 5% + 0.35 €. Prefere sem taxa? Usa a transferência bancária abaixo.</p>
-                <form id="instantDepositForm">
-                    <label for="instantDepositAmount">Valor a receber na carteira (€)</label>
-                    <input type="number" id="instantDepositAmount" min="0.50" step="0.01" required>
-                    <p id="instantDepositFeePreview" style="font-size:12px; color:var(--text-dim);"></p>
-                    <button type="submit">Depositar agora</button>
-                </form>
-                <p id="instantDepositMessage"></p>
-
-                <hr style="border-color:var(--border); margin:20px 0;">
-
-                <h3 style="font-size:14px; color:var(--text-dim); margin-bottom:6px;">🏦 Transferência bancária</h3>
-                <p style="color:var(--text-dim); font-size:13px;">Transfere o valor para o IBAN do site (substitui por um IBAN real) e depois pede aqui o depósito. Confirmamos assim que recebermos — pode demorar 1-2 dias úteis.</p>
-
-                <form id="depositForm">
-                    <label for="depositAmount">Valor (€)</label>
-                    <input type="number" id="depositAmount" min="0.01" step="0.01" required>
-                    <button type="submit">Pedir depósito</button>
-                </form>
-                <p id="depositMessage"></p>
+        <section class="wallet-hero">
+            <div>
+                <span class="wallet-eyebrow">A MINHA CARTEIRA</span>
+                <h1>O teu dinheiro, num só lugar.</h1>
+                <p>Gere o teu saldo, depósitos e levantamentos do TCGMarketPortugal.</p>
             </div>
 
-            <div class="panel" style="flex:1; min-width:280px;">
-                <h2 style="margin-top:0;">Levantar</h2>
-                <p style="color:var(--text-dim); font-size:14px;">O valor sai já do teu saldo. Assim que enviarmos o dinheiro, confirmamos o pedido.</p>
+            <div class="wallet-balance-card">
+                <span>Saldo disponível</span>
+                <strong id="balance">—</strong>
+                <small>Disponível para compras e levantamentos</small>
+            </div>
+        </section>
+
+        <section class="wallet-actions">
+            <a href="#depositar" class="wallet-action wallet-action-primary">
+                <span class="wallet-action-icon">＋</span>
+                <span>
+                    <strong>Adicionar dinheiro</strong>
+                    <small>Cartão, MB WAY ou transferência</small>
+                </span>
+            </a>
+            <a href="#levantar" class="wallet-action">
+                <span class="wallet-action-icon">↗</span>
+                <span>
+                    <strong>Levantar dinheiro</strong>
+                    <small>Enviar saldo para o teu IBAN</small>
+                </span>
+            </a>
+        </section>
+
+        <section class="wallet-stats">
+            <article>
+                <span>DISPONÍVEL</span>
+                <strong id="statBalance">—</strong>
+            </article>
+            <article>
+                <span>PENDENTE</span>
+                <strong id="statPending">0,00 €</strong>
+            </article>
+            <article>
+                <span>MOVIMENTOS</span>
+                <strong id="statMovements">0</strong>
+            </article>
+        </section>
+
+        <section class="wallet-grid">
+
+            <div class="wallet-panel" id="depositar">
+                <div class="wallet-panel-heading">
+                    <div>
+                        <span class="wallet-section-label">ADICIONAR DINHEIRO</span>
+                        <h2>Depositar</h2>
+                    </div>
+                    <span class="wallet-panel-icon">€</span>
+                </div>
+
+                <div class="wallet-method wallet-method-highlight">
+                    <div class="wallet-method-title">
+                        <span>⚡</span>
+                        <strong>Cartão / MB WAY</strong>
+                        <em>Instantâneo</em>
+                    </div>
+                    <p>O dinheiro entra automaticamente depois da confirmação do pagamento.</p>
+
+                    <form id="instantDepositForm">
+                        <label for="instantDepositAmount">Valor a receber na carteira</label>
+                        <div class="wallet-input-wrap">
+                            <input type="number" id="instantDepositAmount" min="0.50" step="0.01" placeholder="20,00" required>
+                            <span>€</span>
+                        </div>
+                        <div id="instantDepositFeePreview" class="wallet-fee-preview">
+                            Introduz um valor para calcular a taxa.
+                        </div>
+                        <button type="submit">Depositar agora</button>
+                    </form>
+                    <p id="instantDepositMessage" class="wallet-message"></p>
+                </div>
+
+                <div class="wallet-divider"><span>ou</span></div>
+
+                <div class="wallet-method">
+                    <div class="wallet-method-title">
+                        <span>🏦</span>
+                        <strong>Transferência bancária</strong>
+                        <em>Sem taxa</em>
+                    </div>
+                    <p>Transfere para o IBAN do site e pede aqui a confirmação do depósito.</p>
+
+                    <form id="depositForm">
+                        <label for="depositAmount">Valor</label>
+                        <div class="wallet-input-wrap">
+                            <input type="number" id="depositAmount" min="0.01" step="0.01" placeholder="20,00" required>
+                            <span>€</span>
+                        </div>
+                        <button type="submit" class="wallet-secondary-btn">Pedir depósito</button>
+                    </form>
+                    <p id="depositMessage" class="wallet-message"></p>
+                </div>
+            </div>
+
+            <div class="wallet-panel" id="levantar">
+                <div class="wallet-panel-heading">
+                    <div>
+                        <span class="wallet-section-label">LEVANTAR DINHEIRO</span>
+                        <h2>Enviar para o banco</h2>
+                    </div>
+                    <span class="wallet-panel-icon">↗</span>
+                </div>
+
+                <div class="wallet-available">
+                    <span>Saldo disponível</span>
+                    <strong id="withdrawAvailable">—</strong>
+                </div>
+
+                <p class="wallet-panel-description">
+                    O valor é reservado imediatamente do teu saldo. Se o pedido for rejeitado, o dinheiro volta para a carteira.
+                </p>
 
                 <form id="withdrawForm">
-                    <label for="withdrawAmount">Valor (€)</label>
-                    <input type="number" id="withdrawAmount" min="10" step="0.01" placeholder="Mínimo 10 €" required>
+                    <label for="withdrawAmount">Valor a levantar</label>
+                    <div class="wallet-input-wrap">
+                        <input type="number" id="withdrawAmount" min="10" step="0.01" placeholder="Mínimo 10,00" required>
+                        <span>€</span>
+                    </div>
 
-                    <label for="withdrawIban">IBAN para onde enviar</label>
-                    <input type="text" id="withdrawIban" placeholder="PT50..." required>
+                    <label for="withdrawIban">IBAN</label>
+                    <input class="wallet-full-input" type="text" id="withdrawIban" placeholder="PT50..." autocomplete="off" required>
+
+                    <div class="wallet-withdraw-note">
+                        <span>✓</span>
+                        <p>Processamento manual. Normalmente 1–2 dias úteis.</p>
+                    </div>
 
                     <button type="submit">Pedir levantamento</button>
                 </form>
-                <p id="withdrawMessage"></p>
+                <p id="withdrawMessage" class="wallet-message"></p>
             </div>
 
-        </div>
+        </section>
 
-        <h2>Histórico</h2>
-        <div id="history"></div>
+        <section class="wallet-history-section">
+            <div class="wallet-history-heading">
+                <div>
+                    <span class="wallet-section-label">ATIVIDADE</span>
+                    <h2>Movimentos</h2>
+                </div>
+                <span id="historyCount" class="wallet-history-count">0 movimentos</span>
+            </div>
+
+            <div id="history" class="wallet-history"></div>
+        </section>
 
     </div>
-
-</div>
+</main>
 
 <script src="../js/config.js"></script>
 <script src="../js/auth-nav.js"></script>
@@ -112,6 +204,5 @@
 <footer class="site-footer">
     <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="sobre.html">Sobre Nós</a> <span class="footer-divider">·</span> <a href="contactos.html">Contactos</a> <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a> <span class="footer-divider">·</span> <a href="envios.html">Envios</a> <span class="footer-divider">·</span> <a href="resolucao-de-conflitos.html">Resolução de Conflitos</a></p>
 </footer>
-
 </body>
 </html>

@@ -114,7 +114,7 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             return res.json({ received: true });
         }
 
-        const { listing_id, buyer_id, seller_id, quantity, unit_price, shipping_cost, platform_fee, total_price, seller_payout,
+        const { listing_id, buyer_id, seller_id, quantity, unit_price, shipping_cost, shipping_service, platform_fee, total_price, seller_payout,
                 shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country } = session.metadata;
 
         const client = await pool.connect();
@@ -147,11 +147,11 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             const conversationId = await findOrCreateConversation(client, Number(buyer_id), Number(seller_id), Number(listing_id));
 
             const orderResult = await client.query(
-                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost, stripe_session_id, stripe_payment_intent_id,
+                `INSERT INTO orders (listing_id, buyer_id, seller_id, quantity, unit_price, total_price, payment_method, payment_status, platform_fee, seller_payout, shipping_cost, shipping_service, stripe_session_id, stripe_payment_intent_id,
                                      shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country, conversation_id)
-                 VALUES ($1, $2, $3, $4, $5, $6, 'stripe', 'paid', $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'stripe', 'paid', $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
                  RETURNING *`,
-                [listing_id, buyer_id, seller_id, quantity, unit_price, total_price, platform_fee, seller_payout, shipping_cost, session.id, session.payment_intent,
+                [listing_id, buyer_id, seller_id, quantity, unit_price, total_price, platform_fee, seller_payout, shipping_cost, shipping_service, session.id, session.payment_intent,
                  shipping_name, shipping_address_line, shipping_postal_code, shipping_city, shipping_country, conversationId]
             );
 
