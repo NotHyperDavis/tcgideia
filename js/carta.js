@@ -58,12 +58,43 @@ async function loadOffers() {
 function renderHeader(offers) {
     const first = offers[0];
 
-    document.getElementById("cardHeaderImage").src = first?.card_image ?? "";
-    document.getElementById("cardHeaderName").textContent = first?.card_name ?? "Carta não encontrada";
-    document.getElementById("cardHeaderCount").textContent =
-        offers.length === 1 ? "1 vendedor disponível" : `${offers.length} vendedores disponíveis`;
+    const cardName = first?.card_name ?? "Carta não encontrada";
+    const sellerCount = offers.length;
 
-    document.title = `${first?.card_name ?? "Carta"} - TCGMarketPortugal`;
+    document.getElementById("cardHeaderImage").src =
+        first?.card_image ?? "";
+
+    document.getElementById("cardHeaderImage").alt =
+        cardName;
+
+    document.getElementById("cardHeaderName").textContent =
+        cardName;
+
+    document.getElementById("breadcrumbCardName").textContent =
+        cardName;
+
+    document.getElementById("cardHeaderCount").textContent =
+        sellerCount === 1
+            ? "1 vendedor disponível"
+            : `${sellerCount} vendedores disponíveis`;
+
+    document.getElementById("cardSellerNumber").textContent =
+        sellerCount;
+
+    const minPrice = offers.length
+        ? Math.min(...offers.map(o => Number(o.price)))
+        : null;
+
+    document.getElementById("cardMinPrice").textContent =
+        minPrice !== null
+            ? `${minPrice.toFixed(2)} €`
+            : "—";
+
+    document.getElementById("cardGameBadge").textContent =
+        GAME_LABELS[game] ?? game ?? "TCG";
+
+    document.title =
+        `${cardName} - TCGMarketPortugal`;
 }
 
 function renderOffers(offers) {

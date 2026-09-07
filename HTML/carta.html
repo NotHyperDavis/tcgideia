@@ -3,25 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
     <link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
     <link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
+
     <title>Carta - TCGMarketPortugal</title>
 
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/marketplace.css">
-
+    <link rel="stylesheet" href="../css/carta.css">
 </head>
+
 <body>
 
-    <header class="navbar">
-    <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
+<header class="navbar">
+    <a href="main.html" class="logo">
+        <h2>TCGMarketPortugal</h2>
+    </a>
 
     <nav class="user-nav">
+
         <div class="dropdown">
             <a href="#" class="nav-link">As Minhas Coisas ▼</a>
+
             <div class="dropdown-content">
                 <a href="mensagens.html">As Minhas Mensagens</a>
                 <a href="encomendas.html">As Minhas Compras</a>
@@ -29,35 +36,145 @@
                 <a href="wishlist.html">❤️ Lista de Desejos</a>
             </div>
         </div>
+
         <a href="marketplace.html">Marketplace</a>
         <a href="sell.html">Vender</a>
         <a href="login.html">Entrar</a>
+
     </nav>
 </header>
 
-    <main class="page" style="max-width:1000px;">
 
-        <p><a href="marketplace.html">← Voltar ao Marketplace</a></p>
+<main class="card-page">
 
-        <div id="cardHeader" style="display:flex; align-items:center; gap:20px; margin:20px 0 30px;">
-            <img id="cardHeaderImage" src="" style="width:100px; border-radius:10px;">
-            <div>
-                <h1 id="cardHeaderName" style="margin:0;">A carregar...</h1>
-                <p id="cardHeaderCount" style="color:var(--text-dim); margin:6px 0 0;"></p>
+    <!-- Breadcrumb -->
+    <div class="card-breadcrumb">
+        <a href="marketplace.html">Marketplace</a>
+        <span>›</span>
+        <span id="breadcrumbCardName">Carta</span>
+    </div>
+
+
+    <!-- Hero da carta -->
+    <section class="card-hero">
+
+        <div class="card-hero-image">
+            <div class="card-image-frame">
+                <img id="cardHeaderImage" src="" alt="">
             </div>
         </div>
 
-        <div class="listing-results" id="offersList"></div>
 
-        <div id="emptyOffers" style="display:none; text-align:center; padding:60px 20px; color:var(--text-dim);">
-            <p>Já não há anúncios ativos para esta carta.</p>
+        <div class="card-hero-info">
+
+            <span class="card-game-badge" id="cardGameBadge">
+                TCG
+            </span>
+
+            <h1 id="cardHeaderName">
+                A carregar...
+            </h1>
+
+            <p id="cardHeaderCount" class="card-seller-count">
+                A procurar vendedores...
+            </p>
+
+            <div class="card-hero-stats">
+
+                <div class="hero-stat">
+                    <span class="hero-stat-label">Preço desde</span>
+                    <strong id="cardMinPrice">—</strong>
+                </div>
+
+                <div class="hero-stat">
+                    <span class="hero-stat-label">Vendedores</span>
+                    <strong id="cardSellerNumber">—</strong>
+                </div>
+
+            </div>
+
         </div>
 
-    </main>
+    </section>
+
+
+    <!-- Cabeçalho das ofertas -->
+    <section class="offers-section">
+
+        <div class="offers-header">
+
+            <div>
+                <h2>Ofertas disponíveis</h2>
+                <p>
+                    Compara os anúncios e escolhe o vendedor que preferires.
+                </p>
+            </div>
+
+            <div class="offers-sort">
+                <span>Ordenado por</span>
+                <strong>Preço mais baixo</strong>
+            </div>
+
+        </div>
+
+
+        <!-- Lista dinâmica -->
+        <div class="offers-list" id="offersList"></div>
+
+
+        <!-- Sem ofertas -->
+        <div id="emptyOffers" class="empty-offers">
+
+            <div class="empty-icon">
+                🃏
+            </div>
+
+            <h3>Sem anúncios disponíveis</h3>
+
+            <p>
+                Já não existem anúncios ativos para esta carta.
+            </p>
+
+            <a href="marketplace.html" class="back-marketplace-btn">
+                ← Voltar ao Marketplace
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
 
 <footer class="site-footer">
-    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="sobre.html">Sobre Nós</a> <span class="footer-divider">·</span> <a href="contactos.html">Contactos</a> <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a> <span class="footer-divider">·</span> <a href="envios.html">Envios</a> <span class="footer-divider">·</span> <a href="resolucao-de-conflitos.html">Resolução de Conflitos</a></p>
+    <p>
+        &copy; 2026 TCGMarketPortugal
+        <span class="footer-divider">·</span>
+
+        <a href="sobre.html">Sobre Nós</a>
+        <span class="footer-divider">·</span>
+
+        <a href="contactos.html">Contactos</a>
+        <span class="footer-divider">·</span>
+
+        <a href="termos.html">Termos de Uso</a>
+        <span class="footer-divider">·</span>
+
+        <a href="privacidade.html">Privacidade</a>
+        <span class="footer-divider">·</span>
+
+        <a href="reembolsos.html">Reembolsos</a>
+        <span class="footer-divider">·</span>
+
+        <a href="envios.html">Envios</a>
+        <span class="footer-divider">·</span>
+
+        <a href="resolucao-de-conflitos.html">
+            Resolução de Conflitos
+        </a>
+    </p>
 </footer>
+
 
 <script src="../js/config.js"></script>
 <script src="../js/carta.js"></script>
