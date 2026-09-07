@@ -57,6 +57,26 @@ async function loadMyListings() {
             return;
         }
 
+        // Anúncios com vendas por acompanhar aparecem sempre primeiro (os mais
+        // recentes primeiro) — isto poupa-te de teres de procurar entre
+        // dezenas/centenas de anúncios (ex: depois de um upload em massa) só
+        // para encontrares o que acabou de vender.
+        const mostRecentOrderDate = (listing) => {
+            const listingOrders = ordersByListing[listing.id] || [];
+            if (listingOrders.length === 0) return null;
+            return Math.max(...listingOrders.map(o => new Date(o.created_at).getTime()));
+        };
+
+        listings.sort((a, b) => {
+            const dateA = mostRecentOrderDate(a);
+            const dateB = mostRecentOrderDate(b);
+
+            if (dateA && dateB) return dateB - dateA; // ambos têm vendas: mais recente primeiro
+            if (dateA && !dateB) return -1; // só "a" tem venda: "a" vem primeiro
+            if (!dateA && dateB) return 1; // só "b" tem venda: "b" vem primeiro
+            return 0; // nenhum tem venda: mantém a ordem original
+        });
+
         listingsContainer.innerHTML = "";
         listings.forEach(listing => renderListing(listing, ordersByListing[listing.id] || []));
 
@@ -71,15 +91,23 @@ function renderListing(listing, orders) {
     el.className = "listing-row";
     el.dataset.id = listing.id;
 
+    const hasPendingOrders = orders.some(o => o.status !== "completed" && o.status !== "cancelled");
+
     el.innerHTML = `
         <img src="${listing.card_image ?? ""}">
 
         <div class="listing-info">
             <h3>${escapeHtml(listing.card_name)}</h3>
-            <p>Estado: <strong>${STATUS_LABELS[listing.status] ?? listing.status}</strong></p>
+            <p>Estado: <strong>${STATUS_LABELS[listing.status] ?? listing.status}</strong> · ${Number(listing.price).toFixed(2)} € · Qtd: ${listing.quantity}</p>
+            ${orders.length > 0 ? `<p style="color:var(--accent, #8B1E2D); font-weight:600;">🛒 ${orders.length === 1 ? "1 venda" : `${orders.length} vendas`}${hasPendingOrders ? " — por tratar" : ""}</p>` : ""}
         </div>
 
-        <div class="listing-edit">
+        <div class="listing-actions">
+            <button class="toggle-edit-btn">✏️ Editar</button>
+            <button class="delete-btn">Remover anúncio</button>
+        </div>
+
+        <div class="listing-edit" style="display:none;">
             <label>Preço (€)</label>
             <input type="number" step="0.01" min="0.01" class="edit-price" value="${listing.price}">
 
@@ -107,11 +135,8 @@ function renderListing(listing, orders) {
                 ).join("")}
             </select>
             ${listing.status !== "sold" ? `<p style="font-size:12px; color:var(--text-dim);">"Vendido" só é atribuído automaticamente numa venda a sério.</p>` : ""}
-        </div>
 
-        <div class="listing-actions">
             <button class="save-btn">Guardar alterações</button>
-            <button class="delete-btn">Remover anúncio</button>
         </div>
 
         <p class="listing-message"></p>
@@ -123,6 +148,11 @@ function renderListing(listing, orders) {
             </div>
         ` : ""}
     `;
+
+    el.querySelector(".toggle-edit-btn").addEventListener("click", () => {
+        const editBox = el.querySelector(".listing-edit");
+        editBox.style.display = editBox.style.display === "none" ? "block" : "none";
+    });
 
     el.querySelector(".save-btn").addEventListener("click", () => saveListing(el, listing.id));
     el.querySelector(".delete-btn").addEventListener("click", () => deleteListing(el, listing.id));
