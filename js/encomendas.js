@@ -62,7 +62,7 @@ async function loadPurchases() {
                 <img src="${order.card_image ?? ""}">
                 <div>
                     <h3>${escapeHtml(order.card_name)} (x${order.quantity})</h3>
-                    <p>Vendedor: ${escapeHtml(order.seller_name)} — ${escapeHtml(order.seller_email)}</p>
+                    <p>Vendedor: ${escapeHtml(order.seller_name)}</p>
                     <p>Total a transferir para o site: <strong>${Number(order.total_price).toFixed(2)} €</strong>
                         (cartas ${Number(order.unit_price * order.quantity).toFixed(2)} € + portes ${Number(order.shipping_cost).toFixed(2)} €)</p>
                     <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]}</p>

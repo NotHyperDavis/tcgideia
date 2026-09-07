@@ -175,7 +175,7 @@ function renderOrder(order) {
     return `
         <div class="order-row" style="margin-top:10px;">
             <div>
-                <p>Comprador: ${escapeHtml(order.buyer_name)} — ${escapeHtml(order.buyer_email)} (x${order.quantity})</p>
+                <p>Comprador: ${escapeHtml(order.buyer_name)} (x${order.quantity})</p>
 
                 ${order.shipping_name ? `
                     <div style="background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:12px; margin:10px 0;">

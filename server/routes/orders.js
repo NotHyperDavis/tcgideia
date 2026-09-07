@@ -246,8 +246,8 @@ router.get("/:id/invoice", requireAuth, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT orders.*, listings.card_name,
-                    buyer.name AS buyer_name, buyer.email AS buyer_email,
-                    seller.name AS seller_name, seller.email AS seller_email
+                    buyer.name AS buyer_name,
+                    seller.name AS seller_name
              FROM orders
              JOIN listings ON listings.id = orders.listing_id
              JOIN users buyer ON buyer.id = orders.buyer_id
@@ -283,8 +283,8 @@ router.get("/:id/invoice", requireAuth, async (req, res) => {
         doc.text(`Data: ${new Date(order.created_at).toLocaleDateString("pt-PT")}`);
         doc.moveDown();
 
-        doc.text(`Comprador: ${order.buyer_name} (${order.buyer_email})`);
-        doc.text(`Vendedor: ${order.seller_name} (${order.seller_email})`);
+        doc.text(`Comprador: ${order.buyer_name}`);
+        doc.text(`Vendedor: ${order.seller_name}`);
         doc.moveDown();
 
         doc.text(`Artigo: ${order.card_name} (x${order.quantity})`);
@@ -312,7 +312,7 @@ router.get("/mine", requireAuth, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT orders.*, listings.card_name, listings.card_image,
-                    users.name AS seller_name, users.email AS seller_email
+                    users.name AS seller_name
              FROM orders
              JOIN listings ON listings.id = orders.listing_id
              JOIN users ON users.id = orders.seller_id
@@ -333,7 +333,7 @@ router.get("/selling", requireAuth, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT orders.*, listings.card_name, listings.card_image,
-                    users.name AS buyer_name, users.email AS buyer_email
+                    users.name AS buyer_name
              FROM orders
              JOIN listings ON listings.id = orders.listing_id
              JOIN users ON users.id = orders.buyer_id
