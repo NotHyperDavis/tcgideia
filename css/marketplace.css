@@ -288,3 +288,16 @@
 .card .rating-badge--empty {
     background: var(--text-dim, #6F6961);
 }
+.card span {
+    color: #FFFFFF !important;
+}
+
+.card .card-badge {
+    background: var(--accent, #8B1E2D);
+    color: #FFFFFF;
+}
+
+.card .rating-badge,
+.card .rating-badge--empty {
+    color: #FFFFFF !important;
+}
