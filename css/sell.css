@@ -1,0 +1,1080 @@
+/* =========================================================
+   TCGMarketPortugal
+   SELL PAGE
+   ========================================================= */
+
+:root {
+    --sell-bg: #F5F1E8;
+    --sell-white: #FFFFFF;
+    --sell-panel: #F8F5EF;
+    --sell-border: #DDD6C8;
+
+    --sell-text: #201D1A;
+    --sell-muted: #6F6961;
+
+    --sell-wine: #8B1E2D;
+    --sell-wine-dark: #681522;
+    --sell-wine-light: #A92C3D;
+
+    --sell-green: #46705A;
+    --sell-gold: #B88A3B;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+body {
+    background:
+        radial-gradient(
+            circle at 90% 5%,
+            rgba(184, 138, 59, 0.09),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 5% 30%,
+            rgba(139, 30, 45, 0.06),
+            transparent 30%
+        ),
+        var(--sell-bg);
+
+    color: var(--sell-text);
+}
+
+
+.sell-page {
+    width: min(1120px, calc(100% - 40px));
+
+    margin: 0 auto;
+
+    padding: 28px 0 80px;
+}
+
+
+/* =========================================================
+   BREADCRUMB
+   ========================================================= */
+
+.sell-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-bottom: 24px;
+
+    color: var(--sell-muted);
+
+    font-size: 13px;
+}
+
+.sell-breadcrumb a {
+    color: var(--sell-wine);
+
+    text-decoration: none;
+
+    font-weight: 750;
+}
+
+.sell-breadcrumb a:hover {
+    color: var(--sell-wine-dark);
+}
+
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.sell-intro {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    gap: 30px;
+
+    margin-bottom: 27px;
+}
+
+.sell-kicker {
+    display: inline-block;
+
+    margin-bottom: 9px;
+
+    color: var(--sell-wine);
+
+    font-size: 11px;
+    font-weight: 850;
+
+    letter-spacing: 0.11em;
+}
+
+.sell-intro h1 {
+    margin: 0;
+
+    color: var(--sell-text);
+
+    font-size: clamp(34px, 5vw, 48px);
+
+    line-height: 1;
+
+    letter-spacing: -1.7px;
+}
+
+.sell-intro p {
+    margin: 11px 0 0;
+
+    color: var(--sell-muted);
+
+    font-size: 14px;
+}
+
+
+/* TRUST */
+
+.sell-trust {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    min-width: 250px;
+
+    padding: 14px 16px;
+
+    border: 1px solid var(--sell-border);
+
+    border-radius: 12px;
+
+    background: var(--sell-white);
+}
+
+.sell-trust > span {
+    font-size: 22px;
+}
+
+.sell-trust strong {
+    display: block;
+
+    color: var(--sell-text);
+
+    font-size: 12px;
+}
+
+.sell-trust small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--sell-muted);
+
+    font-size: 10px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   LOGIN WARNING
+   ========================================================= */
+
+.sell-login-warning {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    margin-bottom: 18px;
+
+    padding: 15px 17px;
+
+    border: 1px solid rgba(139, 30, 45, 0.22);
+
+    border-radius: 12px;
+
+    background: rgba(139, 30, 45, 0.06);
+}
+
+.warning-icon {
+    font-size: 22px;
+}
+
+.sell-login-warning strong {
+    font-size: 13px;
+}
+
+.sell-login-warning p {
+    margin: 3px 0 0;
+
+    color: var(--sell-muted);
+
+    font-size: 11px;
+}
+
+.sell-login-warning a {
+    margin-left: auto;
+
+    padding: 9px 14px;
+
+    border-radius: 8px;
+
+    background: var(--sell-wine);
+
+    color: #fff;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.sell-card {
+    margin-top: 18px;
+
+    padding: 27px;
+
+    background: var(--sell-white);
+
+    border: 1px solid var(--sell-border);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 18px 50px rgba(45, 35, 25, 0.07);
+}
+
+
+/* =========================================================
+   STEP HEADER
+   ========================================================= */
+
+.step-heading {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    margin-bottom: 22px;
+}
+
+.step-number {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+
+    background: var(--sell-wine);
+
+    color: #fff;
+
+    font-size: 14px;
+
+    font-weight: 850;
+
+    box-shadow:
+        0 6px 14px rgba(139, 30, 45, 0.16);
+}
+
+.step-heading h2 {
+    margin: 0;
+
+    color: var(--sell-text);
+
+    font-size: 21px;
+
+    letter-spacing: -0.3px;
+}
+
+.step-heading p {
+    margin: 4px 0 0;
+
+    color: var(--sell-muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.search-box {
+    display: grid;
+
+    grid-template-columns:
+        205px
+        minmax(0, 1fr)
+        135px;
+
+    gap: 10px;
+
+    align-items: end;
+
+    padding: 16px;
+
+    background: var(--sell-panel);
+
+    border: 1px solid var(--sell-border);
+
+    border-radius: 13px;
+}
+
+
+/* =========================================================
+   FIELDS
+   ========================================================= */
+
+.field-group {
+    min-width: 0;
+}
+
+.field-group label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--sell-text);
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+.field-group label span {
+    color: var(--sell-muted);
+
+    font-weight: 500;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid var(--sell-border);
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #fff;
+
+    color: var(--sell-text);
+
+    font: inherit;
+
+    font-size: 13px;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+input,
+select {
+    height: 43px;
+
+    padding: 0 12px;
+}
+
+textarea {
+    min-height: 100px;
+
+    padding: 11px 12px;
+
+    resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--sell-wine);
+
+    box-shadow:
+        0 0 0 3px rgba(139, 30, 45, 0.08);
+}
+
+
+/* =========================================================
+   SEARCH BUTTON
+   ========================================================= */
+
+.search-btn {
+    height: 43px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: var(--sell-wine);
+
+    color: #fff;
+
+    font: inherit;
+
+    font-size: 13px;
+
+    font-weight: 850;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        transform 0.18s ease;
+}
+
+.search-btn:hover {
+    background: var(--sell-wine-dark);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+
+.results-heading {
+    display: flex;
+    justify-content: space-between;
+
+    margin: 22px 2px 12px;
+}
+
+.results-heading strong {
+    display: block;
+
+    color: var(--sell-text);
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+}
+
+.results-heading span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--sell-muted);
+
+    font-size: 11px;
+}
+
+
+.sell-results {
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+
+    gap: 10px;
+
+    min-height: 30px;
+}
+
+
+/* =========================================================
+   CARD RESULTS
+   ========================================================= */
+
+.sell-results .card {
+    padding: 10px;
+
+    background: var(--sell-panel);
+
+    border: 1px solid var(--sell-border);
+
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.sell-results .card:hover {
+    transform: translateY(-3px);
+
+    border-color:
+        rgba(139, 30, 45, 0.4);
+
+    box-shadow:
+        0 10px 24px rgba(45, 35, 25, 0.10);
+}
+
+.sell-results .card img {
+    display: block;
+
+    width: 100%;
+
+    aspect-ratio: 2.5 / 3.5;
+
+    object-fit: contain;
+
+    border-radius: 6px;
+}
+
+.sell-results .card h3 {
+    margin: 8px 2px 1px;
+
+    overflow: hidden;
+
+    color: var(--sell-text);
+
+    font-size: 11px;
+
+    line-height: 1.3;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   SELECTED CARD
+   ========================================================= */
+
+.selected-card-preview {
+    display: grid;
+
+    grid-template-columns: 86px minmax(0, 1fr);
+
+    gap: 17px;
+
+    align-items: center;
+
+    margin-bottom: 23px;
+
+    padding: 15px;
+
+    background: var(--sell-panel);
+
+    border: 1px solid var(--sell-border);
+
+    border-radius: 13px;
+}
+
+.selected-card-preview img {
+    width: 72px;
+    height: 100px;
+
+    object-fit: contain;
+
+    border-radius: 7px;
+
+    filter:
+        drop-shadow(
+            0 8px 8px rgba(30, 25, 20, 0.15)
+        );
+}
+
+.selected-card-preview p {
+    margin: 5px 0;
+
+    color: var(--sell-muted);
+
+    font-size: 12px;
+}
+
+.selected-card-preview p:first-of-type {
+    color: var(--sell-text);
+
+    font-size: 17px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   FORM TITLES
+   ========================================================= */
+
+.form-section-title {
+    margin-bottom: 13px;
+
+    color: var(--sell-text);
+
+    font-size: 12px;
+
+    font-weight: 850;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+}
+
+.shipping-title {
+    margin-top: 26px;
+}
+
+
+/* =========================================================
+   FORM GRID
+   ========================================================= */
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 17px;
+}
+
+
+/* =========================================================
+   MONEY INPUT
+   ========================================================= */
+
+.input-money {
+    position: relative;
+}
+
+.input-money input {
+    padding-right: 38px;
+}
+
+.input-money span {
+    position: absolute;
+
+    top: 50%;
+    right: 13px;
+
+    transform: translateY(-50%);
+
+    color: var(--sell-muted);
+
+    font-size: 13px;
+
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   SHIPPING
+   ========================================================= */
+
+.shipping-box {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px 15px;
+
+    border: 1px solid rgba(70, 112, 90, 0.22);
+
+    border-radius: 10px;
+
+    background: rgba(70, 112, 90, 0.06);
+}
+
+.shipping-icon {
+    font-size: 22px;
+}
+
+.shipping-box strong {
+    display: block;
+
+    font-size: 12px;
+}
+
+.shipping-box p {
+    margin: 3px 0 0;
+
+    color: var(--sell-muted);
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.description-field {
+    margin-top: 22px;
+}
+
+
+/* =========================================================
+   PHOTO
+   ========================================================= */
+
+.photo-section {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        190px;
+
+    gap: 20px;
+
+    align-items: center;
+
+    margin-top: 22px;
+
+    padding: 18px;
+
+    border: 1px dashed #C9C0B1;
+
+    border-radius: 12px;
+
+    background: #FCFAF6;
+}
+
+.photo-copy p {
+    margin: -5px 0 13px;
+
+    max-width: 550px;
+
+    color: var(--sell-muted);
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+#realPhoto {
+    display: none;
+}
+
+.upload-btn {
+    display: inline-flex;
+
+    width: fit-content;
+
+    padding: 10px 14px;
+
+    border: 1px solid rgba(139, 30, 45, 0.30);
+
+    border-radius: 8px;
+
+    background: #fff;
+
+    color: var(--sell-wine) !important;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+.upload-btn:hover {
+    background: rgba(139, 30, 45, 0.05);
+}
+
+.real-photo-preview {
+    min-height: 120px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    background: var(--sell-panel);
+
+    color: var(--sell-muted);
+
+    font-size: 10px;
+
+    text-align: center;
+}
+
+.real-photo-preview img {
+    max-width: 150px !important;
+    max-height: 150px;
+
+    margin: 0 !important;
+
+    border-radius: 8px !important;
+
+    object-fit: contain;
+}
+
+
+/* =========================================================
+   PUBLISH
+   ========================================================= */
+
+.publish-footer {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-top: 25px;
+
+    padding-top: 21px;
+
+    border-top: 1px solid var(--sell-border);
+}
+
+.publish-footer strong {
+    display: block;
+
+    font-size: 14px;
+}
+
+.publish-footer p {
+    margin: 3px 0 0;
+
+    color: var(--sell-muted);
+
+    font-size: 11px;
+}
+
+.publish-btn {
+    min-width: 195px;
+
+    padding: 14px 20px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: var(--sell-wine);
+
+    color: #fff;
+
+    font: inherit;
+
+    font-size: 13px;
+
+    font-weight: 850;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 9px 22px rgba(139, 30, 45, 0.18);
+
+    transition:
+        background 0.18s ease,
+        transform 0.18s ease;
+}
+
+.publish-btn:hover {
+    background: var(--sell-wine-dark);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.no-card-selected {
+    padding: 45px 20px;
+
+    text-align: center;
+
+    border: 1px dashed var(--sell-border);
+
+    border-radius: 12px;
+
+    background: var(--sell-panel);
+}
+
+.empty-card-icon {
+    margin-bottom: 9px;
+
+    font-size: 32px;
+}
+
+.no-card-selected strong {
+    color: var(--sell-text);
+
+    font-size: 14px;
+}
+
+.no-card-selected p {
+    max-width: 420px;
+
+    margin: 6px auto 0;
+
+    color: var(--sell-muted);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+.sell-message {
+    margin-top: 15px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+.sell-message.success {
+    padding: 13px 15px;
+
+    border: 1px solid rgba(70, 112, 90, 0.25);
+
+    border-radius: 10px;
+
+    background: rgba(70, 112, 90, 0.08);
+
+    color: var(--sell-green);
+}
+
+.sell-message.error {
+    padding: 13px 15px;
+
+    border: 1px solid rgba(139, 30, 45, 0.25);
+
+    border-radius: 10px;
+
+    background: rgba(139, 30, 45, 0.07);
+
+    color: var(--sell-wine);
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .sell-results {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+    .search-box {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .search-btn {
+        grid-column: 1 / -1;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+    .sell-page {
+        width: min(100% - 24px, 600px);
+
+        padding-top: 18px;
+    }
+
+    .sell-intro {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .sell-trust {
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+    .sell-card {
+        padding: 20px 15px;
+    }
+
+    .search-box {
+        grid-template-columns: 1fr;
+    }
+
+    .search-btn {
+        grid-column: auto;
+    }
+
+    .sell-results {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .photo-section {
+        grid-template-columns: 1fr;
+    }
+
+    .publish-footer {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .publish-btn {
+        width: 100%;
+    }
+
+    .sell-login-warning {
+        align-items: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+    .sell-login-warning a {
+        margin-left: 35px;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    .sell-results {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .selected-card-preview {
+        grid-template-columns:
+            70px minmax(0, 1fr);
+    }
+}

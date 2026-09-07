@@ -3,25 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
     <link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
     <link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
-    <title>Vender Carta - TCGMarketPortugal</title>
+
+    <title>Vender - TCGMarketPortugal</title>
 
     <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/navbar.css">
-    <link rel="stylesheet" href="../css/app.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/sell.css">
 </head>
+
 <body>
 
 <header class="navbar">
-    <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
 
+    <a href="main.html" class="logo">
+        <h2>TCGMarketPortugal</h2>
+    </a>
 
     <nav class="user-nav">
+
         <div class="dropdown">
-            <a href="#" class="nav-link">As Minhas Coisas ▼</a>
+            <a href="#" class="nav-link">
+                As Minhas Coisas ▼
+            </a>
+
             <div class="dropdown-content">
                 <a href="mensagens.html">As Minhas Mensagens</a>
                 <a href="encomendas.html">As Minhas Compras</a>
@@ -29,115 +38,661 @@
                 <a href="wishlist.html">❤️ Lista de Desejos</a>
             </div>
         </div>
+
         <a href="marketplace.html">Marketplace</a>
-        <a href="sell.html">Vender</a>
+        <a href="sell.html" class="active">Vender</a>
         <a href="login.html">Entrar</a>
+
     </nav>
+
 </header>
 
 
-<main class="page">
+<main class="sell-page">
 
-    <h1>Vender uma Carta</h1>
-    <p style="font-size:13px;"><a href="bulk-upload.html">Tens muitas cartas para vender? Publica várias de uma vez →</a></p>
+    <!-- BREADCRUMB -->
 
-    <div id="loginWarning" style="display:none;">
-        <p>Precisas de <a href="login.html">iniciar sessão</a> para poderes vender cartas.</p>
+    <div class="sell-breadcrumb">
+        <a href="marketplace.html">Marketplace</a>
+        <span>›</span>
+        <span>Vender</span>
     </div>
+
+
+    <!-- INTRO -->
+
+    <section class="sell-intro">
+
+        <div>
+
+            <span class="sell-kicker">
+                TCGMARKETPORTUGAL
+            </span>
+
+            <h1>
+                Vender uma carta
+            </h1>
+
+            <p>
+                Escolhe a carta, define o seu estado e publica o teu anúncio.
+            </p>
+
+        </div>
+
+        <div class="sell-trust">
+
+            <span>🛡️</span>
+
+            <div>
+                <strong>Vende com segurança</strong>
+                <small>
+                    Pagamentos protegidos e acompanhamento da encomenda.
+                </small>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- LOGIN WARNING -->
+
+    <div
+        id="loginWarning"
+        class="sell-login-warning"
+        style="display:none;"
+    >
+
+        <div class="warning-icon">
+            🔐
+        </div>
+
+        <div>
+            <strong>
+                Precisas de iniciar sessão
+            </strong>
+
+            <p>
+                Inicia sessão para poderes publicar anúncios.
+            </p>
+        </div>
+
+        <a href="login.html">
+            Entrar
+        </a>
+
+    </div>
+
 
     <div id="sellFlow">
 
-        <label for="gameSelect">Jogo</label>
-        <select id="gameSelect">
-            <option value="pokemon">Pokémon</option>
-            <option value="yugioh">Yu-Gi-Oh!</option>
-            <option value="magic">Magic: The Gathering</option>
-            <option value="onepiece">One Piece</option>
-        </select>
 
-        <input
-            type="text"
-            id="searchCard"
-            placeholder="Pesquisar carta pelo nome..."
-        >
+        <!-- =================================================
+             PASSO 1
+        ================================================== -->
 
-        <button onclick="searchCard()">
-            Pesquisar
-        </button>
+        <section class="sell-card">
 
-        <div id="results" class="cards"></div>
+            <div class="step-heading">
 
-        <form id="listingForm" style="display:none;">
+                <div class="step-number">
+                    1
+                </div>
 
-            <div id="selectedCardPreview"></div>
+                <div>
+                    <h2>
+                        Escolhe a carta
+                    </h2>
 
-            <label for="price">Preço (€)</label>
-            <input type="number" id="price" step="0.01" min="0.01" required>
+                    <p>
+                        Encontra a carta que queres vender no nosso catálogo.
+                    </p>
+                </div>
 
-            <label for="condition">Condição</label>
-            <select id="condition" required>
-                <option value="near_mint">Near Mint</option>
-                <option value="excellent">Excelente</option>
-                <option value="good">Boa</option>
-                <option value="played">Usada</option>
-                <option value="poor">Danificada</option>
-            </select>
+            </div>
 
-            <label for="quantity">Quantidade</label>
-            <input type="number" id="quantity" min="1" value="1" required>
 
-            <label for="language">Idioma da carta</label>
-            <select id="language" required>
-                <option value="EN">Inglês</option>
-                <option value="PT">Português</option>
-                <option value="ES">Espanhol</option>
-                <option value="FR">Francês</option>
-                <option value="DE">Alemão</option>
-                <option value="IT">Italiano</option>
-                <option value="JP">Japonês</option>
-                <option value="KO">Coreano</option>
-                <option value="ZH">Chinês</option>
-            </select>
+            <div class="search-box">
 
-            <label for="variantSelect">Variante</label>
-            <select id="variantSelect">
-                <option value="normal">Normal</option>
-                <option value="foil">Foil</option>
-                <option value="holo">Holo</option>
-                <option value="reverse_holo">Reverse Holo</option>
-            </select>
+                <div class="field-group">
 
-            <label for="shippingServiceSelect">Serviço de envio (CTT)</label>
-            <select id="shippingServiceSelect">
-                <option value="normal">Correio Normal — mais barato, sem rastreio nem prova de envio</option>
-                <option value="azul" selected>Correio Azul — mais rápido, sem rastreio</option>
-                <option value="registado">Correio Registado — com rastreio e prova de entrega (recomendado para cartas valiosas)</option>
-            </select>
+                    <label for="gameSelect">
+                        Jogo
+                    </label>
 
-            <label for="description">Descrição (opcional)</label>
-            <textarea id="description" placeholder="Ex: sem marcas, guardada em bicho"></textarea>
+                    <select id="gameSelect">
 
-            <label for="realPhoto">Foto real da carta (opcional, mas recomendado)</label>
-            <input type="file" id="realPhoto" accept="image/*">
-            <div id="realPhotoPreview"></div>
+                        <option value="pokemon">
+                            Pokémon
+                        </option>
 
-            <button type="submit">Publicar anúncio</button>
+                        <option value="yugioh">
+                            Yu-Gi-Oh!
+                        </option>
 
-        </form>
+                        <option value="magic">
+                            Magic: The Gathering
+                        </option>
 
-        <p id="message"></p>
+                        <option value="onepiece">
+                            One Piece
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="field-group search-field">
+
+                    <label for="searchCard">
+                        Procurar carta
+                    </label>
+
+                    <input
+                        type="text"
+                        id="searchCard"
+                        placeholder="Ex.: Charizard, Pikachu..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="searchBtn"
+                    class="search-btn"
+                    onclick="searchCard()"
+                >
+                    🔎 Pesquisar
+                </button>
+
+            </div>
+
+
+            <div class="results-heading">
+
+                <div>
+                    <strong>
+                        Resultados
+                    </strong>
+
+                    <span>
+                        Seleciona uma carta para continuar
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div
+                id="results"
+                class="sell-results"
+            ></div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PASSO 2
+        ================================================== -->
+
+        <section class="sell-card listing-card">
+
+            <div class="step-heading">
+
+                <div class="step-number">
+                    2
+                </div>
+
+                <div>
+
+                    <h2>
+                        Detalhes do anúncio
+                    </h2>
+
+                    <p>
+                        Indica exatamente o que estás a vender.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- CARTA SELECIONADA -->
+
+            <div
+                id="selectedCardPreview"
+                class="selected-card-preview"
+            ></div>
+
+
+            <!-- FORM -->
+
+            <form
+                id="listingForm"
+                style="display:none;"
+            >
+
+                <div class="form-section-title">
+                    Informação da carta
+                </div>
+
+
+                <div class="form-grid">
+
+                    <!-- PREÇO -->
+
+                    <div class="field-group">
+
+                        <label for="price">
+                            Preço por unidade
+                        </label>
+
+                        <div class="input-money">
+
+                            <input
+                                type="number"
+                                id="price"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="0.00"
+                                required
+                            >
+
+                            <span>€</span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- QUANTIDADE -->
+
+                    <div class="field-group">
+
+                        <label for="quantity">
+                            Quantidade
+                        </label>
+
+                        <input
+                            type="number"
+                            id="quantity"
+                            min="1"
+                            value="1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- CONDIÇÃO -->
+
+                    <div class="field-group">
+
+                        <label for="condition">
+                            Condição
+                        </label>
+
+                        <select
+                            id="condition"
+                            required
+                        >
+
+                            <option value="near_mint">
+                                Near Mint
+                            </option>
+
+                            <option value="excellent">
+                                Excelente
+                            </option>
+
+                            <option value="good">
+                                Boa
+                            </option>
+
+                            <option value="played">
+                                Usada
+                            </option>
+
+                            <option value="poor">
+                                Danificada
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- IDIOMA -->
+
+                    <div class="field-group">
+
+                        <label for="language">
+                            Idioma
+                        </label>
+
+                        <select
+                            id="language"
+                            required
+                        >
+
+                            <option value="EN">
+                                🇬🇧 Inglês
+                            </option>
+
+                            <option value="PT">
+                                🇵🇹 Português
+                            </option>
+
+                            <option value="ES">
+                                🇪🇸 Espanhol
+                            </option>
+
+                            <option value="FR">
+                                🇫🇷 Francês
+                            </option>
+
+                            <option value="DE">
+                                🇩🇪 Alemão
+                            </option>
+
+                            <option value="IT">
+                                🇮🇹 Italiano
+                            </option>
+
+                            <option value="JP">
+                                🇯🇵 Japonês
+                            </option>
+
+                            <option value="KO">
+                                🇰🇷 Coreano
+                            </option>
+
+                            <option value="ZH">
+                                🇨🇳 Chinês
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- VARIANTE -->
+
+                    <div class="field-group">
+
+                        <label for="variantSelect">
+                            Variante
+                        </label>
+
+                        <select id="variantSelect">
+
+                            <option value="normal">
+                                Normal
+                            </option>
+
+                            <option value="foil">
+                                ✨ Foil
+                            </option>
+
+                            <option value="holo">
+                                ✨ Holo
+                            </option>
+
+                            <option value="reverse_holo">
+                                ✨ Reverse Holo
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- PESO -->
+
+                    <div class="field-group">
+
+                        <label for="weight">
+                            Peso por carta
+                        </label>
+
+                        <div class="input-money">
+
+                            <input
+                                type="number"
+                                id="weight"
+                                min="1"
+                                step="1"
+                                value="5"
+                            >
+
+                            <span>g</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SHIPPING -->
+
+                <div class="form-section-title shipping-title">
+                    Envio
+                </div>
+
+                <div class="shipping-box">
+
+                    <div class="shipping-icon">
+                        📦
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            O peso ajuda a calcular o envio
+                        </strong>
+
+                        <p>
+                            Introduz um peso aproximado da carta.
+                            O sistema calcula o envio no checkout.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- DESCRIÇÃO -->
+
+                <div class="field-group description-field">
+
+                    <label for="description">
+                        Descrição
+                        <span>
+                            opcional
+                        </span>
+                    </label>
+
+                    <textarea
+                        id="description"
+                        rows="4"
+                        placeholder="Ex.: Carta em excelente estado, guardada sempre em sleeve."
+                    ></textarea>
+
+                </div>
+
+
+
+                <!-- FOTO REAL -->
+
+                <div class="photo-section">
+
+                    <div class="photo-copy">
+
+                        <div class="form-section-title">
+                            Fotografia real
+                        </div>
+
+                        <p>
+                            Uma fotografia real da carta aumenta a confiança
+                            dos compradores.
+                        </p>
+
+                        <label
+                            for="realPhoto"
+                            class="upload-btn"
+                        >
+                            📷 Escolher fotografia
+                        </label>
+
+                        <input
+                            type="file"
+                            id="realPhoto"
+                            accept="image/*"
+                        >
+
+                    </div>
+
+
+                    <div
+                        id="realPhotoPreview"
+                        class="real-photo-preview"
+                    >
+
+                        <span>
+                            Nenhuma fotografia selecionada
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PUBLICAR -->
+
+                <div class="publish-footer">
+
+                    <div>
+
+                        <strong>
+                            Tudo pronto?
+                        </strong>
+
+                        <p>
+                            Confirma os dados e publica o anúncio.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="publish-btn"
+                    >
+                        Publicar anúncio
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- ESTADO SEM CARTA -->
+
+            <div class="no-card-selected">
+
+                <div class="empty-card-icon">
+                    🃏
+                </div>
+
+                <strong>
+                    Seleciona primeiro uma carta
+                </strong>
+
+                <p>
+                    Depois de escolheres uma carta,
+                    poderás preencher os detalhes do anúncio.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <div
+            id="message"
+            class="sell-message"
+        ></div>
 
     </div>
 
 </main>
 
-<script src="../js/config.js"></script>
-<script src="../js/auth-nav.js"></script>
-<script src="../js/sell.js"></script>
 
 <footer class="site-footer">
-    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="sobre.html">Sobre Nós</a> <span class="footer-divider">·</span> <a href="contactos.html">Contactos</a> <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a> <span class="footer-divider">·</span> <a href="envios.html">Envios</a> <span class="footer-divider">·</span> <a href="resolucao-de-conflitos.html">Resolução de Conflitos</a></p>
+
+    <p>
+
+        &copy; 2026 TCGMarketPortugal
+
+        <span class="footer-divider">·</span>
+
+        <a href="sobre.html">
+            Sobre Nós
+        </a>
+
+        <span class="footer-divider">·</span>
+
+        <a href="contactos.html">
+            Contactos
+        </a>
+
+        <span class="footer-divider">·</span>
+
+        <a href="termos.html">
+            Termos de Uso
+        </a>
+
+        <span class="footer-divider">·</span>
+
+        <a href="privacidade.html">
+            Privacidade
+        </a>
+
+        <span class="footer-divider">·</span>
+
+        <a href="reembolsos.html">
+            Reembolsos
+        </a>
+
+        <span class="footer-divider">·</span>
+
+        <a href="envios.html">
+            Envios
+        </a>
+
+        <span class="footer-divider">·</span>
+
+        <a href="resolucao-de-conflitos.html">
+            Resolução de Conflitos
+        </a>
+
+    </p>
+
 </footer>
+
+
+<script src="../js/config.js"></script>
+<script src="../js/sell.js"></script>
+<script src="../js/auth-nav.js"></script>
 
 </body>
 </html>

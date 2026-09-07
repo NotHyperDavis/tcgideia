@@ -224,12 +224,14 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
 
     const name = document.getElementById("name").value;
     const country = document.getElementById("country").value;
-    const address_name = document.getElementById("addressName").value;
-    const address_line = document.getElementById("addressLine").value;
-    const address_postal_code = document.getElementById("addressPostalCode").value;
-    const address_city = document.getElementById("addressCity").value;
+    const address_name = document.getElementById("addressName").value.trim();
+    const address_line = document.getElementById("addressLine").value.trim();
+    let address_postal_code = document.getElementById("addressPostalCode").value.trim();
+    let address_city = document.getElementById("addressCity").value.trim();
 
-    if (address_postal_code) {
+    const anyAddressField = address_name || address_line || address_postal_code || address_city;
+
+    if (anyAddressField && address_postal_code) {
         const isValidPostalCode = country === "PT"
             ? /^\d{4}-\d{3}$/.test(address_postal_code)
             : /^\d{5}$/.test(address_postal_code);
@@ -241,6 +243,41 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
             message.className = "error";
             return;
         }
+
+        message.textContent = "A confirmar o código postal...";
+
+        try {
+            const checkResponse = await fetch(`${API_BASE}/users/verify-postal-code?postal_code=${encodeURIComponent(address_postal_code)}&country=${country}`, {
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+            const checkData = await checkResponse.json();
+
+            if (checkData.valid === false) {
+                message.textContent = "Não encontrámos esse código postal — confirma se está certo.";
+                message.className = "error";
+                return;
+            }
+
+            // Se a API confirmou e devolveu a localidade, e o campo estava vazio,
+            // preenche-o sozinho — assim a morada pode ficar completa sem teres de escrever tudo.
+            if (checkData.valid === true && checkData.city && !address_city) {
+                address_city = checkData.city;
+                document.getElementById("addressCity").value = address_city;
+            }
+            // Se checkData.valid === null, a API de verificação falhou (fora do ar) —
+            // não bloqueamos, seguimos só com a validação de formato.
+
+        } catch (error) {
+            console.warn("Não foi possível confirmar o código postal, a continuar mesmo assim.", error);
+        }
+    }
+
+    // Se algum campo da morada foi preenchido, exige que fique completa —
+    // um código postal sozinho, sem rua nem localidade, não serve para enviar nada.
+    if (anyAddressField && !(address_name && address_line && address_postal_code && address_city)) {
+        message.textContent = "Para guardar uma morada, preenche todos os campos (nome, rua, código postal e localidade).";
+        message.className = "error";
+        return;
     }
 
     message.textContent = "A guardar...";

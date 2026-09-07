@@ -248,7 +248,15 @@
 
 /* Linhas de anúncio / encomenda (my-listings, encomendas, admin) */
 
-.listing-row,
+.listing-row {
+    flex-wrap: wrap;
+}
+
+/* Junto à regra existente .listing-sales (linha ~1030) */
+.listing-row > .listing-sales {
+    flex: 1 1 100%;
+    width: 100%;
+}
 .order-row,
 .admin-order-row {
     display: flex;

@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const pool = require("../db");
 const requireAuth = require("../middleware/auth");
 const isAdmin = require("../utils/isAdmin");
+ const verifyPostalCode = require("../utils/verifyPostalCode");
 
 const router = express.Router();
 
@@ -75,6 +76,13 @@ router.patch("/me", requireAuth, async (req, res) => {
 
     if (country && !["PT", "ES"].includes(country)) {
         return res.status(400).json({ error: "País inválido." });
+    }
+
+    // Se algum campo da morada veio preenchido, exige que fique completa —
+    // nunca confiar só na validação do frontend para isto.
+    const anyAddressField = address_name || address_line || address_postal_code || address_city;
+    if (anyAddressField && !(address_name && address_line && address_postal_code && address_city)) {
+        return res.status(400).json({ error: "Para guardar uma morada, preenche todos os campos (nome, rua, código postal e localidade)." });
     }
 
     if (address_postal_code) {
@@ -160,6 +168,8 @@ router.patch("/admin/account-type", requireAuth, async (req, res) => {
     }
 });
 
+// GET /users/verify-postal-code?postal_code=X&country=PT 
+router.get("/verify-postal-code", requireAuth, async (req, res) => { const { postal_code, country } = req.query; if (!postal_code || !country) { return res.status(400).json({ error: "Indica o código postal e o país." }); } const result = await verifyPostalCode(postal_code, country); res.json(result); });
 // 2. ROTA DINÂMICA (GET /users/:id) - Perfil público
 router.get("/:id", async (req, res) => {
     try {
