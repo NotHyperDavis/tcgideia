@@ -1,130 +1,459 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
-    <link rel="icon" type="image/png" href="../assets/icons/favicon-32.png">
-    <link rel="apple-touch-icon" href="../assets/icons/favicon-180.png">
+
     <title>Marketplace - TCGMarketPortugal</title>
 
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/navbar.css">
     <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/marketplace.css">
-
 </head>
+
 <body>
 
-    <header class="navbar">
-    <a href="main.html" class="logo"><h2>TCGMarketPortugal</h2></a>
+<header class="navbar">
+    <a href="main.html" class="logo">
+        <h2>TCGMarketPortugal</h2>
+    </a>
 
-
-    <nav class="user-nav">
-        <div class="dropdown">
-            <a href="#" class="nav-link">As Minhas Coisas ▼</a>
-            <div class="dropdown-content">
-                <a href="mensagens.html">As Minhas Mensagens</a>
-                <a href="encomendas.html">As Minhas Compras</a>
-                <a href="my-listings.html">Os Meus Anúncios</a>
-                <a href="wishlist.html">❤️ Lista de Desejos</a>
-            </div>
-        </div>
-        <a href="marketplace.html">Marketplace</a>
+    <nav>
+        <a href="marketplace.html" class="active">Marketplace</a>
         <a href="sell.html">Vender</a>
         <a href="login.html">Entrar</a>
     </nav>
 </header>
 
-    <section class="marketplace">
+<main class="marketplace-page">
 
-    <main class="results">
+    <!-- HERO -->
+    <section class="marketplace-hero">
 
-        <h2>Marketplace</h2>
+        <div>
+            <span class="marketplace-kicker">TCGMARKETPORTUGAL</span>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <h1>Marketplace</h1>
+
+            <p>
+                Encontra a carta que procuras, compara vendedores
+                e escolhe a melhor oferta.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- SEARCH -->
+    <section class="marketplace-search-box">
+
+        <div class="search-main">
+
+            <span class="search-icon">⌕</span>
+
             <input
-                type="text"
+                type="search"
                 id="searchInput"
-                placeholder="🔍 Pesquisar pelo nome da carta..."
-                class="marketplace-search"
-                style="flex:1; min-width:220px;"
+                placeholder="Pesquisar por nome da carta..."
+                autocomplete="off"
             >
 
-            <select id="sortSelect" class="marketplace-search" style="max-width:220px;">
-                <option value="">Ordenar por...</option>
-                <option value="price_asc">Preço: menor → maior</option>
-                <option value="price_desc">Preço: maior → menor</option>
-            </select>
-
-            <button type="button" id="marketFiltersToggle" class="offers-filters-toggle">
-                🔍 Filtros <span id="marketFiltersCount"></span> ▾
+            <button
+                type="button"
+                id="clearSearch"
+                class="clear-search"
+                aria-label="Limpar pesquisa"
+                hidden
+            >
+                ×
             </button>
-        </div>
-
-        <div class="offers-filters" id="marketFilters" style="display:none;">
-
-            <div class="offers-filter-group">
-                <span class="offers-filter-label">Jogo</span>
-                <label><input type="checkbox" class="game-filter" value="pokemon"> Pokémon</label>
-                <label><input type="checkbox" class="game-filter" value="onepiece"> One Piece</label>
-                <label><input type="checkbox" class="game-filter" value="yugioh"> Yu-Gi-Oh!</label>
-                <label><input type="checkbox" class="game-filter" value="magic"> Magic</label>
-            </div>
-
-            <div class="offers-filter-group">
-                <span class="offers-filter-label">Condição</span>
-                <label><input type="checkbox" class="condition-filter" value="near_mint"> Near Mint</label>
-                <label><input type="checkbox" class="condition-filter" value="excellent"> Excelente</label>
-                <label><input type="checkbox" class="condition-filter" value="good"> Boa</label>
-                <label><input type="checkbox" class="condition-filter" value="played"> Usada</label>
-                <label><input type="checkbox" class="condition-filter" value="poor"> Danificada</label>
-            </div>
-
-            <div class="offers-filter-group">
-                <span class="offers-filter-label">Idioma</span>
-                <label><input type="checkbox" class="language-filter" value="PT"> Português</label>
-                <label><input type="checkbox" class="language-filter" value="EN"> Inglês</label>
-                <label><input type="checkbox" class="language-filter" value="ES"> Espanhol</label>
-                <label><input type="checkbox" class="language-filter" value="JP"> Japonês</label>
-            </div>
-
-            <div class="offers-filter-group">
-                <span class="offers-filter-label">Variante</span>
-                <label><input type="checkbox" class="variant-filter" value="foil"> Só Foil</label>
-                <label><input type="checkbox" class="variant-filter" value="holo"> Só Holo</label>
-                <label><input type="checkbox" class="variant-filter" value="reverse_holo"> Só Reverse Holo</label>
-            </div>
-
-            <div class="offers-filter-group">
-                <span class="offers-filter-label">Preço</span>
-                <input type="number" id="priceMinFilter" placeholder="Mín. €" min="0" step="0.01" style="width:90px; padding:6px 8px; border:1px solid var(--border, #DDD6C8); border-radius:8px;">
-                <span>—</span>
-                <input type="number" id="priceMaxFilter" placeholder="Máx. €" min="0" step="0.01" style="width:90px; padding:6px 8px; border:1px solid var(--border, #DDD6C8); border-radius:8px;">
-            </div>
-
-            <div class="offers-filter-group">
-                <span class="offers-filter-label">Expansão</span>
-                <input type="text" id="setFilter" placeholder="Ex: Scarlet & Violet..." style="padding:6px 8px; border:1px solid var(--border, #DDD6C8); border-radius:8px; min-width:200px;">
-            </div>
 
         </div>
 
-        <div class="listing-results" id="marketCards">
+    </section>
 
-        </div>
 
-    </main>
+    <!-- QUICK GAME FILTERS -->
+    <div class="game-tabs">
 
-</section>
+        <button class="game-tab active" data-game="all">
+            Todos
+        </button>
+
+        <button class="game-tab" data-game="pokemon">
+            Pokémon
+        </button>
+
+        <button class="game-tab" data-game="onepiece">
+            One Piece
+        </button>
+
+        <button class="game-tab" data-game="yugioh">
+            Yu-Gi-Oh!
+        </button>
+
+        <button class="game-tab" data-game="magic">
+            Magic
+        </button>
+
+    </div>
+
+
+    <!-- MAIN MARKETPLACE -->
+    <section class="marketplace-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="marketplace-filters" id="filtersPanel">
+
+            <div class="filters-header">
+
+                <div>
+                    <span class="filters-kicker">REFINAR</span>
+                    <h2>Filtros</h2>
+                </div>
+
+                <button
+                    type="button"
+                    id="clearFilters"
+                    class="clear-filters"
+                >
+                    Limpar
+                </button>
+
+            </div>
+
+
+            <!-- CONDITION -->
+            <div class="filter-group">
+
+                <h3>Condição</h3>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="condition"
+                        value="near_mint"
+                    >
+                    <span>Near Mint</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="condition"
+                        value="mint"
+                    >
+                    <span>Mint</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="condition"
+                        value="excellent"
+                    >
+                    <span>Excellent</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="condition"
+                        value="good"
+                    >
+                    <span>Good</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="condition"
+                        value="played"
+                    >
+                    <span>Played</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="condition"
+                        value="poor"
+                    >
+                    <span>Poor</span>
+                </label>
+
+            </div>
+
+
+            <!-- LANGUAGE -->
+            <div class="filter-group">
+
+                <h3>Idioma</h3>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="language"
+                        value="EN"
+                    >
+                    <span>Inglês</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="language"
+                        value="PT"
+                    >
+                    <span>Português</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="language"
+                        value="JP"
+                    >
+                    <span>Japonês</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="language"
+                        value="ES"
+                    >
+                    <span>Espanhol</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="language"
+                        value="FR"
+                    >
+                    <span>Francês</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="checkbox"
+                        name="language"
+                        value="DE"
+                    >
+                    <span>Alemão</span>
+                </label>
+
+            </div>
+
+
+            <!-- PRICE -->
+            <div class="filter-group">
+
+                <h3>Preço</h3>
+
+                <div class="price-inputs">
+
+                    <div>
+                        <label for="minPrice">Mín.</label>
+
+                        <input
+                            type="number"
+                            id="minPrice"
+                            min="0"
+                            step="0.01"
+                            placeholder="0,00"
+                        >
+                    </div>
+
+                    <span>—</span>
+
+                    <div>
+                        <label for="maxPrice">Máx.</label>
+
+                        <input
+                            type="number"
+                            id="maxPrice"
+                            min="0"
+                            step="0.01"
+                            placeholder="999+"
+                        >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SELLERS -->
+            <div class="filter-group">
+
+                <h3>Vendedores</h3>
+
+                <label class="filter-check">
+                    <input
+                        type="radio"
+                        name="sellerCount"
+                        value="1"
+                        checked
+                    >
+                    <span>Qualquer número</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="radio"
+                        name="sellerCount"
+                        value="2"
+                    >
+                    <span>2 ou mais</span>
+                </label>
+
+                <label class="filter-check">
+                    <input
+                        type="radio"
+                        name="sellerCount"
+                        value="3"
+                    >
+                    <span>3 ou mais</span>
+                </label>
+
+            </div>
+
+        </aside>
+
+
+        <!-- RESULTS -->
+        <section class="marketplace-results">
+
+            <div class="results-toolbar">
+
+                <div class="results-count">
+                    <strong id="resultsCount">0</strong>
+                    <span>cartas encontradas</span>
+                </div>
+
+                <div class="results-actions">
+
+                    <button
+                        type="button"
+                        id="mobileFilterButton"
+                        class="mobile-filter-button"
+                    >
+                        ⚙ Filtros
+                    </button>
+
+                    <label class="sort-wrapper">
+
+                        <span>Ordenar por</span>
+
+                        <select id="sortSelect">
+
+                            <option value="price_asc">
+                                Preço mais baixo
+                            </option>
+
+                            <option value="price_desc">
+                                Preço mais alto
+                            </option>
+
+                            <option value="sellers_desc">
+                                Mais vendedores
+                            </option>
+
+                            <option value="name_asc">
+                                Nome A-Z
+                            </option>
+
+                        </select>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIVE FILTERS -->
+            <div
+                id="activeFilters"
+                class="active-filters"
+                hidden
+            ></div>
+
+
+            <!-- LOADING -->
+            <div
+                id="marketplaceLoading"
+                class="marketplace-loading"
+            >
+                <div class="loading-spinner"></div>
+
+                <p>
+                    A carregar cartas...
+                </p>
+            </div>
+
+
+            <!-- RESULTS -->
+            <div
+                id="marketCards"
+                class="marketplace-card-list"
+            ></div>
+
+
+            <!-- EMPTY -->
+            <div
+                id="marketplaceEmpty"
+                class="marketplace-empty"
+                hidden
+            >
+
+                <div class="empty-icon">
+                    🔎
+                </div>
+
+                <h2>Nenhuma carta encontrada</h2>
+
+                <p>
+                    Experimenta alterar a pesquisa ou remover alguns filtros.
+                </p>
+
+                <button
+                    type="button"
+                    id="emptyClearFilters"
+                    class="primary-marketplace-button"
+                >
+                    Limpar filtros
+                </button>
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
 
 <footer class="site-footer">
-    <p>&copy; 2026 TCGMarketPortugal <span class="footer-divider">·</span> <a href="sobre.html">Sobre Nós</a> <span class="footer-divider">·</span> <a href="contactos.html">Contactos</a> <span class="footer-divider">·</span> <a href="termos.html">Termos de Uso</a> <span class="footer-divider">·</span> <a href="privacidade.html">Privacidade</a> <span class="footer-divider">·</span> <a href="reembolsos.html">Reembolsos</a> <span class="footer-divider">·</span> <a href="envios.html">Envios</a> <span class="footer-divider">·</span> <a href="resolucao-de-conflitos.html">Resolução de Conflitos</a></p>
+    <p>
+        &copy; 2026 TCGMarketPortugal
+        <span class="footer-divider">·</span>
+        <a href="termos.html">Termos de Uso</a>
+        <span class="footer-divider">·</span>
+        <a href="privacidade.html">Privacidade</a>
+        <span class="footer-divider">·</span>
+        <a href="reembolsos.html">Reembolsos</a>
+    </p>
 </footer>
 
+
 <script src="../js/config.js"></script>
-<script src="../js/marketplace.js"></script>
 <script src="../js/auth-nav.js"></script>
+<script src="../js/marketplace.js"></script>
 
 </body>
 </html>

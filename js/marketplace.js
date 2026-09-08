@@ -1,266 +1,987 @@
-const container = document.getElementById("marketCards");
+document.addEventListener("DOMContentLoaded", () => {
 
-const CONDITION_LABELS = {
-    mint: "Mint",
-    near_mint: "Near Mint",
-    excellent: "Excelente",
-    good: "Boa",
-    played: "Usada",
-    poor: "Danificada",
-};
+    const API_BASE = window.API_BASE || "http://localhost:3000";
 
-const LANGUAGE_LABELS = {
-    PT: "Português", EN: "Inglês", ES: "Espanhol", FR: "Francês",
-    DE: "Alemão", IT: "Italiano", JP: "Japonês", KO: "Coreano", ZH: "Chinês",
-};
+    const searchInput = document.getElementById("searchInput");
+    const clearSearch = document.getElementById("clearSearch");
 
-const VARIANT_LABELS = {
-    foil: " ✨ Foil", holo: " ✨ Holo", reverse_holo: " ✨ Reverse Holo",
-};
+    const marketCards = document.getElementById("marketCards");
+    const resultsCount = document.getElementById("resultsCount");
 
-const GAME_LABELS = {
-    pokemon: "Pokémon", yugioh: "Yu-Gi-Oh!", magic: "Magic", onepiece: "One Piece",
-};
+    const loading = document.getElementById("marketplaceLoading");
+    const empty = document.getElementById("marketplaceEmpty");
 
-let allListings = [];
+    const sortSelect = document.getElementById("sortSelect");
 
-async function loadCards() {
+    const clearFiltersButton =
+        document.getElementById("clearFilters");
 
-    const response = await fetch(`${API_BASE}/listings`);
-    allListings = await response.json();
+    const emptyClearFilters =
+        document.getElementById("emptyClearFilters");
 
-    const params = new URLSearchParams(window.location.search);
-    const initialQuery = params.get("q");
-    if (initialQuery) {
-        document.getElementById("searchInput").value = initialQuery;
-    }
+    const activeFilters =
+        document.getElementById("activeFilters");
 
-    const initialGame = params.get("game");
-    if (initialGame) {
-        const gameCheckbox = document.querySelector(`.game-filter[value="${initialGame}"]`);
-        if (gameCheckbox) gameCheckbox.checked = true;
-    }
+    const mobileFilterButton =
+        document.getElementById("mobileFilterButton");
 
-    applyFiltersAndRender();
-}
+    const filtersPanel =
+        document.getElementById("filtersPanel");
 
-function applyFiltersAndRender() {
+    const minPriceInput =
+        document.getElementById("minPrice");
 
-    let listings = [...allListings];
+    const maxPriceInput =
+        document.getElementById("maxPrice");
 
-    const search = document.getElementById("searchInput").value.trim().toLowerCase();
-    if (search) {
-        listings = listings.filter(l => l.card_name.toLowerCase().includes(search));
-    }
+    const gameTabs =
+        document.querySelectorAll(".game-tab");
 
-    const checkedConditions = Array.from(document.querySelectorAll(".condition-filter:checked")).map(c => c.value);
-    if (checkedConditions.length > 0) {
-        listings = listings.filter(l => checkedConditions.includes(l.condition));
-    }
+    let allListings = [];
+    let groupedCards = [];
 
-    const checkedGames = Array.from(document.querySelectorAll(".game-filter:checked")).map(c => c.value);
-    if (checkedGames.length > 0) {
-        listings = listings.filter(l => checkedGames.includes(l.game));
-    }
+    let currentGame = "all";
 
-    const checkedLanguages = Array.from(document.querySelectorAll(".language-filter:checked")).map(c => c.value);
-    if (checkedLanguages.length > 0) {
-        listings = listings.filter(l => checkedLanguages.includes(l.language));
-    }
 
-    const checkedVariants = Array.from(document.querySelectorAll(".variant-filter:checked")).map(c => c.value);
-    if (checkedVariants.length > 0) {
-        listings = listings.filter(l => checkedVariants.includes(l.variant));
-    }
+    /* =====================================================
+       LABELS
+       ===================================================== */
 
-    const priceMin = document.getElementById("priceMinFilter")?.value;
-    if (priceMin !== "" && priceMin !== undefined) {
-        listings = listings.filter(l => Number(l.price) >= Number(priceMin));
-    }
+    const GAME_LABELS = {
+        pokemon: "Pokémon",
+        onepiece: "One Piece",
+        yugioh: "Yu-Gi-Oh!",
+        magic: "Magic"
+    };
 
-    const priceMax = document.getElementById("priceMaxFilter")?.value;
-    if (priceMax !== "" && priceMax !== undefined) {
-        listings = listings.filter(l => Number(l.price) <= Number(priceMax));
-    }
 
-    const setSearch = document.getElementById("setFilter")?.value.trim().toLowerCase();
-    if (setSearch) {
-        listings = listings.filter(l => (l.set_name || "").toLowerCase().includes(setSearch));
-    }
+    const CONDITION_LABELS = {
+        mint: "Mint",
+        near_mint: "Near Mint",
+        excellent: "Excellent",
+        good: "Good",
+        played: "Played",
+        poor: "Poor"
+    };
 
-    const totalActive = checkedConditions.length + checkedGames.length + checkedLanguages.length + checkedVariants.length
-        + (priceMin ? 1 : 0) + (priceMax ? 1 : 0) + (setSearch ? 1 : 0);
-    const countEl = document.getElementById("marketFiltersCount");
-    if (countEl) countEl.textContent = totalActive > 0 ? `(${totalActive})` : "";
 
-    const sortValue = document.getElementById("sortSelect")?.value;
-    if (sortValue === "price_asc") {
-        listings = [...listings].sort((a, b) => Number(a.price) - Number(b.price));
-    } else if (sortValue === "price_desc") {
-        listings = [...listings].sort((a, b) => Number(b.price) - Number(a.price));
-    }
+    const LANGUAGE_LABELS = {
+        EN: "Inglês",
+        PT: "Português",
+        JP: "Japonês",
+        ES: "Espanhol",
+        FR: "Francês",
+        DE: "Alemão"
+    };
 
-    renderListings(listings);
-}
 
-function renderListings(listings) {
+    /* =====================================================
+       HELPERS
+       ===================================================== */
 
-    container.innerHTML = "";
+    function escapeHtml(value) {
 
-const resultsCount = document.getElementById("resultsCount");
-const emptyState = document.getElementById("emptyState");
-
-if (listings.length === 0) {
-
-    if (resultsCount) resultsCount.textContent = "0 cartas encontradas";
-
-    if (emptyState) {
-        emptyState.style.display = "block";
-    }
-
-    return;
-}
-
-if (emptyState) {
-    emptyState.style.display = "none";
-}
-
-    // Agrupa os anúncios por carta (mesmo jogo + mesma carta) — mostra-se um
-    // resultado por carta, com o preço mais baixo e o número de vendedores,
-    // tal como a Cardmarket. Clicar leva à lista de todos os vendedores dessa carta.
-    const groups = {};
-
-    listings.forEach(listing => {
-        const key = `${listing.game}::${listing.card_id}`;
-
-        if (!groups[key]) {
-            groups[key] = {
-                game: listing.game,
-                card_id: listing.card_id,
-                card_name: listing.card_name,
-                card_image: listing.card_image,
-                listings: [],
-            };
+        if (value === null || value === undefined) {
+            return "";
         }
 
-        groups[key].listings.push(listing);
-    });
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
-    const groupedCards = Object.values(groups);
 
-    if (resultsCount) {
+    function formatPrice(value) {
+
+        return Number(value || 0).toLocaleString("pt-PT", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }) + " €";
+    }
+
+
+    function getSelectedValues(name) {
+
+        return Array.from(
+            document.querySelectorAll(
+                `input[name="${name}"]:checked`
+            )
+        ).map(input => input.value);
+
+    }
+
+
+    /* =====================================================
+       LOAD LISTINGS
+       ===================================================== */
+
+    async function loadListings() {
+
+        loading.hidden = false;
+        marketCards.innerHTML = "";
+        empty.hidden = true;
+
+        try {
+
+            const response = await fetch(
+                `${API_BASE}/listings`
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Erro ${response.status}`
+                );
+            }
+
+            const data = await response.json();
+
+            allListings = Array.isArray(data)
+                ? data
+                : (data.listings || []);
+
+            groupListings();
+
+            render();
+
+        } catch (error) {
+
+            console.error(
+                "Erro ao carregar marketplace:",
+                error
+            );
+
+            marketCards.innerHTML = `
+                <div class="marketplace-empty">
+                    <div class="empty-icon">⚠️</div>
+
+                    <h2>Não foi possível carregar o Marketplace</h2>
+
+                    <p>
+                        Verifica se o servidor está a correr
+                        e tenta novamente.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="primary-marketplace-button"
+                        onclick="location.reload()"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            `;
+
+            resultsCount.textContent = "0";
+
+        } finally {
+
+            loading.hidden = true;
+        }
+    }
+
+
+    /* =====================================================
+       GROUP LISTINGS BY CARD
+       ===================================================== */
+
+    function groupListings() {
+
+        const groups = new Map();
+
+        allListings.forEach(listing => {
+
+            if (!listing) {
+                return;
+            }
+
+            if (
+                listing.status &&
+                listing.status !== "active"
+            ) {
+                return;
+            }
+
+            if (
+                listing.quantity !== undefined &&
+                Number(listing.quantity) <= 0
+            ) {
+                return;
+            }
+
+            const cardId = String(
+                listing.card_id || ""
+            );
+
+            if (!cardId) {
+                return;
+            }
+
+            if (!groups.has(cardId)) {
+
+                groups.set(cardId, {
+                    card_id: cardId,
+
+                    card_name:
+                        listing.card_name ||
+                        "Carta sem nome",
+
+                    card_image:
+                        listing.card_image ||
+                        "",
+
+                    game:
+                        listing.game ||
+                        "pokemon",
+
+                    listings: []
+                });
+            }
+
+            groups.get(cardId).listings.push(listing);
+        });
+
+        groupedCards = Array.from(groups.values());
+    }
+
+
+    /* =====================================================
+       FILTER
+       ===================================================== */
+
+    function getFilteredCards() {
+
+        const search =
+            searchInput.value
+                .trim()
+                .toLowerCase();
+
+        const selectedConditions =
+            getSelectedValues("condition");
+
+        const selectedLanguages =
+            getSelectedValues("language");
+
+        const minPrice =
+            minPriceInput.value !== ""
+                ? Number(minPriceInput.value)
+                : null;
+
+        const maxPrice =
+            maxPriceInput.value !== ""
+                ? Number(maxPriceInput.value)
+                : null;
+
+        const minSellers =
+            Number(
+                document.querySelector(
+                    'input[name="sellerCount"]:checked'
+                )?.value || 1
+            );
+
+
+        let filtered = groupedCards
+            .map(card => {
+
+                let offers = [...card.listings];
+
+
+                /* GAME */
+
+                if (
+                    currentGame !== "all" &&
+                    card.game !== currentGame
+                ) {
+                    return null;
+                }
+
+
+                /* SEARCH */
+
+                if (
+                    search &&
+                    !card.card_name
+                        .toLowerCase()
+                        .includes(search)
+                ) {
+                    return null;
+                }
+
+
+                /* CONDITION */
+
+                if (selectedConditions.length > 0) {
+
+                    offers = offers.filter(listing =>
+                        selectedConditions.includes(
+                            String(listing.condition || "")
+                        )
+                    );
+                }
+
+
+                /* LANGUAGE */
+
+                if (selectedLanguages.length > 0) {
+
+                    offers = offers.filter(listing =>
+                        selectedLanguages.includes(
+                            String(listing.language || "")
+                                .toUpperCase()
+                        )
+                    );
+                }
+
+
+                /* PRICE */
+
+                offers = offers.filter(listing => {
+
+                    const price =
+                        Number(listing.price || 0);
+
+                    if (
+                        minPrice !== null &&
+                        price < minPrice
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        maxPrice !== null &&
+                        price > maxPrice
+                    ) {
+                        return false;
+                    }
+
+                    return true;
+                });
+
+
+                /* SELLERS */
+
+                const sellerIds = new Set(
+                    offers.map(listing =>
+                        listing.user_id ||
+                        listing.seller_id ||
+                        listing.id
+                    )
+                );
+
+                if (
+                    sellerIds.size < minSellers
+                ) {
+                    return null;
+                }
+
+
+                if (offers.length === 0) {
+                    return null;
+                }
+
+
+                const prices = offers.map(
+                    listing =>
+                        Number(listing.price || 0)
+                );
+
+
+                return {
+                    ...card,
+
+                    listings: offers,
+
+                    sellerCount: sellerIds.size,
+
+                    minPrice:
+                        Math.min(...prices)
+                };
+
+            })
+            .filter(Boolean);
+
+
+        return sortCards(filtered);
+    }
+
+
+    /* =====================================================
+       SORT
+       ===================================================== */
+
+    function sortCards(cards) {
+
+        const sort = sortSelect.value;
+
+        return cards.sort((a, b) => {
+
+            if (sort === "price_asc") {
+                return a.minPrice - b.minPrice;
+            }
+
+            if (sort === "price_desc") {
+                return b.minPrice - a.minPrice;
+            }
+
+            if (sort === "sellers_desc") {
+                return b.sellerCount - a.sellerCount;
+            }
+
+            if (sort === "name_asc") {
+                return a.card_name.localeCompare(
+                    b.card_name,
+                    "pt"
+                );
+            }
+
+            return 0;
+        });
+    }
+
+
+    /* =====================================================
+       RENDER
+       ===================================================== */
+
+    function render() {
+
+        const cards = getFilteredCards();
+
         resultsCount.textContent =
-            groupedCards.length === 1
-                ? "1 carta encontrada"
-                : `${groupedCards.length} cartas encontradas`;
-    }
+            cards.length.toLocaleString("pt-PT");
 
-    groupedCards.forEach(group => {
 
-        const lowestPrice = Math.min(...group.listings.map(l => Number(l.price)));
-        const sellerCount = new Set(group.listings.map(l => l.user_id)).size;
+        renderActiveFilters();
 
-        const card = document.createElement("div");
-        card.className = "listing-row-market";
-        card.style.cursor = "pointer";
 
-        card.innerHTML = `
-            <img src="${group.card_image ?? ""}" class="listing-row-img">
+        if (cards.length === 0) {
 
-            <div class="listing-row-name">
-                <a href="carta.html?game=${group.game}&card_id=${encodeURIComponent(group.card_id)}">${escapeHtml(group.card_name)}</a>
-            </div>
+            marketCards.innerHTML = "";
 
-            <div class="listing-row-seller">
-                <span>${sellerCount === 1 ? "1 vendedor" : `${sellerCount} vendedores`}</span>
-            </div>
+            empty.hidden = false;
 
-            <div class="listing-row-condition">${GAME_LABELS[group.game] ?? group.game}</div>
-
-            <div class="listing-row-qty"></div>
-
-            <div class="listing-row-price">
-                <span style="display:block; font-size:11px; font-weight:400; color:var(--text-dim, #6F6961);">a partir de</span>
-                ${lowestPrice.toFixed(2)} €
-            </div>
-
-            <span></span>
-        `;
-
-        card.addEventListener("click", () => {
-            window.location.href = `carta.html?game=${group.game}&card_id=${encodeURIComponent(group.card_id)}`;
-        });
-
-        container.appendChild(card);
-
-    });
-
-}
-
-document.getElementById("searchInput").addEventListener("input", applyFiltersAndRender);
-document.getElementById("sortSelect")?.addEventListener("change", applyFiltersAndRender);
-document.getElementById("setFilter")?.addEventListener("input", applyFiltersAndRender);
-document.querySelectorAll(".condition-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
-document.querySelectorAll(".game-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
-document.querySelectorAll(".language-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
-document.querySelectorAll(".variant-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
-document.getElementById("priceMinFilter")?.addEventListener("input", applyFiltersAndRender);
-document.getElementById("priceMaxFilter")?.addEventListener("input", applyFiltersAndRender);
-
-document.getElementById("marketFiltersToggle")?.addEventListener("click", () => {
-    const panel = document.getElementById("marketFilters");
-    panel.style.display = panel.style.display === "none" ? "flex" : "none";
-});
-
-async function quickAddToCart(listingId, button) {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        window.location.href = "login.html";
-        return;
-    }
-
-    const originalText = button.textContent;
-    button.disabled = true;
-    button.textContent = "...";
-
-    try {
-        const response = await fetch(`${API_BASE}/cart`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify({ listing_id: listingId, quantity: 1 }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            alert(data.error || "Erro ao adicionar ao carrinho.");
-            button.disabled = false;
-            button.textContent = originalText;
             return;
         }
 
-        button.textContent = "✓";
-        setTimeout(() => {
-            button.disabled = false;
-            button.textContent = originalText;
-        }, 1500);
 
-    } catch (error) {
-        console.error(error);
-        alert("Erro ao ligar ao servidor.");
-        button.disabled = false;
-        button.textContent = originalText;
+        empty.hidden = true;
+
+
+        marketCards.innerHTML =
+            cards.map(renderCard).join("");
     }
-}
 
-function escapeHtml(text) {
-    const div = document.createElement("div");
-    div.textContent = text ?? "";
-    return div.innerHTML;
-}
 
-loadCards();
+    /* =====================================================
+       CARD
+       ===================================================== */
+
+    function renderCard(card) {
+
+        const gameLabel =
+            GAME_LABELS[card.game] ||
+            card.game ||
+            "TCG";
+
+
+        const sellerText =
+            card.sellerCount === 1
+                ? "1 vendedor"
+                : `${card.sellerCount} vendedores`;
+
+
+        const image =
+            card.card_image ||
+            "";
+
+
+        const cardId =
+            encodeURIComponent(card.card_id);
+
+
+        const game =
+            encodeURIComponent(card.game);
+
+
+        return `
+            <article
+                class="market-card-row"
+                data-card-id="${escapeHtml(card.card_id)}"
+                onclick="openCard('${cardId}', '${game}')"
+            >
+
+                <div class="market-card-image-wrap">
+
+                    <img
+                        class="market-card-image"
+                        src="${escapeHtml(image)}"
+                        alt="${escapeHtml(card.card_name)}"
+                        loading="lazy"
+                        onerror="this.style.opacity='0.25'"
+                    >
+
+                </div>
+
+
+                <div class="market-card-info">
+
+                    <span class="market-card-game">
+                        ${escapeHtml(gameLabel)}
+                    </span>
+
+                    <h2 class="market-card-name">
+                        ${escapeHtml(card.card_name)}
+                    </h2>
+
+                    <div class="market-card-meta">
+
+                        <span>
+                            ${escapeHtml(sellerText)}
+                        </span>
+
+                        <span class="market-card-meta-dot">
+                            •
+                        </span>
+
+                        <span>
+                            Melhor oferta disponível
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="market-card-sellers">
+
+                    <strong class="sellers-number">
+                        ${escapeHtml(String(card.sellerCount))}
+                    </strong>
+
+                    <span class="sellers-label">
+                        ${card.sellerCount === 1
+                            ? "vendedor disponível"
+                            : "vendedores disponíveis"
+                        }
+                    </span>
+
+                </div>
+
+
+                <div class="market-card-price">
+
+                    <span class="price-label">
+                        Desde
+                    </span>
+
+                    <strong class="price-value">
+                        ${formatPrice(card.minPrice)}
+                    </strong>
+
+                    <span class="price-action">
+                        Ver ofertas →
+                    </span>
+
+                </div>
+
+            </article>
+        `;
+    }
+
+
+    /* =====================================================
+       OPEN CARD PAGE
+       ===================================================== */
+
+    window.openCard = function(cardId, game) {
+
+        window.location.href =
+            `carta.html?card_id=${cardId}&game=${game}`;
+    };
+
+
+    /* =====================================================
+       ACTIVE FILTERS
+       ===================================================== */
+
+    function renderActiveFilters() {
+
+        const chips = [];
+
+
+        if (currentGame !== "all") {
+
+            chips.push(`
+                <div class="active-filter">
+
+                    ${escapeHtml(
+                        GAME_LABELS[currentGame] ||
+                        currentGame
+                    )}
+
+                    <button
+                        type="button"
+                        data-remove-game
+                    >
+                        ×
+                    </button>
+
+                </div>
+            `);
+        }
+
+
+        getSelectedValues("condition")
+            .forEach(value => {
+
+                chips.push(`
+                    <div class="active-filter">
+
+                        ${escapeHtml(
+                            CONDITION_LABELS[value] ||
+                            value
+                        )}
+
+                        <button
+                            type="button"
+                            data-remove-condition="${escapeHtml(value)}"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+                `);
+            });
+
+
+        getSelectedValues("language")
+            .forEach(value => {
+
+                chips.push(`
+                    <div class="active-filter">
+
+                        ${escapeHtml(
+                            LANGUAGE_LABELS[value] ||
+                            value
+                        )}
+
+                        <button
+                            type="button"
+                            data-remove-language="${escapeHtml(value)}"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+                `);
+            });
+
+
+        if (minPriceInput.value !== "") {
+
+            chips.push(`
+                <div class="active-filter">
+
+                    Desde ${escapeHtml(
+                        minPriceInput.value
+                    )} €
+
+                    <button
+                        type="button"
+                        data-remove-min-price
+                    >
+                        ×
+                    </button>
+
+                </div>
+            `);
+        }
+
+
+        if (maxPriceInput.value !== "") {
+
+            chips.push(`
+                <div class="active-filter">
+
+                    Até ${escapeHtml(
+                        maxPriceInput.value
+                    )} €
+
+                    <button
+                        type="button"
+                        data-remove-max-price
+                    >
+                        ×
+                    </button>
+
+                </div>
+            `);
+        }
+
+
+        if (chips.length === 0) {
+
+            activeFilters.hidden = true;
+            activeFilters.innerHTML = "";
+
+            return;
+        }
+
+
+        activeFilters.hidden = false;
+
+        activeFilters.innerHTML =
+            chips.join("");
+    }
+
+
+    /* =====================================================
+       EVENTS
+       ===================================================== */
+
+    searchInput.addEventListener(
+        "input",
+        () => {
+
+            clearSearch.hidden =
+                searchInput.value.trim() === "";
+
+            render();
+        }
+    );
+
+
+    clearSearch.addEventListener(
+        "click",
+        () => {
+
+            searchInput.value = "";
+
+            clearSearch.hidden = true;
+
+            render();
+
+            searchInput.focus();
+        }
+    );
+
+
+    sortSelect.addEventListener(
+        "change",
+        render
+    );
+
+
+    document
+        .querySelectorAll(
+            'input[name="condition"], input[name="language"], input[name="sellerCount"]'
+        )
+        .forEach(input => {
+
+            input.addEventListener(
+                "change",
+                render
+            );
+        });
+
+
+    minPriceInput.addEventListener(
+        "input",
+        render
+    );
+
+
+    maxPriceInput.addEventListener(
+        "input",
+        render
+    );
+
+
+    gameTabs.forEach(tab => {
+
+        tab.addEventListener(
+            "click",
+            () => {
+
+                gameTabs.forEach(
+                    button =>
+                        button.classList.remove("active")
+                );
+
+                tab.classList.add("active");
+
+                currentGame =
+                    tab.dataset.game;
+
+                render();
+            }
+        );
+    });
+
+
+    /* CLEAR FILTERS */
+
+    function clearFilters() {
+
+        searchInput.value = "";
+
+        clearSearch.hidden = true;
+
+        currentGame = "all";
+
+
+        gameTabs.forEach(tab => {
+
+            tab.classList.toggle(
+                "active",
+                tab.dataset.game === "all"
+            );
+        });
+
+
+        document
+            .querySelectorAll(
+                'input[name="condition"], input[name="language"]'
+            )
+            .forEach(input => {
+                input.checked = false;
+            });
+
+
+        const sellerAny =
+            document.querySelector(
+                'input[name="sellerCount"][value="1"]'
+            );
+
+        if (sellerAny) {
+            sellerAny.checked = true;
+        }
+
+
+        minPriceInput.value = "";
+        maxPriceInput.value = "";
+
+
+        render();
+    }
+
+
+    clearFiltersButton.addEventListener(
+        "click",
+        clearFilters
+    );
+
+
+    emptyClearFilters.addEventListener(
+        "click",
+        clearFilters
+    );
+
+
+    /* ACTIVE FILTER REMOVE */
+
+    activeFilters.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest("button");
+
+            if (!button) {
+                return;
+            }
+
+
+            if (
+                button.hasAttribute("data-remove-game")
+            ) {
+
+                currentGame = "all";
+
+                gameTabs.forEach(tab => {
+
+                    tab.classList.toggle(
+                        "active",
+                        tab.dataset.game === "all"
+                    );
+                });
+            }
+
+
+            const condition =
+                button.dataset.removeCondition;
+
+            if (condition) {
+
+                const input =
+                    document.querySelector(
+                        `input[name="condition"][value="${CSS.escape(condition)}"]`
+                    );
+
+                if (input) {
+                    input.checked = false;
+                }
+            }
+
+
+            const language =
+                button.dataset.removeLanguage;
+
+            if (language) {
+
+                const input =
+                    document.querySelector(
+                        `input[name="language"][value="${CSS.escape(language)}"]`
+                    );
+
+                if (input) {
+                    input.checked = false;
+                }
+            }
+
+
+            if (
+                button.hasAttribute(
+                    "data-remove-min-price"
+                )
+            ) {
+                minPriceInput.value = "";
+            }
+
+
+            if (
+                button.hasAttribute(
+                    "data-remove-max-price"
+                )
+            ) {
+                maxPriceInput.value = "";
+            }
+
+
+            render();
+        }
+    );
+
+
+    /* MOBILE FILTER */
+
+    mobileFilterButton.addEventListener(
+        "click",
+        () => {
+
+            filtersPanel.classList.toggle(
+                "mobile-open"
+            );
+        }
+    );
+
+
+    /* =====================================================
+       START
+       ===================================================== */
+
+    loadListings();
+
+});
