@@ -38,60 +38,77 @@
 
     <section class="marketplace">
 
-    <aside class="filters">
-
-        <h2>Filtros</h2>
-
-        <h3>Jogo</h3>
-
-        <label><input type="checkbox" class="game-filter" value="pokemon"> Pokémon</label>
-        <label><input type="checkbox" class="game-filter" value="onepiece"> One Piece</label>
-        <label><input type="checkbox" class="game-filter" value="yugioh"> Yu-Gi-Oh!</label>
-        <label><input type="checkbox" class="game-filter" value="magic"> Magic</label>
-
-        <h3>Condição</h3>
-
-        <label><input type="checkbox" class="condition-filter" value="near_mint"> Near Mint</label>
-        <label><input type="checkbox" class="condition-filter" value="excellent"> Excelente</label>
-        <label><input type="checkbox" class="condition-filter" value="good"> Boa</label>
-        <label><input type="checkbox" class="condition-filter" value="played"> Usada</label>
-        <label><input type="checkbox" class="condition-filter" value="poor"> Danificada</label>
-
-        <h3>Idioma</h3>
-
-        <label><input type="checkbox" class="language-filter" value="PT"> Português</label>
-        <label><input type="checkbox" class="language-filter" value="EN"> Inglês</label>
-        <label><input type="checkbox" class="language-filter" value="ES"> Espanhol</label>
-        <label><input type="checkbox" class="language-filter" value="JP"> Japonês</label>
-
-        <h3>Variante</h3>
-
-        <label><input type="checkbox" class="variant-filter" value="foil"> Só Foil</label>
-        <label><input type="checkbox" class="variant-filter" value="holo"> Só Holo</label>
-        <label><input type="checkbox" class="variant-filter" value="reverse_holo"> Só Reverse Holo</label>
-
-        <h3>Expansão/Coleção</h3>
-
-        <input type="text" id="setFilter" placeholder="Ex: Scarlet & Violet..." class="marketplace-search">
-
-    </aside>
-
     <main class="results">
 
         <h2>Marketplace</h2>
 
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="🔍 Pesquisar pelo nome da carta..."
-            class="marketplace-search"
-        >
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="🔍 Pesquisar pelo nome da carta..."
+                class="marketplace-search"
+                style="flex:1; min-width:220px;"
+            >
 
-        <select id="sortSelect" class="marketplace-search" style="max-width:220px;">
-            <option value="">Ordenar por...</option>
-            <option value="price_asc">Preço: menor → maior</option>
-            <option value="price_desc">Preço: maior → menor</option>
-        </select>
+            <select id="sortSelect" class="marketplace-search" style="max-width:220px;">
+                <option value="">Ordenar por...</option>
+                <option value="price_asc">Preço: menor → maior</option>
+                <option value="price_desc">Preço: maior → menor</option>
+            </select>
+
+            <button type="button" id="marketFiltersToggle" class="offers-filters-toggle">
+                🔍 Filtros <span id="marketFiltersCount"></span> ▾
+            </button>
+        </div>
+
+        <div class="offers-filters" id="marketFilters" style="display:none;">
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Jogo</span>
+                <label><input type="checkbox" class="game-filter" value="pokemon"> Pokémon</label>
+                <label><input type="checkbox" class="game-filter" value="onepiece"> One Piece</label>
+                <label><input type="checkbox" class="game-filter" value="yugioh"> Yu-Gi-Oh!</label>
+                <label><input type="checkbox" class="game-filter" value="magic"> Magic</label>
+            </div>
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Condição</span>
+                <label><input type="checkbox" class="condition-filter" value="near_mint"> Near Mint</label>
+                <label><input type="checkbox" class="condition-filter" value="excellent"> Excelente</label>
+                <label><input type="checkbox" class="condition-filter" value="good"> Boa</label>
+                <label><input type="checkbox" class="condition-filter" value="played"> Usada</label>
+                <label><input type="checkbox" class="condition-filter" value="poor"> Danificada</label>
+            </div>
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Idioma</span>
+                <label><input type="checkbox" class="language-filter" value="PT"> Português</label>
+                <label><input type="checkbox" class="language-filter" value="EN"> Inglês</label>
+                <label><input type="checkbox" class="language-filter" value="ES"> Espanhol</label>
+                <label><input type="checkbox" class="language-filter" value="JP"> Japonês</label>
+            </div>
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Variante</span>
+                <label><input type="checkbox" class="variant-filter" value="foil"> Só Foil</label>
+                <label><input type="checkbox" class="variant-filter" value="holo"> Só Holo</label>
+                <label><input type="checkbox" class="variant-filter" value="reverse_holo"> Só Reverse Holo</label>
+            </div>
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Preço</span>
+                <input type="number" id="priceMinFilter" placeholder="Mín. €" min="0" step="0.01" style="width:90px; padding:6px 8px; border:1px solid var(--border, #DDD6C8); border-radius:8px;">
+                <span>—</span>
+                <input type="number" id="priceMaxFilter" placeholder="Máx. €" min="0" step="0.01" style="width:90px; padding:6px 8px; border:1px solid var(--border, #DDD6C8); border-radius:8px;">
+            </div>
+
+            <div class="offers-filter-group">
+                <span class="offers-filter-label">Expansão</span>
+                <input type="text" id="setFilter" placeholder="Ex: Scarlet & Violet..." style="padding:6px 8px; border:1px solid var(--border, #DDD6C8); border-radius:8px; min-width:200px;">
+            </div>
+
+        </div>
 
         <div class="listing-results" id="marketCards">
 

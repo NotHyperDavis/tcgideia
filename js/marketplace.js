@@ -73,10 +73,25 @@ function applyFiltersAndRender() {
         listings = listings.filter(l => checkedVariants.includes(l.variant));
     }
 
+    const priceMin = document.getElementById("priceMinFilter")?.value;
+    if (priceMin !== "" && priceMin !== undefined) {
+        listings = listings.filter(l => Number(l.price) >= Number(priceMin));
+    }
+
+    const priceMax = document.getElementById("priceMaxFilter")?.value;
+    if (priceMax !== "" && priceMax !== undefined) {
+        listings = listings.filter(l => Number(l.price) <= Number(priceMax));
+    }
+
     const setSearch = document.getElementById("setFilter")?.value.trim().toLowerCase();
     if (setSearch) {
         listings = listings.filter(l => (l.set_name || "").toLowerCase().includes(setSearch));
     }
+
+    const totalActive = checkedConditions.length + checkedGames.length + checkedLanguages.length + checkedVariants.length
+        + (priceMin ? 1 : 0) + (priceMax ? 1 : 0) + (setSearch ? 1 : 0);
+    const countEl = document.getElementById("marketFiltersCount");
+    if (countEl) countEl.textContent = totalActive > 0 ? `(${totalActive})` : "";
 
     const sortValue = document.getElementById("sortSelect")?.value;
     if (sortValue === "price_asc") {
@@ -189,6 +204,13 @@ document.querySelectorAll(".condition-filter").forEach(cb => cb.addEventListener
 document.querySelectorAll(".game-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
 document.querySelectorAll(".language-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
 document.querySelectorAll(".variant-filter").forEach(cb => cb.addEventListener("change", applyFiltersAndRender));
+document.getElementById("priceMinFilter")?.addEventListener("input", applyFiltersAndRender);
+document.getElementById("priceMaxFilter")?.addEventListener("input", applyFiltersAndRender);
+
+document.getElementById("marketFiltersToggle")?.addEventListener("click", () => {
+    const panel = document.getElementById("marketFilters");
+    panel.style.display = panel.style.display === "none" ? "flex" : "none";
+});
 
 async function quickAddToCart(listingId, button) {
     const token = localStorage.getItem("token");

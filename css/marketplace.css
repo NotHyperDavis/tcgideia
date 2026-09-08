@@ -1,15 +1,10 @@
 .marketplace {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 30px;
     padding: 40px 60px;
 }
 
 @media (max-width: 860px) {
     .marketplace {
-        grid-template-columns: 1fr;
         padding: 24px 16px;
-        gap: 20px;
     }
 }
 
@@ -300,4 +295,79 @@
 .card .rating-badge,
 .card .rating-badge--empty {
     color: #FFFFFF !important;
+}
+/* ---- Painel de filtros compacto (abre/fecha) ---- */
+
+.offers-filters-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border: 1px solid var(--border, #DDD6C8);
+    border-radius: 10px;
+    background: var(--panel, #FFFFFF);
+    color: var(--text, #201D1A);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.offers-filters-toggle:hover {
+    border-color: var(--accent, #8B1E2D);
+}
+
+#marketFiltersCount {
+    color: var(--accent, #8B1E2D);
+    font-weight: 700;
+}
+
+.offers-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    background: var(--panel-2, #F8F5EF);
+    border: 1px solid var(--border, #DDD6C8);
+    border-radius: 12px;
+}
+
+.offers-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.offers-filter-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim, #6F6961);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-right: 2px;
+    min-width: 70px;
+}
+
+.offers-filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--text, #201D1A);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.offers-filter-group input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+
+@media (max-width: 720px) {
+    .offers-filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
