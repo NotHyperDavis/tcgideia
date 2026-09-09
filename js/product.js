@@ -1041,6 +1041,29 @@ function renderBuyArea(listing) {
             </div>
 
 
+            <!-- SHIPPING SERVICE -->
+
+            <div class="checkout-section">
+
+                <h3 class="checkout-section-title">
+                    📦 Serviço de envio
+                </h3>
+
+                <div class="form-group">
+                    <select id="buyShippingService">
+                        <option value="normal" ${listing.shipping_service === "normal" ? "selected" : ""}>Correio Normal — mais barato, sem rastreio</option>
+                        <option value="azul" ${(!listing.shipping_service || listing.shipping_service === "azul") ? "selected" : ""}>Correio Azul — mais rápido, sem rastreio</option>
+                        <option value="registado" ${listing.shipping_service === "registado" ? "selected" : ""}>Correio Registado — com rastreio e prova de entrega</option>
+                    </select>
+                </div>
+
+                <p style="margin:6px 0 0; color:#64748b; font-size:11px; line-height:1.5;">
+                    O vendedor sugeriu "${{ normal: "Correio Normal", azul: "Correio Azul", registado: "Correio Registado" }[listing.shipping_service] ?? "Correio Azul"}", mas podes escolher outro serviço — o preço dos portes ajusta-se automaticamente.
+                </p>
+
+            </div>
+
+
             <!-- PAYMENT -->
 
             <div class="checkout-section">
@@ -1276,6 +1299,7 @@ async function submitOrder(e, listing) {
 
     const quantity = document.getElementById("quantity").value;
     const payment_method = document.querySelector('input[name="payment_method"]:checked').value;
+    const shipping_service = document.getElementById("buyShippingService").value;
     const buyMessage = document.getElementById("buyMessage");
 
     const shipping = {
@@ -1295,7 +1319,7 @@ async function submitOrder(e, listing) {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`,
                 },
-                body: JSON.stringify({ listing_id: listing.id, quantity, shipping }),
+                body: JSON.stringify({ listing_id: listing.id, quantity, shipping, shipping_service }),
             });
 
             const data = await response.json();
@@ -1327,6 +1351,7 @@ async function submitOrder(e, listing) {
                 quantity,
                 payment_method,
                 shipping,
+                shipping_service,
             }),
         });
 

@@ -52,7 +52,7 @@ function calcShipping(totalWeightGrams, country = "PT", service = "azul") {
 
 // Comprometer-se a comprar (equivalente ao "commit to buy" do Cardmarket)
 router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
-    const { listing_id, quantity, payment_method, shipping } = req.body;
+    const { listing_id, quantity, payment_method, shipping, shipping_service } = req.body;
 
     if (!listing_id || !quantity || !payment_method) {
         return res.status(400).json({ error: "Indica a carta, a quantidade e o método de pagamento." });
@@ -108,9 +108,15 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
         const sellerAccountResult = await client.query("SELECT account_type FROM users WHERE id = $1", [listing.user_id]);
         const sellerAccountType = sellerAccountResult.rows[0]?.account_type || "individual";
 
+        const chosenShippingService = shipping_service || listing.shipping_service || "azul";
+        if (!VALID_SHIPPING_SERVICES.includes(chosenShippingService)) {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ error: "Serviço de envio inválido." });
+        }
+
         const basePrice = Number((listing.price * quantity).toFixed(2));
         const totalWeight = 10 + (listing.weight_grams || 5) * quantity; // 10g de embalagem + peso real de cada carta
-        const shippingCost = calcShipping(totalWeight, buyerCountry, listing.shipping_service);
+        const shippingCost = calcShipping(totalWeight, buyerCountry, chosenShippingService);
 
         // O comprador paga só o preço da carta + portes reais.
         const totalPrice = Number((basePrice + shippingCost).toFixed(2));
@@ -143,7 +149,7 @@ router.post("/", requireAuth, requireVerifiedEmail, async (req, res) => {
             [
                 listing.id, req.user.id, listing.user_id, quantity, listing.price, totalPrice, payment_method,
                 initialPaymentStatus,
-                platformFee, sellerPayout, shippingCost, listing.shipping_service,
+                platformFee, sellerPayout, shippingCost, chosenShippingService,
                 shipping.name, shipping.address_line, shipping.postal_code, shipping.city, buyerCountry, conversationId
             ]
         );

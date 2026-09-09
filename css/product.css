@@ -702,7 +702,7 @@ body {
 
     background: transparent;
 
-    color: var(--product-border);
+    color: black(--product-border);
 
     font-size: 14px;
     font-weight: 700;
@@ -741,7 +741,7 @@ body {
 .checkout-section-title {
     margin: 0 0 14px;
 
-    color: white;
+    color: black;
 
     font-size: 14px;
     font-weight: 700;
@@ -782,7 +782,7 @@ body {
 
     background: var(--product-bg);
 
-    color: white;
+    color: black;
 
     outline: none;
 

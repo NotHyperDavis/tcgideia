@@ -31,6 +31,8 @@ const CTT_RATES = {
     },
 };
 
+const VALID_SHIPPING_SERVICES = ["normal", "azul", "registado"];
+
 function calcShipping(totalWeightGrams, country = "PT", service = "azul") {
     const table = CTT_RATES[service] || CTT_RATES.azul;
     const bands = table[country === "ES" ? "ES" : "PT"];
@@ -50,7 +52,7 @@ function calcShipping(totalWeightGrams, country = "PT", service = "azul") {
 // contrário de uma "destination charge", aqui NÃO usamos transfer_data/application_fee_amount
 // na criação da sessão — isso faria o dinheiro sair logo no momento do pagamento.
 router.post("/session", requireAuth, requireVerifiedEmail, async (req, res) => {
-    const { listing_id, quantity, shipping } = req.body;
+    const { listing_id, quantity, shipping, shipping_service } = req.body;
 
     if (!listing_id || !quantity) {
         return res.status(400).json({ error: "Indica a carta e a quantidade." });
@@ -90,9 +92,14 @@ router.post("/session", requireAuth, requireVerifiedEmail, async (req, res) => {
         const buyerResult = await pool.query("SELECT country FROM users WHERE id = $1", [req.user.id]);
         const buyerCountry = buyerResult.rows[0]?.country || "PT";
 
+        const chosenShippingService = shipping_service || listing.shipping_service || "azul";
+        if (!VALID_SHIPPING_SERVICES.includes(chosenShippingService)) {
+            return res.status(400).json({ error: "Serviço de envio inválido." });
+        }
+
         const basePrice = Number((listing.price * quantity).toFixed(2));
         const totalWeight = 10 + (listing.weight_grams || 5) * quantity;
-        const shippingCost = calcShipping(totalWeight, buyerCountry, listing.shipping_service);
+        const shippingCost = calcShipping(totalWeight, buyerCountry, chosenShippingService);
 
         // O comprador paga só o preço da carta + portes reais.
         const totalPrice = Number((basePrice + shippingCost).toFixed(2));
@@ -129,7 +136,7 @@ router.post("/session", requireAuth, requireVerifiedEmail, async (req, res) => {
                 shipping_postal_code: shipping.postal_code,
                 shipping_city: shipping.city,
                 shipping_country: buyerCountry,
-                shipping_service: listing.shipping_service || "azul",
+                shipping_service: chosenShippingService,
                 platform_fee: String(platformFee),
                 total_price: String(totalPrice),
                 seller_payout: String(sellerPayout),
