@@ -66,6 +66,11 @@ async function loadPurchases() {
                     <p>Total a transferir para o site: <strong>${Number(order.total_price).toFixed(2)} €</strong>
                         (cartas ${Number(order.unit_price * order.quantity).toFixed(2)} € + portes ${Number(order.shipping_cost).toFixed(2)} €)</p>
                     <p>Pagamento: ${PAYMENT_STATUS_LABELS[order.payment_status]} · Estado: ${STATUS_LABELS[order.status]}</p>
+                    ${order.payment_method === "bank_transfer" && order.payment_status === "pending" ? `
+                        <p style="background:var(--panel-2, #F8F5EF); border:1px solid var(--border, #DDD6C8); border-radius:8px; padding:10px 12px; font-size:13px;">
+                            💳 Transfere <strong>${Number(order.total_price).toFixed(2)} €</strong> para o IBAN do site, com a referência <strong>TCG-${getMyId()}</strong> (o teu código de conta) na descrição da transferência.
+                        </p>
+                    ` : ""}
                     ${order.payment_status === "paid" ? `<button class="invoice-btn" data-order-id="${order.id}">📄 Recibo</button>` : ""}
                     ${order.payment_method === "wallet" && order.payment_status === "pending" && order.status === "committed" ? `<button class="pay-now-btn">💳 Pagar agora</button>` : ""}
                     ${order.status === "committed" ? `<button class="cancel-btn">Cancelar</button>` : ""}
@@ -427,4 +432,15 @@ async function submitReview(
 
     }
 
+}
+
+function getMyId() {
+    if (!token) return null;
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.id;
+    } catch (error) {
+        console.error("Erro ao ler token:", error);
+        return null;
+    }
 }

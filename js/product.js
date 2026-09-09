@@ -1348,6 +1348,7 @@ async function submitOrder(e, listing) {
                 Compromisso registado! Total a transferir: <strong>${Number(data.total_price).toFixed(2)} €</strong>
                 (cartas + ${Number(data.shipping_cost).toFixed(2)} € de portes).<br>
                 Transfere esse valor para o IBAN do site (substitui este texto pelo teu IBAN real).<br>
+                <strong>Importante:</strong> escreve <strong>TCG-${getMyId()}</strong> na descrição da transferência — é o teu código de conta, usa-o sempre em todas as transferências que fizeres.<br>
                 Assim que o site confirmar o pagamento, o vendedor é notificado para enviar a carta.
                 Vê o estado em <a href="encomendas.html">As Minhas Encomendas</a>.
             `;
@@ -1468,4 +1469,15 @@ function escapeHtml(text) {
     const div = document.createElement("div");
     div.textContent = text ?? "";
     return div.innerHTML;
+}
+
+function getMyId() {
+    if (!token) return null;
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.id;
+    } catch (error) {
+        console.error("Erro ao ler token:", error);
+        return null;
+    }
 }

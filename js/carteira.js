@@ -105,6 +105,11 @@ async function loadWallet() {
                             ${method ? ` · ${method}` : ""}
                             <span class="wallet-movement-status">${statusLabel(m.status)}</span>
                         </p>
+                        ${m.direction === "in" && m.method === "bank_transfer" && m.status === "pending" ? `
+                            <p style="font-size:12px; color:var(--text-dim, #6F6961); margin-top:4px;">
+                                Referência a usar: <strong>TCG-${getMyId()}</strong>
+                            </p>
+                        ` : ""}
                     </div>
                     <div class="wallet-movement-amount ${isIn ? "in" : "out"}">
                         ${isIn ? "+" : "−"}${formatMoney(m.amount)}
@@ -202,7 +207,7 @@ document.getElementById("depositForm").addEventListener("submit", async (e) => {
             return;
         }
 
-        message.textContent = "Pedido enviado! Assim que confirmarmos a transferência, o saldo é atualizado.";
+        message.innerHTML = `Pedido enviado! Transfere <strong>${Number(amount).toFixed(2)} €</strong> para o IBAN do site, com a referência <strong>TCG-${getMyId()}</strong> (o teu código de conta) na descrição da transferência. Assim que confirmarmos, o saldo é atualizado.`;
         document.getElementById("depositForm").reset();
         loadWallet();
     } catch (error) {
@@ -244,3 +249,14 @@ document.getElementById("withdrawForm").addEventListener("submit", async (e) => 
         message.textContent = "Erro ao ligar ao servidor.";
     }
 });
+
+function getMyId() {
+    if (!token) return null;
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.id;
+    } catch (error) {
+        console.error("Erro ao ler token:", error);
+        return null;
+    }
+}
