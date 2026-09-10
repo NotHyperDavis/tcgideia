@@ -1,0 +1,35 @@
+# CI pipeline: installs backend dependencies and runs the test suite.
+name: Build and Test
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-and-test:
+    name: Install & test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          # Only the backend has a package-lock.json, the frontend is plain JS/CSS/HTML.
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: server
+        # npm ci (not npm install) so the build uses exactly what's in package-lock.json.
+        run: npm ci
+
+      - name: Run test suite
+        working-directory: server
+        run: npm test
+
