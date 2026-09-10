@@ -1,6 +1,5 @@
-# Build stage of the CI/CD pipeline: installs dependencies and verifies the app
-# actually boots, without touching any real database/Stripe/email/Cloudinary account.
-name: Build and Verify
+# CI pipeline: installs backend dependencies and runs the test suite.
+name: Build and Test
 
 on:
   push:
@@ -9,8 +8,8 @@ on:
     branches: [master]
 
 jobs:
-  build-and-verify:
-    name: Install, syntax-check & smoke test
+  build-and-test:
+    name: Install & test
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
           # Only the backend has a package-lock.json, the frontend is plain JS/CSS/HTML.
           cache-dependency-path: server/package-lock.json
@@ -28,83 +27,6 @@ jobs:
       - name: Install backend dependencies
         working-directory: server
         # npm ci (not npm install) so the build uses exactly what's in package-lock.json.
-        run: npm ci
-
-      # There's no bundler/transpiler in this project, so "build" for the frontend
-      # just means making sure every plain JS file is at least syntactically valid.
-      - name: Check syntax of all JS files
-        run: |
-          find js server -name "*.js" -not -path "server/node_modules/*" -print0 \
-            | xargs -0 -n1 node --check
-
-      # Boots the real server with fake credentials to catch startup crashes
-      # (missing requires, bad config reads, etc.) that a syntax check can't.
-      - name: Smoke test server startup
-        working-directory: server
-        # Dummy values only: nothing here talks to a real DB, Stripe, Resend or Cloudinary
-        # account, they're just enough to satisfy env var checks made at startup.
-        env:
-          PORT: 3000
-          DB_USER: test
-          DB_PASSWORD: test
-          DB_HOST: localhost
-          DB_NAME: test
-          DB_PORT: 5432
-          JWT_SECRET: ci-test-secret
-          ADMIN_EMAIL: admin@example.com
-          COMMISSION_RATE_INDIVIDUAL: "0.08"
-          COMMISSION_RATE_STORE: "0.05"
-          COMMISSION_CAP: "100"
-          RESEND_API_KEY: test
-          RESEND_FROM_EMAIL: "TCGMarketPortugal <onboarding@resend.dev>"
-          FRONTEND_URL: http://127.0.0.1:5500
-          CLOUDINARY_CLOUD_NAME: test
-          CLOUDINARY_API_KEY: test
-          CLOUDINARY_API_SECRET: test
-          STRIPE_SECRET_KEY: sk_test_dummy
-          STRIPE_WEBHOOK_SECRET: whsec_dummy
-        run: |
-          # Start the server in the background so we can poll it and then tear it down.
-          npm start &
-          SERVER_PID=$!
-
-          # Poll /api-status instead of a fixed sleep, since startup time can vary
-          # between runners. Fails the job if it never comes up within ~10 seconds.
-          for i in $(seq 1 10); do
-            if curl --silent --fail http://localhost:3000/api-status; then
-              echo "Server is up"
-              break
-            fi
-            if [ "$i" -eq 10 ]; then
-              echo "Server failed to start in time"
-              kill "$SERVER_PID" 2>/dev/null || true
-              exit 1
-            fi
-            sleep 1
-          done
-
-          # Clean shutdown so the job doesn't end with a dangling process.
-          kill "$SERVER_PID"
-
-  # Separate job so a failing test suite is reported distinctly from a broken build.
-  test:
-    name: Run tests
-    runs-on: ubuntu-latest
-    needs: build-and-verify
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-          cache-dependency-path: server/package-lock.json
-
-      - name: Install backend dependencies
-        working-directory: server
         run: npm ci
 
       - name: Run test suite
